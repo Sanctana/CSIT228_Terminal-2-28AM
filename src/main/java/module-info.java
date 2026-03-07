@@ -10,6 +10,7 @@ module org.example.terminal228am {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires java.desktop;
 
     opens org.example.terminal228am to javafx.fxml;
     exports org.example.terminal228am;
