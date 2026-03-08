@@ -17,7 +17,7 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
 
         if(code == KeyEvent.VK_W){
-            upPressed = true;
+            upPressed = true; //D
         }
         if(code == KeyEvent.VK_S){
             downPressed = true;
