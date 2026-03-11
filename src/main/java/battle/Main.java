@@ -11,5 +11,6 @@ public class Main {
         frame.setResizable(false);
         frame.setContentPane(new Panel());
         frame.setVisible(true);
+        //Test
     }
 }
