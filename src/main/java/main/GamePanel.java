@@ -1,9 +1,11 @@
-package test.characterdisplay;
+package main;
 
+import environment.EnvironmentManager;
 import entity.Player;
 import tile.TileManager;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
@@ -13,7 +15,7 @@ public class GamePanel extends JPanel implements Runnable{
     final int scale = 4;
 
     public final int tileSize = originalTileSize * scale;   //64 by 64
-    public final int maxScreenCol = 16;
+    public final int maxScreenCol = 20;
     public final int maxScreenRow = 12;
     public final int screenWidth = tileSize *  maxScreenCol;
     public final int screenHeight = tileSize *  maxScreenRow;
@@ -21,20 +23,28 @@ public class GamePanel extends JPanel implements Runnable{
     //WORLD SETTING
     public final int maxWorldCol = 64;
     public final int maxWorldRow = 64;
-    public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldHeight = tileSize *  maxWorldRow;
+
+    //FULL SCREEN
+    int screenWidth2 = screenWidth;
+    int screenHeight2 = screenHeight;
+    BufferedImage tempScreen;
+    Graphics2D g2;
 
     int FPS = 60;
 
-    TileManager tileM = new TileManager(this);
-    KeyHandler keyH = new KeyHandler();
+    public TileManager tileM = new TileManager(this);
+    KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
+    public AssetSetter aSetter = new AssetSetter(this);
+    public UI ui = new UI(this);
     public Player player = new Player(this,keyH);
 
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
+    public int gameState;
+    public final int playState = 1;
+    public final int pauseState = 2;
+
+    EnvironmentManager eManager = new EnvironmentManager(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -42,6 +52,25 @@ public class GamePanel extends JPanel implements Runnable{
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+    }
+
+    public void setupGame() {
+        eManager.setup();
+        gameState = playState;
+
+        tempScreen = new BufferedImage(screenWidth,screenHeight,BufferedImage.TYPE_INT_ARGB);
+        g2 = (Graphics2D) tempScreen.getGraphics();
+
+//      setFullScreen();  //TO FULL SCREEN
+    }
+
+    public void setFullScreen() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        gd.setFullScreenWindow(Main.window);
+
+        screenWidth2 = Main.window.getWidth();
+        screenHeight2 = Main.window.getHeight();
     }
 
     public void startGameThread() {
@@ -66,7 +95,8 @@ public class GamePanel extends JPanel implements Runnable{
 
             if(delta>=1) {
                 update();
-                repaint();
+                drawToTempScreen();
+                drawToScreen();
                 delta--;
                 drawCount++;
             }
@@ -79,17 +109,25 @@ public class GamePanel extends JPanel implements Runnable{
         }
     }
     public void update() {
-        player.update();
+        if(gameState == playState) {
+            player.update();
+        }
+        if(gameState == pauseState) {
+            //Nothing
+        }
     }
 
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
+    public void drawToTempScreen() {
         tileM.draw(g2);
         player.draw(g2);
 
-        g2.dispose();
+        eManager.draw(g2);
+        ui.draw(g2);
+    }
+
+    public void drawToScreen() {
+        Graphics g = getGraphics();
+        g.drawImage(tempScreen,0,0,screenWidth2,screenHeight2,null);
+        g.dispose();
     }
 }

@@ -1,4 +1,4 @@
-package test.characterdisplay;
+package main;
 
 import entity.Entity;
 
