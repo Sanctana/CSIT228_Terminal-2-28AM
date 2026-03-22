@@ -9,22 +9,22 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-public class GamePanel extends JPanel implements Runnable{
+public class GamePanel extends JPanel implements Runnable {
 
     final int originalTileSize = 16;
     final int scale = 4;
 
-    public final int tileSize = originalTileSize * scale;   //64 by 64
+    public final int tileSize = originalTileSize * scale; // 64 by 64
     public final int maxScreenCol = 20;
     public final int maxScreenRow = 12;
-    public final int screenWidth = tileSize *  maxScreenCol;
-    public final int screenHeight = tileSize *  maxScreenRow;
+    public final int screenWidth = tileSize * maxScreenCol;
+    public final int screenHeight = tileSize * maxScreenRow;
 
-    //WORLD SETTING
+    // WORLD SETTING
     public final int maxWorldCol = 64;
     public final int maxWorldRow = 64;
 
-    //FULL SCREEN
+    // FULL SCREEN
     int screenWidth2 = screenWidth;
     int screenHeight2 = screenHeight;
     BufferedImage tempScreen;
@@ -38,7 +38,7 @@ public class GamePanel extends JPanel implements Runnable{
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
-    public Player player = new Player(this,keyH);
+    public Player player = new Player(this, keyH);
 
     public int gameState;
     public final int playState = 1;
@@ -58,10 +58,10 @@ public class GamePanel extends JPanel implements Runnable{
         eManager.setup();
         gameState = playState;
 
-        tempScreen = new BufferedImage(screenWidth,screenHeight,BufferedImage.TYPE_INT_ARGB);
+        tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D) tempScreen.getGraphics();
 
-//      setFullScreen();  //TO FULL SCREEN
+        // setFullScreen(); //TO FULL SCREEN
     }
 
     public void setFullScreen() {
@@ -79,21 +79,21 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     public void run() {
-        double drawInterval = 1000000000/FPS;
+        double drawInterval = 1000000000 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
         long timer = 0;
         int drawCount = 0;
 
-        while(gameThread != null) {
+        while (gameThread != null) {
             currentTime = System.nanoTime();
 
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
-            if(delta>=1) {
+            if (delta >= 1) {
                 update();
                 drawToTempScreen();
                 drawToScreen();
@@ -101,19 +101,20 @@ public class GamePanel extends JPanel implements Runnable{
                 drawCount++;
             }
 
-            if(timer >= 1000000000) {
+            if (timer >= 1000000000) {
                 System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
         }
     }
+
     public void update() {
-        if(gameState == playState) {
+        if (gameState == playState) {
             player.update();
         }
-        if(gameState == pauseState) {
-            //Nothing
+        if (gameState == pauseState) {
+            // Nothing
         }
     }
 
@@ -127,7 +128,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     public void drawToScreen() {
         Graphics g = getGraphics();
-        g.drawImage(tempScreen,0,0,screenWidth2,screenHeight2,null);
+        g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
         g.dispose();
     }
 }

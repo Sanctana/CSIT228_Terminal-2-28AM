@@ -23,7 +23,7 @@ public class CollisionChecker {
 
         int tileNum1, tileNum2;
 
-        switch(entity.direction){
+        switch (entity.direction) {
 
             case "up":
                 entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize;
@@ -53,7 +53,7 @@ public class CollisionChecker {
                 return;
         }
 
-        if(gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision){
+        if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
             entity.collisionOn = true;
         }
     }

@@ -37,7 +37,7 @@ public class Panel extends JPanel {
         escalateBtn = createActionBtn("ESCALATE", "Attempt execute", new Color(150, 60, 60));
 
         suppressBtn.addActionListener(e -> {
-            int damage = (int)(Math.random() * 11) + 10;  // random 10-20
+            int damage = (int) (Math.random() * 11) + 10; // random 10-20
             enemyHP = Math.max(0, enemyHP - damage);
             repaint();
         });
@@ -52,7 +52,8 @@ public class Panel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g; // used Graphics2D to match the background ui instead Graphics, basically more smooth tan awn match sa ka andrew na ui
+        Graphics2D g2 = (Graphics2D) g; // used Graphics2D to match the background ui instead Graphics, basically more
+                                        // smooth tan awn match sa ka andrew na ui
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int w = getWidth(); // getting current width n height
@@ -68,7 +69,6 @@ public class Panel extends JPanel {
 
         updateButtons(w, hudY, sidePad);
     }
-
 
     private void drawWorld(Graphics2D g, int w, int h) {
         if (background != null) {
@@ -159,8 +159,8 @@ public class Panel extends JPanel {
         g.drawString("PATIENT: ANDREW", x, y - 13);
 
         g.setColor(new Color(100, 255, 200));
-        int[] px = {x+10, x+45, x+55, x+65, x+75, x+85, x+115, x+130, x+145, x+165};
-        int[] py = {y+30, y+30, y+10, y+55, y+30, y+30, y+30, y+5, y+65, y+30};
+        int[] px = { x + 10, x + 45, x + 55, x + 65, x + 75, x + 85, x + 115, x + 130, x + 145, x + 165 };
+        int[] py = { y + 30, y + 30, y + 10, y + 55, y + 30, y + 30, y + 30, y + 5, y + 65, y + 30 };
         g.drawPolyline(px, py, px.length);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 36));

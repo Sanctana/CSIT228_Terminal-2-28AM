@@ -4,16 +4,16 @@ public class EnemySkill {
     private int floorDMG;
     private int ceilDMG;
 
-    public EnemySkill(int floorDMG, int ceilDMG){
+    public EnemySkill(int floorDMG, int ceilDMG) {
         this.floorDMG = floorDMG;
         this.ceilDMG = ceilDMG;
     }
 
-    public int getFloorDMG(){
+    public int getFloorDMG() {
         return floorDMG;
     }
 
-    public int getCeilDMG(){
+    public int getCeilDMG() {
         return ceilDMG;
     }
 }

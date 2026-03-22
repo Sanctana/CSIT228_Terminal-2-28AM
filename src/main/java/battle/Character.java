@@ -8,14 +8,11 @@ public class Character {
     private int heartBeat;
     private int maxHeartBeat = 200;
     private double resistance;
-    private boolean isAlive;
 
     private Random random = new Random();
 
     public Character(int heartBeat, double resistance) {
         this.heartBeat = heartBeat;
-       // this.damageOutput = damageOutput;
-        this.isAlive = true;
         this.resistance = resistance;
     }
 
@@ -33,19 +30,13 @@ public class Character {
         this.resistance = random.nextInt(31) + 30;
     }
 
-
     public int getHeartBeat() {
         return heartBeat;
     }
 
     public void setHeartBeat(int heartBeat) {
         this.heartBeat = heartBeat;
-
-        if (this.heartBeat < 40 || this.heartBeat > maxHeartBeat) {
-            this.isAlive = false;
-        }
     }
-
 
     public int getMaxHeartBeat() {
         return maxHeartBeat;
@@ -54,16 +45,19 @@ public class Character {
     public void setMaxHeartBeat(int maxHeartBeat) {
         this.maxHeartBeat = maxHeartBeat;
     }
+
     public void setIsAlive(boolean isAlive) {
     }
+
     public double getResistance() {
         return resistance;
     }
+
     public int getDamageOutput() {
         return damageOutput;
     }
-    public boolean getIsAlive() {
-        return isAlive;
-    }
 
+    public boolean getIsAlive() {
+        return heartBeat >= 40 && heartBeat <= maxHeartBeat;
+    }
 }

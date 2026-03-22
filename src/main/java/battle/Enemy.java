@@ -1,4 +1,5 @@
 package battle;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -12,13 +13,14 @@ public class Enemy {
 
     private Random rand = new Random();
 
-    public Enemy(int health, boolean isAlive){
+    public Enemy(int health, boolean isAlive) {
         this.health = health;
         this.isAlive = isAlive;
     }
 
-    public int skill(){
-        if (skills.isEmpty()) return 0; // No skills, no damage
+    public int skill() {
+        if (skills.isEmpty())
+            return 0; // No skills, no damage
         index = rand.nextInt(skills.size()); // pick random skill
         EnemySkill chosenSkill = skills.get(index);
         int minDmg = chosenSkill.getFloorDMG();
@@ -26,21 +28,25 @@ public class Enemy {
         return rand.nextInt(maxDmg - minDmg + 1) + minDmg; // random damage between min and max
     }
 
-    public void setHealth(int health){
+    public void setHealth(int health) {
         this.health = health;
-        if(this.health <= 0) isAlive = false;
+        if (this.health <= 0)
+            isAlive = false;
     }
-    public void setIsAlive(boolean isAlive){ this.isAlive = isAlive;}
 
-    public void takeDamage(int dmg){
+    public void setIsAlive(boolean isAlive) {
+        this.isAlive = isAlive;
+    }
+
+    public void takeDamage(int dmg) {
         health -= dmg;
-        if(health <= 0){
+        if (health <= 0) {
             health = 0;
             isAlive = false;
         }
     }
 
-    public int getHealth(){
+    public int getHealth() {
         return health;
     }
 

@@ -16,8 +16,8 @@ public class Player extends Entity {
         this.gp = gp;
         this.keyH = keyH;
 
-        screenX = gp.screenWidth / 2 - (gp.tileSize/2);
-        screenY = gp.screenHeight / 2 - (gp.tileSize/2);
+        screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
+        screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
 
         solidArea = new Rectangle();
         solidArea.x = 15;
@@ -31,9 +31,9 @@ public class Player extends Entity {
 
     public void setDefaultValues() {
         worldX = gp.tileSize * 17;
-        worldY = gp.tileSize *  24;
+        worldY = gp.tileSize * 24;
         speed = 3;
-        direction = "down"; //DEFAULT
+        direction = "down"; // DEFAULT
     }
 
     public void getPlayerImage() {
@@ -50,17 +50,14 @@ public class Player extends Entity {
 
     public void update() {
 
-        if(keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed){
-            if(keyH.upPressed){
+        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
+            if (keyH.upPressed) {
                 direction = "up";
-            }
-            else if(keyH.downPressed){
+            } else if (keyH.downPressed) {
                 direction = "down";
-            }
-            else if(keyH.leftPressed){
+            } else if (keyH.leftPressed) {
                 direction = "left";
-            }
-            else if(keyH.rightPressed){
+            } else if (keyH.rightPressed) {
                 direction = "right";
             }
 
@@ -69,12 +66,20 @@ public class Player extends Entity {
             collisionOn = false;
             gp.cChecker.checkTile(this);
 
-            if(collisionOn == false){
-                switch(direction){
-                    case "up": worldY -= speed; break;
-                    case "down": worldY += speed; break;
-                    case "left": worldX -= speed; break;
-                    case "right": worldX += speed; break;
+            if (collisionOn == false) {
+                switch (direction) {
+                    case "up":
+                        worldY -= speed;
+                        break;
+                    case "down":
+                        worldY += speed;
+                        break;
+                    case "left":
+                        worldX -= speed;
+                        break;
+                    case "right":
+                        worldX += speed;
+                        break;
                 }
             }
 
@@ -83,23 +88,39 @@ public class Player extends Entity {
         }
     }
 
-    public void draw(Graphics2D g2){
+    public void draw(Graphics2D g2) {
 
         Image image = null;
 
-        if(moving){
-            switch(direction){
-                case "up": image = up; break;
-                case "down": image = down; break;
-                case "left": image = left; break;
-                case "right": image = right; break;
+        if (moving) {
+            switch (direction) {
+                case "up":
+                    image = up;
+                    break;
+                case "down":
+                    image = down;
+                    break;
+                case "left":
+                    image = left;
+                    break;
+                case "right":
+                    image = right;
+                    break;
             }
         } else {
-            switch(direction){
-                case "up": image = idleUp; break;
-                case "down": image = idleDown; break;
-                case "left": image = idleLeft; break;
-                case "right": image = idleRight; break;
+            switch (direction) {
+                case "up":
+                    image = idleUp;
+                    break;
+                case "down":
+                    image = idleDown;
+                    break;
+                case "left":
+                    image = idleLeft;
+                    break;
+                case "right":
+                    image = idleRight;
+                    break;
             }
         }
 
