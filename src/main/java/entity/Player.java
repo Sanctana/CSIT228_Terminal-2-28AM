@@ -1,7 +1,7 @@
 package entity;
 
-import test.characterdisplay.GamePanel;
-import test.characterdisplay.KeyHandler;
+import main.GamePanel;
+import main.KeyHandler;
 
 import java.awt.*;
 
@@ -30,9 +30,9 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
-        worldX = gp.tileSize * 32;
-        worldY = gp.tileSize *  32;
-        speed = 4;
+        worldX = gp.tileSize * 17;
+        worldY = gp.tileSize *  24;
+        speed = 3;
         direction = "down"; //DEFAULT
     }
 
