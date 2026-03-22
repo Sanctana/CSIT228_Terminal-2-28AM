@@ -1,6 +1,5 @@
 package battle;
 
-// not final
 public class EnemySkill {
     private int floorDMG;
     private int ceilDMG;
