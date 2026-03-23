@@ -21,7 +21,12 @@ public class TileManager {
 
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
+        //loadMap("/maps/2ndFloorMap.txt");
+
         loadMap();
+    }
+
+    private void loadMap() {
     }
 
     public void getTileImage() {
@@ -78,7 +83,7 @@ public class TileManager {
         }
     }
 
-    public void loadMap() {
+    public void loadMap(String s) {
         try {
             InputStream is = getClass().getResourceAsStream("/maps/3rdFloorMap.txt");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
