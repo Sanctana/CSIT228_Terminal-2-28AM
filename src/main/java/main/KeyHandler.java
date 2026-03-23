@@ -23,62 +23,9 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
 
         // TITLE STATE
-        if(gp.gameState == gp.titleState) {
-            if(gp.ui.titleScreenState == 0) {
-                if(code == KeyEvent.VK_W) {
-                    gp.ui.commandNum--;
-                    if(gp.ui.commandNum < 0) {
-                        gp.ui.commandNum = 2;
-                    }
-                }
-                if(code == KeyEvent.VK_S) {
-                    gp.ui.commandNum++;
-                    if(gp.ui.commandNum > 2) {
-                        gp.ui.commandNum = 0;
-                    }
-                }
-
-                if(code == KeyEvent.VK_ENTER) {
-                    if(gp.ui.commandNum == 0) {
-                        gp.ui.titleScreenState = 1;
-                    }
-                    if(gp.ui.commandNum == 1) {
-                        //add later
-                    }
-                    if(gp.ui.commandNum == 2) {
-                        System.exit(0);
-                    }
-                }
-            }
-            else if(gp.ui.titleScreenState == 1) {
-                if(code == KeyEvent.VK_W) {
-                    gp.ui.commandNum--;
-                    if(gp.ui.commandNum < 0) {
-                        gp.ui.commandNum = 3;
-                    }
-                }
-                if(code == KeyEvent.VK_S) {
-                    gp.ui.commandNum++;
-                    if(gp.ui.commandNum > 3) {
-                        gp.ui.commandNum = 0;
-                    }
-                }
-
-                if(code == KeyEvent.VK_ENTER) {
-                    if(gp.ui.commandNum == 0) {
-                        gp.player = new Player(gp,this, "detective");
-                        gp.gameState = gp.playState;
-                    }
-                    if(gp.ui.commandNum == 1) {
-                        System.out.println("Do some Officer stuff!");
-                        gp.player = new Player(gp,this, "officer");
-                        gp.gameState = gp.playState;
-                    }
-                    if(gp.ui.commandNum == 2) {
-                        gp.ui.titleScreenState = 0;
-                    }
-                }
-            }
+        if (gp.gameState == GameState.TITLE) {
+            handleTitleInput(code);
+            return;
 
         }
 
@@ -96,10 +43,47 @@ public class KeyHandler implements KeyListener {
             rightPressed = true;
         }
         if (code == KeyEvent.VK_ESCAPE) {
-            if (gp.gameState == gp.playState) {
-                gp.gameState = gp.pauseState;
-            } else if (gp.gameState == gp.pauseState) {
-                gp.gameState = gp.playState;
+            if (gp.gameState == GameState.PLAY) {
+                gp.gameState = GameState.PAUSE;
+            } else if (gp.gameState == GameState.PAUSE) {
+                gp.gameState = GameState.PLAY;
+            }
+        }
+    }
+
+    private void handleTitleInput(int code) {
+        int options = (gp.ui.titleScreenState == 0) ? 3 : 4;
+        if (code == KeyEvent.VK_W) {
+            gp.ui.commandNum = (gp.ui.commandNum - 1 + options) % options;
+            return;
+        }
+        if (code == KeyEvent.VK_S) {
+            gp.ui.commandNum = (gp.ui.commandNum + 1) % options;
+            return;
+        }
+        if (code != KeyEvent.VK_ENTER)
+            return;
+
+        if (gp.ui.titleScreenState == 0) {
+            switch (gp.ui.commandNum) {
+                case 0 -> gp.ui.titleScreenState = 1;
+                case 1 -> {
+                    /* add later */ }
+                case 2 -> System.exit(0);
+            }
+        } else { // titleScreenState == 1
+            switch (gp.ui.commandNum) {
+                case 0 -> {
+                    gp.player = new Player(gp, this, "detective");
+                    gp.gameState = GameState.PLAY;
+                }
+                case 1 -> {
+                    System.out.println("Do some Officer stuff!");
+                    gp.player = new Player(gp, this, "officer");
+                    gp.gameState = GameState.PLAY;
+                }
+                case 2 -> gp.ui.titleScreenState = 0;
+                // case 3 -> // optional action if needed
             }
         }
     }

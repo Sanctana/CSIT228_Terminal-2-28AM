@@ -31,7 +31,6 @@ public class GamePanel extends JPanel implements Runnable {
     Graphics2D g2;
 
     int FPS = 60;
-    
 
     public TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler(this);
@@ -42,10 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player;
 
     // GAME STATE
-    public int gameState;
-    public final int titleState = 0;
-    public final int playState = 1;
-    public final int pauseState = 2;
+    public GameState gameState;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
 
@@ -59,7 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         eManager.setup();
-        gameState = titleState;
+        gameState = GameState.TITLE;
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D) tempScreen.getGraphics();
@@ -113,10 +109,10 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        if (gameState == playState) {
+        if (gameState == GameState.PLAY) {
             player.update();
         }
-        if (gameState == pauseState) {
+        if (gameState == GameState.PAUSE) {
             // Nothing
         }
     }
@@ -124,11 +120,11 @@ public class GamePanel extends JPanel implements Runnable {
     public void drawToTempScreen() {
 
         // TITLE SCREEN
-        if(gameState == titleState) {
+        if (gameState == GameState.TITLE) {
             ui.draw(g2);
         }
         // OTHERS
-        else{
+        else {
             tileM.draw(g2);
             player.draw(g2);
 

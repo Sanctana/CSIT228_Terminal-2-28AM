@@ -30,16 +30,16 @@ public class TileManager {
     }
 
     public void getTileImage() {
-        setup(00, "blackTiles", false);
-        setup(01, "upperLeftCorner", true);
-        setup(02, "upperRightCorner", true);
-        setup(03, "lowerLeftCorner", true);
-        setup(04, "lowerRightCorner", true);
-        setup(05, "blackTilesWallHor", true);
-        setup(06, "blackTilesWallVert", true);
+        setup(0, "blackTiles", false);
+        setup(1, "upperLeftCorner", true);
+        setup(2, "upperRightCorner", true);
+        setup(3, "lowerLeftCorner", true);
+        setup(4, "lowerRightCorner", true);
+        setup(5, "blackTilesWallHor", true);
+        setup(6, "blackTilesWallVert", true);
 
         // NEW TILES
-        setup(07, "0001", true);
+        setup(7, "0001", true);
         setup(8, "0002", true);
         setup(9, "0003", true);
         setup(10, "0004", true);
