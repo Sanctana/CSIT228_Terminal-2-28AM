@@ -11,10 +11,12 @@ public class Player extends Entity {
 
     public final int screenX;
     public final int screenY;
+    public String characterType;
 
-    public Player(GamePanel gp, KeyHandler keyH) {
+    public Player(GamePanel gp, KeyHandler keyH, String characterType) {
         this.gp = gp;
         this.keyH = keyH;
+        this.characterType = characterType;
 
         screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
@@ -30,22 +32,35 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
-        worldX = gp.tileSize * 17;
-        worldY = gp.tileSize * 24;
+        worldX = gp.tileSize * 7;
+        worldY = gp.tileSize * 5;
         speed = 3;
         direction = "down"; // DEFAULT
     }
 
     public void getPlayerImage() {
-        idleUp = new javax.swing.ImageIcon(getClass().getResource("/player/idleUp.png")).getImage();
-        idleDown = new javax.swing.ImageIcon(getClass().getResource("/player/idleDown.png")).getImage();
-        idleLeft = new javax.swing.ImageIcon(getClass().getResource("/player/idleLeft.png")).getImage();
-        idleRight = new javax.swing.ImageIcon(getClass().getResource("/player/idleRight.png")).getImage();
+        if(characterType.equals("detective")) {
+            idleUp = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Back_Detective_Idle.png")).getImage();
+            idleDown = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Front_Detective_Idle.png")).getImage();
+            idleLeft = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Left_Detective_Idle.png")).getImage();
+            idleRight = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Right_Detective_Idle.png")).getImage();
 
-        up = new javax.swing.ImageIcon(getClass().getResource("/player/upWalk.gif")).getImage();
-        down = new javax.swing.ImageIcon(getClass().getResource("/player/downWalk.gif")).getImage();
-        left = new javax.swing.ImageIcon(getClass().getResource("/player/leftWalk.gif")).getImage();
-        right = new javax.swing.ImageIcon(getClass().getResource("/player/rightWalk.gif")).getImage();
+            up = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Back_Detective.gif")).getImage();
+            down = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Front_Detective.gif")).getImage();
+            left = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Left_Detective.gif")).getImage();
+            right = new javax.swing.ImageIcon(getClass().getResource("/player/Detective/Right_Detective.gif")).getImage();
+        }
+        else if(characterType.equals("officer")) {
+            idleUp = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Back_Officer_Idle.png")).getImage();
+            idleDown = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Front_Officer_Idle.png")).getImage();
+            idleLeft = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Left_Officer_Idle.png")).getImage();
+            idleRight = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Right_Officer_Idle.png")).getImage();
+
+            up = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Back_Officer.gif")).getImage();
+            down = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Front_Officer.gif")).getImage();
+            left = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Left_Officer.gif")).getImage();
+            right = new javax.swing.ImageIcon(getClass().getResource("/player/Officer/Right_Officer.gif")).getImage();
+        }
     }
 
     public void update() {

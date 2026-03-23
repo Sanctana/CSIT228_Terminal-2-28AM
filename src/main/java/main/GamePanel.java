@@ -21,8 +21,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenHeight = tileSize * maxScreenRow;
 
     // WORLD SETTING
-    public final int maxWorldCol = 64;
-    public final int maxWorldRow = 64;
+    public final int maxWorldCol = 47;
+    public final int maxWorldRow = 22;
 
     // FULL SCREEN
     int screenWidth2 = screenWidth;
@@ -31,6 +31,7 @@ public class GamePanel extends JPanel implements Runnable {
     Graphics2D g2;
 
     int FPS = 60;
+    
 
     public TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler(this);
@@ -38,9 +39,11 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
-    public Player player = new Player(this, keyH);
+    public Player player;
 
+    // GAME STATE
     public int gameState;
+    public final int titleState = 0;
     public final int playState = 1;
     public final int pauseState = 2;
 
@@ -56,7 +59,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         eManager.setup();
-        gameState = playState;
+        gameState = titleState;
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D) tempScreen.getGraphics();
@@ -119,11 +122,19 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void drawToTempScreen() {
-        tileM.draw(g2);
-        player.draw(g2);
 
-        eManager.draw(g2);
-        ui.draw(g2);
+        // TITLE SCREEN
+        if(gameState == titleState) {
+            ui.draw(g2);
+        }
+        // OTHERS
+        else{
+            tileM.draw(g2);
+            player.draw(g2);
+
+            eManager.draw(g2);
+            ui.draw(g2);
+        }
     }
 
     public void drawToScreen() {

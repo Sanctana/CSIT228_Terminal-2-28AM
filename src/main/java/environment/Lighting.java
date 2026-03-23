@@ -6,14 +6,20 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Lighting {
+    private final GamePanel gp;
+    private final int circleSize;
     BufferedImage darknessFilter;
     boolean enabled = true; // toggle flag
 
     public Lighting(GamePanel gp, int circleSize) {
-        updateFilter(gp, circleSize);
+        this.gp = gp;
+        this.circleSize = circleSize;
     }
 
-    public void updateFilter(GamePanel gp, int circleSize) {
+    public void updateFilter() {
+
+        if(gp.player == null) return;
+
         darknessFilter = new BufferedImage(gp.screenWidth, gp.screenHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = (Graphics2D) darknessFilter.getGraphics();
 
