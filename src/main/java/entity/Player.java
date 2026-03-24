@@ -14,9 +14,9 @@ public class Player extends Entity {
 
     public final int screenX;
     public final int screenY;
-    public String characterType;
+    public CharacterType characterType;
 
-    public Player(GamePanel gp, KeyHandler keyH, String characterType) {
+    public Player(GamePanel gp, KeyHandler keyH, CharacterType characterType) {
         this.gp = gp;
         this.keyH = keyH;
         this.characterType = characterType;
@@ -42,7 +42,7 @@ public class Player extends Entity {
     }
 
     public void getPlayerImage() {
-        if (characterType.equals("detective")) {
+        if (characterType == CharacterType.DETECTIVE) {
             idleUp = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective_Idle.png"))
                     .getImage();
             idleDown = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective_Idle.png"))
@@ -58,7 +58,7 @@ public class Player extends Entity {
             left = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective.gif")).getImage();
             right = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective.gif"))
                     .getImage();
-        } else if (characterType.equals("officer")) {
+        } else if (characterType == CharacterType.OFFICER) {
             idleUp = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer_Idle.png"))
                     .getImage();
             idleDown = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer_Idle.png"))

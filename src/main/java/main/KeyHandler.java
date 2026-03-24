@@ -1,5 +1,6 @@
 package main;
 
+import entity.CharacterType;
 import entity.Player;
 
 import java.awt.event.KeyEvent;
@@ -74,12 +75,12 @@ public class KeyHandler implements KeyListener {
         } else { // titleScreenState == 1
             switch (gp.ui.commandNum) {
                 case 0 -> {
-                    gp.player = new Player(gp, this, "detective");
+                    gp.player = new Player(gp, this, CharacterType.DETECTIVE);
                     gp.gameState = GameState.PLAY;
                 }
                 case 1 -> {
                     System.out.println("Do some Officer stuff!");
-                    gp.player = new Player(gp, this, "officer");
+                    gp.player = new Player(gp, this, CharacterType.OFFICER);
                     gp.gameState = GameState.PLAY;
                 }
                 case 2 -> gp.ui.titleScreenState = 0;

@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class TileManager {
     GamePanel gp;
@@ -21,8 +23,6 @@ public class TileManager {
 
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
-        //loadMap("/maps/2ndFloorMap.txt");
-
         loadMap();
     }
 
@@ -84,31 +84,29 @@ public class TileManager {
     }
 
     public void loadMap(String s) {
-        try {
-            InputStream is = getClass().getResourceAsStream("/maps/3rdFloorMap.txt");
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        Pattern pattern = Pattern.compile("\\s+");
 
-            int col = 0;
-            int row = 0;
+        try (InputStream is = getClass().getResourceAsStream("/maps/3rdFloorMap.txt");
+                BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
-            while (col < gp.maxWorldCol && row < gp.maxWorldRow) {
+            for (int row = 0; row < gp.maxWorldRow; row++) {
                 String line = br.readLine();
 
-                while (col < gp.maxWorldCol) {
-                    String numbers[] = line.split("\\s+");
-                    int num = Integer.parseInt(numbers[col]);
+                if (line == null)
+                    throw new IOException("Unexpected end of map file at row " + row);
 
-                    mapTileNum[col][row] = num;
-                    col++;
-                }
-                if (col == gp.maxWorldCol) {
-                    col = 0;
-                    row++;
+                String[] numbers = pattern.split(line.trim());
+
+                if (numbers.length < gp.maxWorldCol)
+                    throw new IOException("Not enough columns on row " + row);
+
+                int[] parsed = Arrays.stream(numbers).mapToInt(Integer::parseInt).toArray();
+                for (int col = 0; col < gp.maxWorldCol; col++) {
+                    mapTileNum[col][row] = parsed[col];
                 }
             }
-            br.close();
         } catch (Exception e) {
-            // e.printStackTrace();
+            e.printStackTrace(); // or use a logger
         }
     }
 
