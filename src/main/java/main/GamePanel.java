@@ -32,7 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     int FPS = 60;
 
-    public TileManager tileM = new TileManager(this);
+    public TileManager tileM = new TileManager(this, "3rdFloorMap.txt"); // Default map
     KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);

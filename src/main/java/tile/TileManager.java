@@ -17,16 +17,13 @@ public class TileManager {
     public Tile[] tile;
     public int mapTileNum[][];
 
-    public TileManager(GamePanel gp) {
+    public TileManager(GamePanel gp, String tileMap) {
         this.gp = gp;
         tile = new Tile[50];
 
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
-        loadMap();
-    }
-
-    private void loadMap() {
+        loadMap(tileMap);
     }
 
     public void getTileImage() {
@@ -83,10 +80,10 @@ public class TileManager {
         }
     }
 
-    public void loadMap(String s) {
+    public void loadMap(String tileMap) {
         Pattern pattern = Pattern.compile("\\s+");
 
-        try (InputStream is = getClass().getResourceAsStream("/maps/3rdFloorMap.txt");
+        try (InputStream is = getClass().getResourceAsStream("/maps/" + tileMap);
                 BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             for (int row = 0; row < gp.maxWorldRow; row++) {
