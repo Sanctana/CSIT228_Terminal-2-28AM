@@ -21,7 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenHeight = tileSize * maxScreenRow;
 
 
-
+    sounds music = new sounds();
 
     // WORLD SETTING
     public final int maxWorldCol = 47;
@@ -60,7 +60,7 @@ public class GamePanel extends JPanel implements Runnable {
         eManager.setup();
         gameState = GameState.TITLE;
 
-
+        playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D) tempScreen.getGraphics();
@@ -143,6 +143,15 @@ public class GamePanel extends JPanel implements Runnable {
         g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
         g.dispose();
     }
+
+
+    public void playMusic(int i) {
+        music.setFile(i);
+        music.play();
+        music.loop();
+    }
+
+
 
 
 
