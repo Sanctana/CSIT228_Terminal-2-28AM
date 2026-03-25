@@ -53,7 +53,7 @@ public class KeyHandler implements KeyListener {
     }
 
     private void handleTitleInput(int code) {
-        int options = (gp.ui.titleScreenState == 0) ? 3 : 4;
+        int options = (gp.ui.titleScreenState == 0) ? 3 : 6;
         if (code == KeyEvent.VK_W) {
             gp.ui.commandNum = (gp.ui.commandNum - 1 + options) % options;
             return;
@@ -86,7 +86,15 @@ public class KeyHandler implements KeyListener {
                     gp.player = new Player(gp, this, CharacterType.INTRUDER);
                     gp.gameState = GameState.PLAY;
                 }
-                case 3 -> gp.ui.titleScreenState = 0;
+                case 3 -> {
+                    gp.player = new Player(gp, this, CharacterType.ARTIST);
+                    gp.gameState = GameState.PLAY;
+                }
+                case 4 -> {
+                    gp.player = new Player(gp, this, CharacterType.COLLECTOR);
+                    gp.gameState = GameState.PLAY;
+                }
+                case 5 -> gp.ui.titleScreenState = 0;
                 // case 4 -> // optional action if needed
             }
         }

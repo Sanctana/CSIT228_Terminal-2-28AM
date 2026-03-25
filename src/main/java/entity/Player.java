@@ -12,6 +12,9 @@ public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
 
+    public int heartRate = 70; // current BPM
+    public int minHeartRate = 40;
+    public int maxHeartRate = 180;
     public final int screenX;
     public final int screenY;
     public CharacterType characterType;
@@ -37,7 +40,7 @@ public class Player extends Entity {
     public void setDefaultValues() {
         worldX = gp.tileSize * 7;
         worldY = gp.tileSize * 5;
-        speed = 3;
+        speed = 4;
         direction = Direction.DOWN; // DEFAULT
     }
 
@@ -72,6 +75,26 @@ public class Player extends Entity {
             down = new ImageIcon(getClass().getResource("/player/Intruder/Front_Intruder.gif")).getImage();
             left = new ImageIcon(getClass().getResource("/player/Intruder/Left_Intruder.gif")).getImage();
             right = new ImageIcon(getClass().getResource("/player/Intruder/Right_Intruder.gif")).getImage();
+        } else if (characterType == CharacterType.ARTIST) {
+            idleUp = new ImageIcon(getClass().getResource("/player/Artist/Back_Artist_Idle.png")).getImage();
+            idleDown = new ImageIcon(getClass().getResource("/player/Artist/Front_Artist_Idle.png")).getImage();
+            idleLeft = new ImageIcon(getClass().getResource("/player/Artist/Left_Artist_Idle.png")).getImage();
+            idleRight = new ImageIcon(getClass().getResource("/player/Artist/Right_Artist_Idle.png")).getImage();
+
+            up = new ImageIcon(getClass().getResource("/player/Artist/Back_Artist.gif")).getImage();
+            down = new ImageIcon(getClass().getResource("/player/Artist/Front_Artist.gif")).getImage();
+            left = new ImageIcon(getClass().getResource("/player/Artist/Left_Artist.gif")).getImage();
+            right = new ImageIcon(getClass().getResource("/player/Artist/Right_Artist.gif")).getImage();
+        } else if (characterType == CharacterType.COLLECTOR) {
+            idleUp = new ImageIcon(getClass().getResource("/player/Collector/Back_Collector_Idle.png")).getImage();
+            idleDown = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector_Idle.png")).getImage();
+            idleLeft = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector_Idle.png")).getImage();
+            idleRight = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector_Idle.png")).getImage();
+
+            up = new ImageIcon(getClass().getResource("/player/Collector/Back_Collector.gif")).getImage();
+            down = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector.gif")).getImage();
+            left = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector.gif")).getImage();
+            right = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector.gif")).getImage();
         }
     }
 
