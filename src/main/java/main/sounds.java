@@ -10,7 +10,7 @@ public class sounds {
     URL[] soundURL = new URL[30];
 
     public sounds() {
-        // This links the code to the file you just moved!
+
         soundURL[0] = getClass().getResource("/sounds/Lights Out - Myuu - Myuu (128k).wav");
     }
 
