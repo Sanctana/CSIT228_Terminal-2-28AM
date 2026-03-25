@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class sounds {
     Clip clip;
-    URL soundURL[] = new URL[30];
+    URL[] soundURL = new URL[30];
 
     public sounds() {
 
@@ -32,9 +32,6 @@ public class sounds {
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
-    public void stop() {
-        clip.stop();
-    }
 }
 
 
