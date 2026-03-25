@@ -7,7 +7,7 @@ public class Tile {
     public BufferedImage image;
     public boolean collision = false;
 
-    public Tile(BufferedImage image, boolean collision) {
+    public Tile() {
         this.image = image;
         this.collision = collision;
     }

@@ -69,7 +69,7 @@ public class KeyHandler implements KeyListener {
             switch (gp.ui.commandNum) {
                 case 0 -> gp.ui.titleScreenState = 1;
                 case 1 -> {
-                    /* add later */ }
+                    /* add later "LOAD GAME" */ }
                 case 2 -> System.exit(0);
             }
         } else { // titleScreenState == 1
@@ -79,12 +79,15 @@ public class KeyHandler implements KeyListener {
                     gp.gameState = GameState.PLAY;
                 }
                 case 1 -> {
-                    System.out.println("Do some Officer stuff!");
                     gp.player = new Player(gp, this, CharacterType.OFFICER);
                     gp.gameState = GameState.PLAY;
                 }
-                case 2 -> gp.ui.titleScreenState = 0;
-                // case 3 -> // optional action if needed
+                case 2 -> {
+                    gp.player = new Player(gp, this, CharacterType.INTRUDER);
+                    gp.gameState = GameState.PLAY;
+                }
+                case 3 -> gp.ui.titleScreenState = 0;
+                // case 4 -> // optional action if needed
             }
         }
     }

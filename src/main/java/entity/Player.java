@@ -43,35 +43,35 @@ public class Player extends Entity {
 
     public void getPlayerImage() {
         if (characterType == CharacterType.DETECTIVE) {
-            idleUp = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective_Idle.png"))
-                    .getImage();
-            idleDown = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective_Idle.png"))
-                    .getImage();
-            idleLeft = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective_Idle.png"))
-                    .getImage();
-            idleRight = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective_Idle.png"))
-                    .getImage();
+            idleUp = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective_Idle.png")).getImage();
+            idleDown = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective_Idle.png")).getImage();
+            idleLeft = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective_Idle.png")).getImage();
+            idleRight = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective_Idle.png")).getImage();
 
             up = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective.gif")).getImage();
-            down = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective.gif"))
-                    .getImage();
+            down = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective.gif")).getImage();
             left = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective.gif")).getImage();
-            right = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective.gif"))
-                    .getImage();
+            right = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective.gif")).getImage();
         } else if (characterType == CharacterType.OFFICER) {
-            idleUp = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer_Idle.png"))
-                    .getImage();
-            idleDown = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer_Idle.png"))
-                    .getImage();
-            idleLeft = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer_Idle.png"))
-                    .getImage();
-            idleRight = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer_Idle.png"))
-                    .getImage();
+            idleUp = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer_Idle.png")).getImage();
+            idleDown = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer_Idle.png")).getImage();
+            idleLeft = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer_Idle.png")).getImage();
+            idleRight = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer_Idle.png")).getImage();
 
             up = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer.gif")).getImage();
             down = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer.gif")).getImage();
             left = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer.gif")).getImage();
             right = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer.gif")).getImage();
+        } else if (characterType == CharacterType.INTRUDER) {
+            idleUp = new ImageIcon(getClass().getResource("/player/Intruder/Back_Intruder_Idle.png")).getImage();
+            idleDown = new ImageIcon(getClass().getResource("/player/Intruder/Front_Intruder_Idle.png")).getImage();
+            idleLeft = new ImageIcon(getClass().getResource("/player/Intruder/Left_Intruder_Idle.png")).getImage();
+            idleRight = new ImageIcon(getClass().getResource("/player/Intruder/Right_Intruder_Idle.png")).getImage();
+
+            up = new ImageIcon(getClass().getResource("/player/Intruder/Back_Intruder.gif")).getImage();
+            down = new ImageIcon(getClass().getResource("/player/Intruder/Front_Intruder.gif")).getImage();
+            left = new ImageIcon(getClass().getResource("/player/Intruder/Left_Intruder.gif")).getImage();
+            right = new ImageIcon(getClass().getResource("/player/Intruder/Right_Intruder.gif")).getImage();
         }
     }
 
