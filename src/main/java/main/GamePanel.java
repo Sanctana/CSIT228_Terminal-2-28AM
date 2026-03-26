@@ -1,13 +1,16 @@
 package main;
 
 import environment.EnvironmentManager;
+import entity.EntityState;
 import entity.Player;
-import tile.TileManager;
+import tile.Map;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
+
+import Maps.ThirdFloorMap;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -22,10 +25,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     SoundManager music = new SoundManager();
 
-    // WORLD SETTING
-    public int maxWorldCol = 47;
-    public int maxWorldRow = 22;
-
     // FULL SCREEN
     int screenWidth2 = screenWidth;
     int screenHeight2 = screenHeight;
@@ -34,9 +33,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     int FPS = 60;
 
-    public TileManager tileM = new TileManager(this, "3rdFloorMap.txt"); // Default map
+    public Map tileM = new ThirdFloorMap(this); // Default map
     KeyHandler keyH = new KeyHandler(this);
-    Thread gameThread;
+    private Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
@@ -63,8 +62,6 @@ public class GamePanel extends JPanel implements Runnable {
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D) tempScreen.getGraphics();
-
-        // setFullScreen(); //TO FULL SCREEN
     }
 
     public void setFullScreen() {
@@ -76,13 +73,13 @@ public class GamePanel extends JPanel implements Runnable {
         screenHeight2 = Main.window.getHeight();
     }
 
-    public void startGameThread() {
-        gameThread = new Thread(this);
+    public synchronized void startGameThread() {
+        gameThread = new Thread(this, "GameLoop");
         gameThread.start();
     }
 
     public void run() {
-        double drawInterval = 1000000000 / FPS;
+        double drawInterval = 1_000_000_000 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
@@ -104,7 +101,7 @@ public class GamePanel extends JPanel implements Runnable {
                 drawCount++;
             }
 
-            if (timer >= 1000000000) {
+            if (timer >= 1_000_000_000) {
                 System.out.println("FPS: " + drawCount);
                 drawCount = 0;
                 timer = 0;
@@ -115,20 +112,21 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         if (gameState == GameState.PLAY) {
             player.update();
-        }
-        if (gameState == GameState.PAUSE) {
-            // Nothing
+            if (player.state == EntityState.MOVING_NEXT_MAP) {
+                tileM = tileM.getNextMap();
+                player.setLocation(1, 1);
+                player.state = EntityState.IDLE;
+            }
         }
     }
 
     public void drawToTempScreen() {
-
         // TITLE SCREEN
         if (gameState == GameState.TITLE) {
             ui.draw(g2);
         }
         // OTHERS
-        else {
+        else if (gameState == GameState.PLAY) {
             tileM.draw(g2);
             player.draw(g2);
 

@@ -9,7 +9,6 @@ public class Entity {
     // IDLES
     public Image idleUp, idleDown, idleLeft, idleRight, up, down, left, right;
     public Direction direction;
-    public boolean moving = false;
+    public EntityState state;
     public Rectangle solidArea;
-    public boolean collisionOn = false;
 }

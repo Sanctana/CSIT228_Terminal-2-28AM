@@ -111,12 +111,9 @@ public class Player extends Entity {
                 direction = Direction.RIGHT;
             }
 
-            moving = true;
-
-            collisionOn = false;
             gp.cChecker.checkTile(this);
 
-            if (collisionOn == false) {
+            if (state == EntityState.MOVING) {
                 switch (direction) {
                     case UP:
                         worldY -= speed;
@@ -134,7 +131,7 @@ public class Player extends Entity {
             }
 
         } else {
-            moving = false;
+            state = EntityState.IDLE;
         }
     }
 
@@ -142,7 +139,7 @@ public class Player extends Entity {
 
         Image image = null;
 
-        if (moving) {
+        if (state == EntityState.MOVING) {
             switch (direction) {
                 case UP -> {
                     image = up;
@@ -157,7 +154,7 @@ public class Player extends Entity {
                     image = right;
                 }
             }
-        } else {
+        } else if (state == EntityState.IDLE) {
             switch (direction) {
                 case UP -> {
                     image = idleUp;

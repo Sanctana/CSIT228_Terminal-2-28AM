@@ -4,4 +4,5 @@ public enum GameState {
 	TITLE,
 	PLAY,
 	PAUSE,
+	TRANSITION
 }

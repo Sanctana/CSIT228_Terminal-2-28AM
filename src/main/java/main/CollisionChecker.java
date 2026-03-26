@@ -1,6 +1,7 @@
 package main;
 
 import entity.Entity;
+import entity.EntityState;
 
 public class CollisionChecker {
     GamePanel gp;
@@ -53,8 +54,12 @@ public class CollisionChecker {
                 return;
         }
 
-        if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
-            entity.collisionOn = true;
+        if (gp.tileM.tile.get(tileNum1).collision || gp.tileM.tile.get(tileNum2).collision) {
+            entity.state = EntityState.IDLE;
+        } else if (gp.tileM.tile.get(tileNum1).isMoveNextMap() || gp.tileM.tile.get(tileNum2).isMoveNextMap()) {
+            entity.state = EntityState.MOVING_NEXT_MAP;
+        } else {
+            entity.state = EntityState.MOVING;
         }
     }
 }
