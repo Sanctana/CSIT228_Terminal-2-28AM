@@ -5,11 +5,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.net.URL;
 
-public class sounds {
+public class SoundManager {
     Clip clip;
     URL[] soundURL = new URL[30];
 
-    public sounds() {
+    public SoundManager() {
 
         soundURL[0] = getClass().getResource("/sounds/Lights Out - Myuu - Myuu (128k).wav");
     }

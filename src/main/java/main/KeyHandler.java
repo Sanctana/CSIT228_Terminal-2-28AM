@@ -95,7 +95,6 @@ public class KeyHandler implements KeyListener {
                     gp.gameState = GameState.PLAY;
                 }
                 case 5 -> gp.ui.titleScreenState = 0;
-                // case 4 -> // optional action if needed
             }
         }
     }

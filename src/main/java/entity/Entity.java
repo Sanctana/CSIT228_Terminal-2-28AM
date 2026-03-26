@@ -3,7 +3,7 @@ package entity;
 import java.awt.*;
 
 public class Entity {
-    public int worldX, worldY;
+    public int worldX, worldY; // position in the world
     public int speed;
 
     // IDLES

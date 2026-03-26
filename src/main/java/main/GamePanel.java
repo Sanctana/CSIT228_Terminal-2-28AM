@@ -20,12 +20,11 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
-
-    sounds music = new sounds();
+    SoundManager music = new SoundManager();
 
     // WORLD SETTING
-    public final int maxWorldCol = 47;
-    public final int maxWorldRow = 22;
+    public int maxWorldCol = 47;
+    public int maxWorldRow = 22;
 
     // FULL SCREEN
     int screenWidth2 = screenWidth;
@@ -35,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     int FPS = 60;
 
-    public TileManager tileM =  new TileManager(this, "3rdFloorMap.txt"); // Default map
+    public TileManager tileM = new TileManager(this, "3rdFloorMap.txt"); // Default map
     KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
@@ -144,15 +143,10 @@ public class GamePanel extends JPanel implements Runnable {
         g.dispose();
     }
 
-
     public void playMusic(int i) {
         music.setFile(i);
         music.play();
         music.loop();
     }
-
-
-
-
 
 }

@@ -27,21 +27,21 @@ public class Player extends Entity {
         screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
 
-        solidArea = new Rectangle();
-        solidArea.x = 15;
-        solidArea.y = 40;
-        solidArea.width = 20;
-        solidArea.height = 1;
+        solidArea = new Rectangle(15, 40, 20, 1);
 
         setDefaultValues();
         getPlayerImage();
     }
 
     public void setDefaultValues() {
-        worldX = gp.tileSize * 7;
-        worldY = gp.tileSize * 5;
+        setLocation(3, 2);
         speed = 4;
         direction = Direction.DOWN; // DEFAULT
+    }
+
+    public void setLocation(int col, int row) {
+        worldX = gp.tileSize * col;
+        worldY = gp.tileSize * row;
     }
 
     public void getPlayerImage() {
@@ -144,33 +144,33 @@ public class Player extends Entity {
 
         if (moving) {
             switch (direction) {
-                case UP:
+                case UP -> {
                     image = up;
-                    break;
-                case DOWN:
+                }
+                case DOWN -> {
                     image = down;
-                    break;
-                case LEFT:
+                }
+                case LEFT -> {
                     image = left;
-                    break;
-                case RIGHT:
+                }
+                case RIGHT -> {
                     image = right;
-                    break;
+                }
             }
         } else {
             switch (direction) {
-                case UP:
+                case UP -> {
                     image = idleUp;
-                    break;
-                case DOWN:
+                }
+                case DOWN -> {
                     image = idleDown;
-                    break;
-                case LEFT:
+                }
+                case LEFT -> {
                     image = idleLeft;
-                    break;
-                case RIGHT:
+                }
+                case RIGHT -> {
                     image = idleRight;
-                    break;
+                }
             }
         }
 
