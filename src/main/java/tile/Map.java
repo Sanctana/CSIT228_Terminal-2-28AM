@@ -97,11 +97,7 @@ public abstract class Map {
 
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                String trimmed = line.trim();
-                if (trimmed.isEmpty()) {
-                    continue;
-                }
-                mapTileNum.add(Arrays.stream(pattern.split(trimmed)).mapToInt(Integer::parseInt).toArray());
+                mapTileNum.add(Arrays.stream(pattern.split(line.trim())).mapToInt(Integer::parseInt).toArray());
             }
 
             if (mapTileNum.isEmpty()) {
@@ -123,22 +119,11 @@ public abstract class Map {
 
         for (int worldRow = topRow; worldRow <= bottomRow; worldRow++) {
             int[] rowTiles = mapTileNum.get(worldRow);
-            if (rowTiles.length == 0) {
-                continue;
-            }
 
-            int rowLeftCol = leftCol;
             int rowRightCol = Math.min(rightCol, rowTiles.length - 1);
 
-            if (rowLeftCol > rowRightCol) {
-                continue;
-            }
-
-            for (int worldCol = rowLeftCol; worldCol <= rowRightCol; worldCol++) {
+            for (int worldCol = leftCol; worldCol <= rowRightCol; worldCol++) {
                 int tileIndex = rowTiles[worldCol];
-                if (tileIndex < 0 || tileIndex >= tile.size()) {
-                    continue;
-                }
 
                 int worldX = worldCol * gp.tileSize;
                 int worldY = worldRow * gp.tileSize;
