@@ -17,7 +17,7 @@ public class Panel extends JPanel {
     private int maxHP = 100;
     private int playerHP = 100; // player's current health
 
-    //gi - add nako
+    // gi - add nako
 
     private String enemyAttackURL = "/Assets/EnemiesSprites/ScalperAttack.gif";
     private Image enemyAttackAnim;
@@ -35,23 +35,23 @@ public class Panel extends JPanel {
     JButton backBtn;
 
     // Linking your classes
-    battle.Character playerCharacter = new battle.Character(100, 0.5);
-    battle.Enemy enemyObject = new battle.Enemy(100, true);
+    Character playerCharacter = new Character(100, 0.5);
+    Enemy enemyObject = new Enemy(100);
 
-    //JButton escalateBtn;
+    // JButton escalateBtn;
 
     public Panel() {
         setLayout(null);
         background = new ImageIcon(Objects.requireNonNull(getClass().getResource(backgroundURL))).getImage();
         enemyAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemyURL))).getImage();
         portrait = new ImageIcon(Objects.requireNonNull(getClass().getResource(portraitURL))).getImage();
-//gi-add nako
+        // gi-add nako
         enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemyAttackURL))).getImage();
 
         initButtons();
     }
 
-//gi change
+    // gi change
 
     private void initButtons() {
         suppressBtn = createActionBtn("SUPPRESS", "Attack enemy", new Color(60, 80, 150));
@@ -166,8 +166,7 @@ public class Panel extends JPanel {
         timer.start();
     }
 
-//gi-change nako
-
+    // gi-change nako
 
     private void enemyAttack() {
         // 1. Switch to Attack Mode and Lunge forward
@@ -203,8 +202,6 @@ public class Panel extends JPanel {
         attackTimer.setRepeats(false);
         attackTimer.start();
     }
-
-
 
     @Override
     public void paintComponent(Graphics g) {
@@ -328,7 +325,7 @@ public class Panel extends JPanel {
         g.drawPolyline(px, py, px.length);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 36));
-        //  g.drawString("90", x + 60, y + 50);
+        // g.drawString("90", x + 60, y + 50);
 
         if (playerHP < 30) {
             g.setColor(new Color(255, 0, 0)); // Turn the number Bright Red
@@ -342,7 +339,7 @@ public class Panel extends JPanel {
         }
 
         // gi change nako
-        g.drawString(String.valueOf(playerHP), x + 60, y + 50); //gi change
+        g.drawString(String.valueOf(playerHP), x + 60, y + 50); // gi change
     }
 
     private void updateButtons(int w, int y, int pad) {
@@ -357,7 +354,7 @@ public class Panel extends JPanel {
         }
 
         // Skill Menu Positioning
-        if(skill1Btn != null) {
+        if (skill1Btn != null) {
             skill1Btn.setBounds(startX, y + 45, btnW, 80);
             skill2Btn.setBounds(startX + (btnW + btnGap), y + 45, btnW, 80);
             skill3Btn.setBounds(startX + (btnW + btnGap) * 2, y + 45, btnW, 80);

@@ -12,6 +12,7 @@
       "path": "/usr/lib/jvm/java-23-graalvm-ee",
       "default": true
     }
-		]
+		],
+		"java.configuration.updateBuildConfiguration": "interactive"
 	},
 }

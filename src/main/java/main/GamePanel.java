@@ -13,32 +13,32 @@ import javax.swing.JPanel;
 import Maps.ThirdFloorMap;
 
 public class GamePanel extends JPanel implements Runnable {
-
-    final int originalTileSize = 16;
-    final int scale = 4;
+    private final int originalTileSize = 16;
+    private final int scale = 4;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
-    public final int maxScreenCol = 20;
-    public final int maxScreenRow = 12;
+    private final int maxScreenCol = 20;
+    private final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
     SoundManager music = new SoundManager();
 
     // FULL SCREEN
-    int screenWidth2 = screenWidth;
-    int screenHeight2 = screenHeight;
-    BufferedImage tempScreen;
-    Graphics2D g2;
+    private int screenWidth2 = screenWidth;
+    private int screenHeight2 = screenHeight;
+    private BufferedImage tempScreen;
+    private Graphics2D graphics2d;
+    private final Object renderLock = new Object();
 
     int FPS = 60;
 
-    public Map tileM = new ThirdFloorMap(this); // Default map
+    public Map tileM;
     KeyHandler keyH = new KeyHandler(this);
     private Thread gameThread;
-    public CollisionChecker cChecker = new CollisionChecker(this);
-    public AssetSetter aSetter = new AssetSetter(this);
-    public UI ui = new UI(this);
+    public CollisionChecker cChecker;
+    public AssetSetter aSetter;
+    public UI ui;
     public Player player;
 
     // GAME STATE
@@ -52,6 +52,12 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+
+        tileM = new ThirdFloorMap(this); // Default map
+        gameThread = new Thread(this, "GameLoop");
+        cChecker = new CollisionChecker(this);
+        aSetter = new AssetSetter(this);
+        ui = new UI(this);
     }
 
     public void setupGame() {
@@ -61,7 +67,7 @@ public class GamePanel extends JPanel implements Runnable {
         playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
-        g2 = (Graphics2D) tempScreen.getGraphics();
+        graphics2d = (Graphics2D) tempScreen.getGraphics();
     }
 
     public void setFullScreen() {
@@ -73,8 +79,7 @@ public class GamePanel extends JPanel implements Runnable {
         screenHeight2 = Main.window.getHeight();
     }
 
-    public synchronized void startGameThread() {
-        gameThread = new Thread(this, "GameLoop");
+    public void startGameThread() {
         gameThread.start();
     }
 
@@ -96,7 +101,7 @@ public class GamePanel extends JPanel implements Runnable {
             if (delta >= 1) {
                 update();
                 drawToTempScreen();
-                drawToScreen();
+                repaint();
                 delta--;
                 drawCount++;
             }
@@ -120,25 +125,35 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void drawToTempScreen() {
-        // TITLE SCREEN
-        if (gameState == GameState.TITLE) {
-            ui.draw(g2);
-        }
-        // OTHERS
-        else if (gameState == GameState.PLAY) {
-            tileM.draw(g2);
-            player.draw(g2);
-
-            eManager.draw(g2);
-            ui.draw(g2);
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        synchronized (renderLock) {
+            if (tempScreen != null) {
+                g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
+            }
         }
     }
 
-    public void drawToScreen() {
-        Graphics g = getGraphics();
-        g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
-        g.dispose();
+    public void drawToTempScreen() {
+        synchronized (renderLock) {
+            // clear / background
+            graphics2d.setColor(getBackground());
+            graphics2d.fillRect(0, 0, screenWidth, screenHeight);
+
+            // TITLE SCREEN
+            if (gameState == GameState.TITLE) {
+                ui.draw(graphics2d);
+            }
+            // OTHERS
+            else if (gameState == GameState.PLAY) {
+                tileM.draw(graphics2d);
+                player.draw(graphics2d);
+
+                eManager.draw(graphics2d);
+                ui.draw(graphics2d);
+            }
+        }
     }
 
     public void playMusic(int i) {
