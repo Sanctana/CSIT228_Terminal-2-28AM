@@ -17,6 +17,13 @@ public class Panel extends JPanel {
     private int maxHP = 100;
     private int playerHP = 100; // player's current health
 
+    //gi - add nako
+
+    private String enemyAttackURL = "/Assets/EnemiesSprites/ScalperAttack.gif";
+    private Image enemyAttackAnim;
+    private boolean isEnemyAttacking = false; // Controls which GIF to show
+    private int enemyXOffset = 0;
+
     JButton suppressBtn;
     JButton protectBtn;
     JButton recoverBtn;
@@ -38,6 +45,8 @@ public class Panel extends JPanel {
         background = new ImageIcon(Objects.requireNonNull(getClass().getResource(backgroundURL))).getImage();
         enemyAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemyURL))).getImage();
         portrait = new ImageIcon(Objects.requireNonNull(getClass().getResource(portraitURL))).getImage();
+//gi-add nako
+        enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemyAttackURL))).getImage();
 
         initButtons();
     }
@@ -55,11 +64,11 @@ public class Panel extends JPanel {
         skill3Btn = createActionBtn("SLAM", "30-45 DMG", new Color(60, 150, 80)); // Added Skill 3
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
-        toggleSkills(false); // Hide skills by default
+        toggleSkills(false);
 
         suppressBtn.addActionListener(e -> {
-            toggleMenu(false);   // Hide: Suppress, Protect, Recover, Escalate
-            toggleSkills(true);  // Show Skills
+            toggleMenu(false);
+            toggleSkills(true);
         });
 
         // Skill 1 Logic
@@ -113,7 +122,7 @@ public class Panel extends JPanel {
         add(recoverBtn);
         add(skill1Btn);
         add(skill2Btn);
-        add(skill3Btn); // Added to panel
+        add(skill3Btn);
         add(backBtn);
     }
 
@@ -136,7 +145,7 @@ public class Panel extends JPanel {
         if (skill1Btn != null) {
             skill1Btn.setVisible(b);
             skill2Btn.setVisible(b);
-            skill3Btn.setVisible(b); // Added toggle
+            skill3Btn.setVisible(b);
             backBtn.setVisible(b);
         }
     }
@@ -159,24 +168,43 @@ public class Panel extends JPanel {
 
 //gi-change nako
 
+
     private void enemyAttack() {
-        int damage = (int) (Math.random() * 21) + 25;
-        playerHP = Math.max(0, playerHP - damage);
+        // 1. Switch to Attack Mode and Lunge forward
+        isEnemyAttacking = true;
+        enemyXOffset = -60; // Jump 60 pixels toward the player
         repaint();
 
-        // Check for death
-        if (playerHP <= 0) {
-            int choice = JOptionPane.showConfirmDialog(this,
-                    "The heart has stopped. Time of death: 2:28 AM.\nTry again?",
-                    "FLATLINE", JOptionPane.YES_NO_OPTION);
+        // 2. Wait 500ms (Half a second) for the GIF animation to play out
+        Timer attackTimer = new Timer(500, e -> {
+            // 3. Reset back to Idle mode and original position
+            isEnemyAttacking = false;
+            enemyXOffset = 0;
 
-            if (choice == JOptionPane.YES_OPTION) {
-                resetBattle(); // We will create this method next
-            } else {
-                System.exit(0); // Closes the game
+            // 4. Deal the actual damage
+            int damage = (int) (Math.random() * 21) + 25;
+            playerHP = Math.max(0, playerHP - damage);
+
+            repaint();
+
+            // 5. Existing FLATLINE logic for losing
+            if (playerHP <= 0) {
+                int choice = JOptionPane.showConfirmDialog(this,
+                        "The heart has stopped. Time of death: 2:28 AM.\nTry again?",
+                        "FLATLINE", JOptionPane.YES_NO_OPTION);
+
+                if (choice == JOptionPane.YES_OPTION) {
+                    resetBattle();
+                } else {
+                    System.exit(0);
+                }
             }
-        }
+        });
+        attackTimer.setRepeats(false);
+        attackTimer.start();
     }
+
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -207,7 +235,13 @@ public class Panel extends JPanel {
 
         int ex = (w / 2) - 125;
         int ey = (h / 2) - 140;
-        if (enemyAnim != null) {
+
+        int attackSpriteCorrection = 60;
+
+        if (isEnemyAttacking) {
+            // para dili hiwi inig attack
+            g.drawImage(enemyAttackAnim, ex + enemyXOffset + attackSpriteCorrection, ey, 250, 250, this);
+        } else {
             g.drawImage(enemyAnim, ex, ey, 250, 250, this);
         }
 
