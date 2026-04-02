@@ -143,7 +143,7 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.draw(graphics2d);
             }
             // OTHERS
-            else if (gameState == GameState.PLAY) {
+            else if (gameState == GameState.PLAY || gameState == GameState.PAUSE) {
                 tileM.draw(graphics2d);
                 player.draw(graphics2d);
 

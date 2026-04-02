@@ -12,10 +12,8 @@ public class UI {
     Graphics2D g2;
 
     Font arial_40, arial_80B;
-    public boolean messageOn;
     public String message;
     int messageCounter;
-    public boolean gameFinished;
     public int commandNum;
     public TitleScreenState titleScreenState;
     int pulseCounter;
@@ -28,13 +26,11 @@ public class UI {
         arial_80B = new Font("Arial", Font.BOLD, 80);
 
         titleScreenState = TitleScreenState.MAIN_MENU;
-        messageOn = gameFinished = pulseOn = false;
         messageCounter = commandNum = pulseCounter = 0;
     }
 
     public void showMessage(String text) {
         message = text;
-        messageOn = true;
     }
 
     public void draw(Graphics2D g2) {
