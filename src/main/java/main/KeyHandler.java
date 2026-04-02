@@ -16,7 +16,6 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
@@ -53,7 +52,7 @@ public class KeyHandler implements KeyListener {
     }
 
     private void handleTitleInput(int code) {
-        int options = (gp.ui.titleScreenState == 0) ? 3 : 6;
+        int options = (gp.ui.titleScreenState == TitleScreenState.MAIN_MENU) ? 3 : 6;
         if (code == KeyEvent.VK_W) {
             gp.ui.commandNum = (gp.ui.commandNum - 1 + options) % options;
             return;
@@ -65,14 +64,14 @@ public class KeyHandler implements KeyListener {
         if (code != KeyEvent.VK_ENTER)
             return;
 
-        if (gp.ui.titleScreenState == 0) {
+        if (gp.ui.titleScreenState == TitleScreenState.MAIN_MENU) {
             switch (gp.ui.commandNum) {
-                case 0 -> gp.ui.titleScreenState = 1;
+                case 0 -> gp.ui.titleScreenState = TitleScreenState.CHARACTER_SELECT;
                 case 1 -> {
                     /* add later "LOAD GAME" */ }
                 case 2 -> System.exit(0);
             }
-        } else { // titleScreenState == 1
+        } else { // titleScreenState == TitleScreenState.CHARACTER_SELECT
             switch (gp.ui.commandNum) {
                 case 0 -> {
                     gp.player = new Player(gp, this, CharacterType.DETECTIVE);
@@ -94,7 +93,7 @@ public class KeyHandler implements KeyListener {
                     gp.player = new Player(gp, this, CharacterType.COLLECTOR);
                     gp.gameState = GameState.PLAY;
                 }
-                case 5 -> gp.ui.titleScreenState = 0;
+                case 5 -> gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
             }
         }
     }

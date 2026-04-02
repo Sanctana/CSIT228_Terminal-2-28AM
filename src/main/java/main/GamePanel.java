@@ -1,8 +1,8 @@
 package main;
 
 import environment.EnvironmentManager;
-import entity.EntityState;
 import entity.Player;
+import entity.EntityState;
 import tile.Map;
 
 import java.awt.*;
@@ -11,6 +11,13 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
+
+enum GameState {
+    TITLE,
+    PLAY,
+    PAUSE,
+    TRANSITION
+}
 
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 16;
@@ -37,7 +44,6 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyH = new KeyHandler(this);
     private Thread gameThread;
     public CollisionChecker cChecker;
-    public AssetSetter aSetter;
     public UI ui;
     public Player player;
 
@@ -56,7 +62,6 @@ public class GamePanel extends JPanel implements Runnable {
         tileM = new ThirdFloorMap(this); // Default map
         gameThread = new Thread(this, "GameLoop");
         cChecker = new CollisionChecker(this);
-        aSetter = new AssetSetter(this);
         ui = new UI(this);
     }
 
@@ -84,33 +89,25 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void run() {
-        double drawInterval = 1_000_000_000 / FPS;
-        double delta = 0;
-        long lastTime = System.nanoTime();
-        long currentTime;
-        long timer = 0;
-        int drawCount = 0;
+        final long drawInterval = 1_000_000_000L / FPS; // 16.67 ms per frame
+        long nextFrameTime = System.nanoTime() + drawInterval;
 
-        while (gameThread != null) {
-            currentTime = System.nanoTime();
+        while (gameThread != null && !Thread.currentThread().isInterrupted()) {
+            update();
+            drawToTempScreen();
+            repaint();
 
-            delta += (currentTime - lastTime) / drawInterval;
-            timer += (currentTime - lastTime);
-            lastTime = currentTime;
-
-            if (delta >= 1) {
-                update();
-                drawToTempScreen();
-                repaint();
-                delta--;
-                drawCount++;
+            long sleepNs = nextFrameTime - System.nanoTime();
+            if (sleepNs > 0) {
+                try {
+                    Thread.sleep(sleepNs / 1_000_000L, (int) (sleepNs % 1_000_000L));
+                } catch (InterruptedException e) {// In case the sleep is interrupted, we should exit the loop to avoid
+                                                  // running in an inconsistent state
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-
-            if (timer >= 1_000_000_000) {
-                System.out.println("FPS: " + drawCount);
-                drawCount = 0;
-                timer = 0;
-            }
+            nextFrameTime += drawInterval;
         }
     }
 
