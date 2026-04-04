@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class Panel extends JPanel {
 
-    private String enemyURL = "/Assets/EnemiesSprites/ScalperIdle.gif";
+    private String enemyURL = "/Assets/EnemiesSprites/Stillborn_Idle.gif";
     private String backgroundURL = "/Assets/HospitalHallway1.png";
     private String portraitURL = "/Assets/andrew.png"; // had to change for testing instead of the selection
     private Image background;
@@ -19,7 +19,7 @@ public class Panel extends JPanel {
 
     //gi - add nako
 
-    private String enemyAttackURL = "/Assets/EnemiesSprites/ScalperAttack.gif";
+    private String enemyAttackURL = "/Assets/EnemiesSprites/Stillborn_Attack.gif";
     private Image enemyAttackAnim;
     private boolean isEnemyAttacking = false; // Controls which GIF to show
     private int enemyXOffset = 0;
