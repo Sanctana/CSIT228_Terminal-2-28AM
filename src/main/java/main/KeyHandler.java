@@ -16,7 +16,6 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
@@ -27,7 +26,6 @@ public class KeyHandler implements KeyListener {
         if (gp.gameState == GameState.TITLE) {
             handleTitleInput(code);
             return;
-
         }
 
         // PLAY STATE
@@ -53,7 +51,7 @@ public class KeyHandler implements KeyListener {
     }
 
     private void handleTitleInput(int code) {
-        int options = (gp.ui.titleScreenState == 0) ? 3 : 6;
+        int options = (gp.ui.titleScreenState == TitleScreenState.MAIN_MENU) ? 3 : 6;
         if (code == KeyEvent.VK_W) {
             gp.ui.commandNum = (gp.ui.commandNum - 1 + options) % options;
             return;
@@ -65,55 +63,39 @@ public class KeyHandler implements KeyListener {
         if (code != KeyEvent.VK_ENTER)
             return;
 
-        if (gp.ui.titleScreenState == 0) {
+        if (gp.ui.titleScreenState == TitleScreenState.MAIN_MENU) {
             switch (gp.ui.commandNum) {
-                case 0 -> gp.ui.titleScreenState = 1;
+                case 0 -> gp.ui.titleScreenState = TitleScreenState.CHARACTER_SELECT;
                 case 1 -> {
                     /* add later "LOAD GAME" */ }
                 case 2 -> System.exit(0);
             }
-        } else { // titleScreenState == 1
+        } else { // titleScreenState == TitleScreenState.CHARACTER_SELECT
+            CharacterType selectedCharacter = null;
+
             switch (gp.ui.commandNum) {
-                case 0 -> {
-                    gp.player = new Player(gp, this, CharacterType.DETECTIVE);
-                    gp.gameState = GameState.PLAY;
-                }
-                case 1 -> {
-                    gp.player = new Player(gp, this, CharacterType.OFFICER);
-                    gp.gameState = GameState.PLAY;
-                }
-                case 2 -> {
-                    gp.player = new Player(gp, this, CharacterType.INTRUDER);
-                    gp.gameState = GameState.PLAY;
-                }
-                case 3 -> {
-                    gp.player = new Player(gp, this, CharacterType.ARTIST);
-                    gp.gameState = GameState.PLAY;
-                }
-                case 4 -> {
-                    gp.player = new Player(gp, this, CharacterType.COLLECTOR);
-                    gp.gameState = GameState.PLAY;
-                }
-                case 5 -> gp.ui.titleScreenState = 0;
+                case 0 -> selectedCharacter = CharacterType.DETECTIVE;
+                case 1 -> selectedCharacter = CharacterType.OFFICER;
+                case 2 -> selectedCharacter = CharacterType.INTRUDER;
+                case 3 -> selectedCharacter = CharacterType.ARTIST;
+                case 4 -> selectedCharacter = CharacterType.COLLECTOR;
+                case 5 -> gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
+            }
+
+            if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
+                gp.player = new Player(gp, this, selectedCharacter);
+                gp.gameState = GameState.TRANSITION;
             }
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        int code = e.getKeyCode();
-
-        if (code == KeyEvent.VK_W) {
-            upPressed = false;
-        }
-        if (code == KeyEvent.VK_S) {
-            downPressed = false;
-        }
-        if (code == KeyEvent.VK_A) {
-            leftPressed = false;
-        }
-        if (code == KeyEvent.VK_D) {
-            rightPressed = false;
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_W -> upPressed = false;
+            case KeyEvent.VK_S -> downPressed = false;
+            case KeyEvent.VK_A -> leftPressed = false;
+            case KeyEvent.VK_D -> rightPressed = false;
         }
     }
 }

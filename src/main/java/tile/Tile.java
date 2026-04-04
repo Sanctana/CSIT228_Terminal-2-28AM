@@ -5,24 +5,26 @@ import java.awt.image.BufferedImage;
 public class Tile {
     // TILE
     public BufferedImage image;
-    public boolean collision = false;
-    private boolean moveNextMap = false;
+    private TileType tileType;
 
-    public Tile(BufferedImage image, boolean collision) {
+    public Tile(BufferedImage image, TileType tileType) {
         this.image = image;
-        this.collision = collision;
+        this.tileType = tileType;
     }
 
-    public Tile(boolean moveNextMap) {
-        this.moveNextMap = moveNextMap;
-    }
-
-    public Tile setNextMap(boolean moveNextMap) {
-        this.moveNextMap = moveNextMap;
+    public Tile setTileType(TileType tileType) {
+        this.tileType = tileType;
         return this;
     }
 
-    public boolean isMoveNextMap() {
-        return moveNextMap;
+    public TileType getTileType() {
+        return tileType;
+    }
+
+    @Override
+    public String toString() {
+        return "Tile{" +
+                "tileType=" + tileType +
+                '}';
     }
 }

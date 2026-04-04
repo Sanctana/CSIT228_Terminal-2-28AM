@@ -2,30 +2,35 @@ package main;
 
 import java.awt.*;
 
+enum TitleScreenState {
+    MAIN_MENU,
+    CHARACTER_SELECT
+}
+
 public class UI {
     GamePanel gp;
     Graphics2D g2;
 
     Font arial_40, arial_80B;
-    public boolean messageOn = false;
-    public String message = "";
-    int messageCounter = 0;
-    public boolean gameFinished = false;
-    public int commandNum = 0;
-    public int titleScreenState = 0;
-    int pulseCounter = 0;
-    boolean pulseOn = false;
+    public String message;
+    int messageCounter;
+    public int commandNum;
+    public TitleScreenState titleScreenState;
+    int pulseCounter;
+    boolean pulseOn;
 
     public UI(GamePanel gp) {
         this.gp = gp;
 
         arial_40 = new Font("Arial", Font.PLAIN, 40);
         arial_80B = new Font("Arial", Font.BOLD, 80);
+
+        titleScreenState = TitleScreenState.MAIN_MENU;
+        messageCounter = commandNum = pulseCounter = 0;
     }
 
     public void showMessage(String text) {
         message = text;
-        messageOn = true;
     }
 
     public void draw(Graphics2D g2) {
@@ -46,11 +51,10 @@ public class UI {
     }
 
     public void drawTitleScreen() {
+        g2.setColor(new Color(0, 0, 0));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
-        if (titleScreenState == 0) {
-            g2.setColor(new Color(0, 0, 0));
-            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-
+        if (titleScreenState == TitleScreenState.MAIN_MENU) {
             // TITLE NAME
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));
             String text = "Terminal 2:28 AM";
@@ -90,10 +94,7 @@ public class UI {
             if (commandNum == 2) {
                 g2.drawString(">", x - gp.tileSize, y);
             }
-        } else if (titleScreenState == 1) {
-            g2.setColor(new Color(0, 0, 0));
-            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-
+        } else if (titleScreenState == TitleScreenState.CHARACTER_SELECT) {
             g2.setColor(Color.white);
             g2.setFont(g2.getFont().deriveFont(42F));
 
@@ -153,7 +154,8 @@ public class UI {
     }
 
     public String getCharacterTitle() {
-        if (gp.player == null) return "";
+        if (gp.player == null)
+            return "";
 
         return switch (gp.player.characterType) {
             case DETECTIVE -> "JOHN LOYD: THE DETECTIVE";
@@ -182,7 +184,7 @@ public class UI {
         int flicker = 0;
 
         if (Math.random() < 0.08) {
-            flicker = (int)(Math.random() * 2);
+            flicker = (int) (Math.random() * 2);
         }
 
         // Shadow
@@ -258,14 +260,8 @@ public class UI {
                 intensity = 45 - gp.player.heartRate;
             }
 
-            if (intensity > 40) intensity = 40;
-
-
-            int alpha = 30 + intensity;
-
-            if (pulseOn) {
-                alpha += 20;
-            }
+            intensity = Math.min(intensity, 40);
+            int alpha = 30 + intensity + (pulseOn ? 20 : 0); // Base + intensity + pulse
 
             g2.setColor(new Color(180, 0, 0, alpha));
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);

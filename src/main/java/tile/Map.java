@@ -1,11 +1,12 @@
 package tile;
 
 import main.GamePanel;
-import main.UtilityTool;
+import common.UtilityTool;
+import common.DataStructures.Pair.Pair;
+import entity.EntityState;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,69 +28,75 @@ public abstract class Map {
         this.gp = gp;
         this.mapFile = mapFile;
 
-        tile = new ArrayList<>();
-        mapTileNum = new ArrayList<>();
+        tile = new ArrayList<Tile>();
+        mapTileNum = new ArrayList<int[]>();
 
         getTileImages();
-        loadMap();
     }
 
     // Common tiles for all maps
     public void getTileImages() {
-        setup("blackTiles", false); // 0
-        setup("upperLeftCorner", true); // 1
-        setup("upperRightCorner", true); // 2
-        setup("lowerLeftCorner", true); // 3
-        setup("lowerRightCorner", true); // 4
-        setup("blackTilesWallHor", true); // 5
-        setup("blackTilesWallVert", true); // 6
+        setup("blackTiles", TileType.WALKABLE); // 0
+        setup("upperLeftCorner", TileType.COLLISION_TILE); // 1
+        setup("upperRightCorner", TileType.COLLISION_TILE); // 2
+        setup("lowerLeftCorner", TileType.COLLISION_TILE); // 3
+        setup("lowerRightCorner", TileType.COLLISION_TILE); // 4
+        setup("blackTilesWallHor", TileType.COLLISION_TILE); // 5
+        setup("blackTilesWallVert", TileType.COLLISION_TILE); // 6
 
         // NEW TILES
-        setup("0001", true); // 7
-        setup("0002", true); // 8
-        setup("0003", true); // 9
-        setup("0004", true); // 10
-        setup("0005", true); // 11
-        setup("0006", true); // 12
-        setup("0007", true); // 13
-        setup("0008", true); // 14
-        setup("0009", true); // 15
-        setup("0010", true); // 16
-        setup("0011", true); // 17
-        setup("0012", true); // 18
-        setup("0013", true); // 19
-        setup("0014", true); // 20
-        setup("0015", true); // 21
-        setup("0016", true); // 22
-        setup("0017", true); // 23
-        setup("0018", true); // 24
-        setup("0019", true); // 25
-        setup("0020", true); // 26
-        setup("0021", true); // 27
-        setup("0022", true); // 28
-        setup("0023", true); // 29
-        setup("0024", true); // 30
+        setup("0001", TileType.COLLISION_TILE); // 7
+        setup("0002", TileType.COLLISION_TILE); // 8
+        setup("0003", TileType.COLLISION_TILE); // 9
+        setup("0004", TileType.COLLISION_TILE); // 10
+        setup("0005", TileType.COLLISION_TILE); // 11
+        setup("0006", TileType.COLLISION_TILE); // 12
+        setup("0007", TileType.COLLISION_TILE); // 13
+        setup("0008", TileType.COLLISION_TILE); // 14
+        setup("0009", TileType.COLLISION_TILE); // 15
+        setup("0010", TileType.COLLISION_TILE); // 16
+        setup("0011", TileType.COLLISION_TILE); // 17
+        setup("0012", TileType.COLLISION_TILE); // 18
+        setup("0013", TileType.COLLISION_TILE); // 19
+        setup("0014", TileType.COLLISION_TILE); // 20
+        setup("0015", TileType.COLLISION_TILE); // 21
+        setup("0016", TileType.COLLISION_TILE); // 22
+        setup("0017", TileType.COLLISION_TILE); // 23
+        setup("0018", TileType.COLLISION_TILE); // 24
+        setup("0019", TileType.COLLISION_TILE); // 25
+        setup("0020", TileType.COLLISION_TILE); // 26
+        setup("0021", TileType.COLLISION_TILE); // 27
+        setup("0022", TileType.COLLISION_TILE); // 28
+        setup("0023", TileType.COLLISION_TILE); // 29
+        setup("0024", TileType.COLLISION_TILE); // 30
 
-        setup("UpperBed", false); // 31
-        setup("lowerBed", false); // 32
+        setup("UpperBed", TileType.WALKABLE); // 31
+        setup("lowerBed", TileType.WALKABLE); // 32
 
-        setup("upperBedV2", false); // 33
-        setup("lowerBedV2", false); // 34
+        setup("upperBedV2", TileType.WALKABLE); // 33
+        setup("lowerBedV2", TileType.WALKABLE); // 34
+
+        setup("blackTiles", TileType.SPAWN_POINT); // 35
     }
 
-    public void setup(String imageName, boolean collision) {
-        UtilityTool uTool = new UtilityTool();
-
+    public void setup(String imageName, TileType tileType) {
         try {
-            BufferedImage originalImage = ImageIO.read(getClass().getResourceAsStream("/tiles/" + imageName + ".png"));
-            tile.add(new Tile(uTool.scaleImage(originalImage, gp.tileSize, gp.tileSize), collision));
+            tile.add(new Tile(
+                    UtilityTool.scaleImage(ImageIO.read(getClass().getResourceAsStream("/tiles/" + imageName + ".png")),
+                            gp.tileSize, gp.tileSize),
+                    tileType));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Loads the map from a text file with dynamically determined dimensions
-    public void loadMap() {
+    /**
+     * Loads the map from a text file with dynamically determined dimensions
+     * 
+     * @return Pair<Integer, Integer> representing the row and column of the
+     *         player's spawn point
+     */
+    public Pair<Integer, Integer> loadMap() {
         Pattern pattern = Pattern.compile("\s+");
 
         try (BufferedReader bufferedReader = new BufferedReader(
@@ -106,8 +113,21 @@ public abstract class Map {
 
             maxWorldRow = mapTileNum.size();
             maxWorldCol = mapTileNum.get(0).length; // Assuming all rows have the same number of columns
+
+            // Find the player's starting position (first occurrence of tile index 35)
+            for (int row = 0; row < maxWorldRow; row++) {
+                int[] cols = mapTileNum.get(row);
+                for (int col = 0, len = cols.length; col < len; col++) {
+                    if (cols[col] == 35) {
+                        return new Pair<>(row, col);
+                    }
+                }
+            }
+
+            throw new IOException("No spawn point (tile index 35) found in the map.");
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -135,5 +155,15 @@ public abstract class Map {
         }
     }
 
+    public Map transitionToMap(EntityState state) {
+        return switch (state) {
+            case TO_NEXT_MAP -> getNextMap();
+            case TO_PREVIOUS_MAP -> getPreviousMap();
+            default -> this;
+        };
+    }
+
     public abstract Map getNextMap();
+
+    public abstract Map getPreviousMap();
 }

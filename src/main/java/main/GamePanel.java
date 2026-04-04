@@ -1,8 +1,8 @@
 package main;
 
 import environment.EnvironmentManager;
-import entity.EntityState;
 import entity.Player;
+import entity.EntityState;
 import tile.Map;
 
 import java.awt.*;
@@ -11,34 +11,40 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
+import common.DataStructures.Pair.Pair;
+
+enum GameState {
+    TITLE,
+    PLAY,
+    PAUSE,
+    TRANSITION
+}
 
 public class GamePanel extends JPanel implements Runnable {
-
-    final int originalTileSize = 16;
-    final int scale = 4;
+    private final int originalTileSize = 8;
+    private final int scale = 8;
+    private final int FPS = 60;
+    private final int maxScreenCol = 20;
+    private final int maxScreenRow = 12;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
-    public final int maxScreenCol = 20;
-    public final int maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
     SoundManager music = new SoundManager();
 
     // FULL SCREEN
-    int screenWidth2 = screenWidth;
-    int screenHeight2 = screenHeight;
-    BufferedImage tempScreen;
-    Graphics2D g2;
+    private int screenWidth2 = screenWidth;
+    private int screenHeight2 = screenHeight;
+    private BufferedImage tempScreen;
+    private Graphics2D graphics2d;
+    private final Object renderLock = new Object();
 
-    int FPS = 60;
-
-    public Map tileM = new ThirdFloorMap(this); // Default map
+    public Map tileM;
     KeyHandler keyH = new KeyHandler(this);
     private Thread gameThread;
-    public CollisionChecker cChecker = new CollisionChecker(this);
-    public AssetSetter aSetter = new AssetSetter(this);
-    public UI ui = new UI(this);
+    public CollisionChecker cChecker;
+    public UI ui;
     public Player player;
 
     // GAME STATE
@@ -52,6 +58,11 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+
+        tileM = new ThirdFloorMap(this); // Default map
+        gameThread = new Thread(this, "GameLoop");
+        cChecker = new CollisionChecker(this);
+        ui = new UI(this);
     }
 
     public void setupGame() {
@@ -61,84 +72,95 @@ public class GamePanel extends JPanel implements Runnable {
         playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
-        g2 = (Graphics2D) tempScreen.getGraphics();
+        graphics2d = (Graphics2D) tempScreen.getGraphics();
     }
 
     public void setFullScreen() {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-        gd.setFullScreenWindow(Main.window);
+        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Main.window);
 
         screenWidth2 = Main.window.getWidth();
         screenHeight2 = Main.window.getHeight();
     }
 
-    public synchronized void startGameThread() {
-        gameThread = new Thread(this, "GameLoop");
+    public void startGameThread() {
         gameThread.start();
     }
 
     public void run() {
-        double drawInterval = 1_000_000_000 / FPS;
-        double delta = 0;
-        long lastTime = System.nanoTime();
-        long currentTime;
-        long timer = 0;
-        int drawCount = 0;
+        final long drawInterval = 1_000_000_000L / FPS; // 16.67 ms per frame
+        long nextFrameTime = System.nanoTime() + drawInterval;
 
-        while (gameThread != null) {
-            currentTime = System.nanoTime();
+        while (gameThread != null && !Thread.currentThread().isInterrupted()) {
+            update();
+            drawToTempScreen();
+            repaint();
 
-            delta += (currentTime - lastTime) / drawInterval;
-            timer += (currentTime - lastTime);
-            lastTime = currentTime;
-
-            if (delta >= 1) {
-                update();
-                drawToTempScreen();
-                drawToScreen();
-                delta--;
-                drawCount++;
+            long sleepNs = nextFrameTime - System.nanoTime();
+            if (sleepNs > 0) {
+                try {
+                    Thread.sleep(sleepNs / 1_000_000L, (int) (sleepNs % 1_000_000L));
+                } catch (InterruptedException e) {// In case the sleep is interrupted, we should exit the loop to avoid
+                                                  // running in an inconsistent state
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-
-            if (timer >= 1_000_000_000) {
-                System.out.println("FPS: " + drawCount);
-                drawCount = 0;
-                timer = 0;
-            }
+            nextFrameTime += drawInterval;
         }
     }
 
     public void update() {
         if (gameState == GameState.PLAY) {
             player.update();
-            if (player.state == EntityState.MOVING_NEXT_MAP) {
-                tileM = tileM.getNextMap();
-                player.setLocation(1, 1);
+
+            // Check if the player is transitioning to another map
+            if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
+                tileM = tileM.transitionToMap(player.state);
+
+                Pair<Integer, Integer> spawnPoint = tileM.loadMap();
+                player.setLocation(spawnPoint.getKey(), spawnPoint.getValue());
+
                 player.state = EntityState.IDLE;
+            }
+        } else if (gameState == GameState.TRANSITION) {
+            // First load of the map, so we need to set the player's position to the spawn
+            // point
+            Pair<Integer, Integer> spawnPoint = tileM.loadMap();
+            player.setLocation(spawnPoint.getKey(), spawnPoint.getValue());
+
+            gameState = GameState.PLAY;
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        synchronized (renderLock) {
+            if (tempScreen != null) {
+                g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
             }
         }
     }
 
     public void drawToTempScreen() {
-        // TITLE SCREEN
-        if (gameState == GameState.TITLE) {
-            ui.draw(g2);
-        }
-        // OTHERS
-        else if (gameState == GameState.PLAY) {
-            tileM.draw(g2);
-            player.draw(g2);
+        synchronized (renderLock) {
+            // clear / background
+            graphics2d.setColor(getBackground());
+            graphics2d.fillRect(0, 0, screenWidth, screenHeight);
 
-            eManager.draw(g2);
-            ui.draw(g2);
-        }
-    }
+            // TITLE SCREEN
+            if (gameState == GameState.TITLE) {
+                ui.draw(graphics2d);
+            }
+            // OTHERS
+            else if (gameState == GameState.PLAY || gameState == GameState.PAUSE) {
+                tileM.draw(graphics2d);
+                player.draw(graphics2d);
 
-    public void drawToScreen() {
-        Graphics g = getGraphics();
-        g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
-        g.dispose();
+                eManager.draw(graphics2d);
+                ui.draw(graphics2d);
+            }
+        }
     }
 
     public void playMusic(int i) {

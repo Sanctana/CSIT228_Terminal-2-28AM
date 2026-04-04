@@ -34,12 +34,11 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
-        setLocation(3, 2);
         speed = 4;
         direction = Direction.DOWN; // DEFAULT
     }
 
-    public void setLocation(int col, int row) {
+    public void setLocation(int row, int col) {
         worldX = gp.tileSize * col;
         worldY = gp.tileSize * row;
     }
@@ -114,21 +113,12 @@ public class Player extends Entity {
 
             if (state == EntityState.MOVING) {
                 switch (direction) {
-                    case UP:
-                        worldY -= speed;
-                        break;
-                    case DOWN:
-                        worldY += speed;
-                        break;
-                    case LEFT:
-                        worldX -= speed;
-                        break;
-                    case RIGHT:
-                        worldX += speed;
-                        break;
+                    case UP -> worldY -= speed;
+                    case DOWN -> worldY += speed;
+                    case LEFT -> worldX -= speed;
+                    case RIGHT -> worldX += speed;
                 }
             }
-
         } else {
             state = EntityState.IDLE;
         }
@@ -140,33 +130,17 @@ public class Player extends Entity {
 
         if (state == EntityState.MOVING) {
             switch (direction) {
-                case UP -> {
-                    image = up;
-                }
-                case DOWN -> {
-                    image = down;
-                }
-                case LEFT -> {
-                    image = left;
-                }
-                case RIGHT -> {
-                    image = right;
-                }
+                case UP -> image = up;
+                case DOWN -> image = down;
+                case LEFT -> image = left;
+                case RIGHT -> image = right;
             }
         } else if (state == EntityState.IDLE) {
             switch (direction) {
-                case UP -> {
-                    image = idleUp;
-                }
-                case DOWN -> {
-                    image = idleDown;
-                }
-                case LEFT -> {
-                    image = idleLeft;
-                }
-                case RIGHT -> {
-                    image = idleRight;
-                }
+                case UP -> image = idleUp;
+                case DOWN -> image = idleDown;
+                case LEFT -> image = idleLeft;
+                case RIGHT -> image = idleRight;
             }
         }
 

@@ -5,7 +5,6 @@ public class Event {
     public void battle(Character player, Enemy enemy) {
         int playerDMG;
         int enemyDMG;
-        boolean playerWin = false;
 
         while (player.getIsAlive() && enemy.getIsAlive()) {
             // player button selection
@@ -13,25 +12,16 @@ public class Event {
             enemyDMG = enemy.skill();
 
             // apply effects
-            enemy.setHealth(playerDMG);
-            player.setHeartBeat((int) (enemyDMG - (enemyDMG * player.getResistance())));
+            enemy.takeDamage(playerDMG);
+            player.takeDamage(enemyDMG);
 
             // check player death (heartbeat condition)
-            if (player.getHeartBeat() > player.getMaxHeartBeat() || player.getHeartBeat() < 40) {
-                player.setIsAlive(false);
-                playerWin = false;
-                break;
-            }
-
-            // check enemy death (health condition)
-            if (enemy.getHealth() <= 0) {
-                enemy.setIsAlive(false);
-                playerWin = true;
+            if (!player.getIsAlive() || !enemy.getIsAlive()) {
                 break;
             }
         }
 
-        if (playerWin) {
+        if (player.getIsAlive()) {
             System.out.println("You won");
         } else {
             System.out.println("You lost");

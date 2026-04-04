@@ -17,10 +17,10 @@ public class EnvironmentManager {
     }
 
     public void draw(Graphics2D g2) {
-
         if(gp.player != null) {
             lighting.updateFilter();
         }
+
         lighting.draw(g2);
     }
 }
