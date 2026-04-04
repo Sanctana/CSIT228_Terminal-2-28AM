@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
+import common.DataStructures.Pair.Pair;
 
 enum GameState {
     TITLE,
@@ -20,12 +21,13 @@ enum GameState {
 }
 
 public class GamePanel extends JPanel implements Runnable {
-    private final int originalTileSize = 16;
-    private final int scale = 4;
-
-    public final int tileSize = originalTileSize * scale; // 64 by 64
+    private final int originalTileSize = 8;
+    private final int scale = 8;
+    private final int FPS = 60;
     private final int maxScreenCol = 20;
     private final int maxScreenRow = 12;
+
+    public final int tileSize = originalTileSize * scale; // 64 by 64
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
@@ -37,8 +39,6 @@ public class GamePanel extends JPanel implements Runnable {
     private BufferedImage tempScreen;
     private Graphics2D graphics2d;
     private final Object renderLock = new Object();
-
-    int FPS = 60;
 
     public Map tileM;
     KeyHandler keyH = new KeyHandler(this);
@@ -76,9 +76,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setFullScreen() {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-        gd.setFullScreenWindow(Main.window);
+        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Main.window);
 
         screenWidth2 = Main.window.getWidth();
         screenHeight2 = Main.window.getHeight();
@@ -114,11 +112,23 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         if (gameState == GameState.PLAY) {
             player.update();
-            if (player.state == EntityState.MOVING_NEXT_MAP) {
-                tileM = tileM.getNextMap();
-                player.setLocation(1, 1);
+
+            // Check if the player is transitioning to another map
+            if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
+                tileM = tileM.transitionToMap(player.state);
+
+                Pair<Integer, Integer> spawnPoint = tileM.loadMap();
+                player.setLocation(spawnPoint.getKey(), spawnPoint.getValue());
+
                 player.state = EntityState.IDLE;
             }
+        } else if (gameState == GameState.TRANSITION) {
+            // First load of the map, so we need to set the player's position to the spawn
+            // point
+            Pair<Integer, Integer> spawnPoint = tileM.loadMap();
+            player.setLocation(spawnPoint.getKey(), spawnPoint.getValue());
+
+            gameState = GameState.PLAY;
         }
     }
 
