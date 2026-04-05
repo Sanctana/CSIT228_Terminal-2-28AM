@@ -68,7 +68,7 @@ public class Panel extends JPanel {
             player.recover(heal);
             repaint();
 
-            if (!checkDeath("Cardiag Arrest")) {
+            if (!checkDeath("Cardiac Arrest")) {
                 startEnemyTimer();
             }
         });
@@ -93,7 +93,7 @@ public class Panel extends JPanel {
         repaint();
 
         if (enemyHP <= 0) {
-            JOptionPane.showMessageDialog(this, "The patient has been suppressed.");
+            JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
             resetBattle();
             isProcessing = false;
         } else {
@@ -108,26 +108,31 @@ public class Panel extends JPanel {
     }
 
     private void enemyAttack() {
+        if (enemyAttackAnim != null) {
+            enemyAttackAnim.flush();
+        }
+
         isEnemyAttacking = true;
         enemyXOffset = -60;
         repaint();
 
-        Timer impactTimer = new Timer(600, e -> {
+        Timer attackSequence = new Timer(2000, e -> {
             player.takeDamage(enemy.skill());
-            repaint();
-            checkDeath("Heart Failure");
-        });
-        impactTimer.setRepeats(false);
-        impactTimer.start();
 
-        Timer finishAnimationTimer = new Timer(2500, e -> {
             isEnemyAttacking = false;
             enemyXOffset = 0;
             isProcessing = false;
+
+            if (enemyAnim != null) {
+                enemyAnim.flush();
+            }
+
             repaint();
+            checkDeath("Cardiac Event");
         });
-        finishAnimationTimer.setRepeats(false);
-        finishAnimationTimer.start();
+
+        attackSequence.setRepeats(false);
+        attackSequence.start();
     }
 
     private boolean checkDeath(String cause) {
