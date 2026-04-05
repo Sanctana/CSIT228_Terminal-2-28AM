@@ -3,17 +3,13 @@ package battle;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Enemy {
-    private int health;
-    boolean isIncreasingDamage;
-    private ArrayList<EnemySkill> skills = new ArrayList<>();
-    private int index;
+public abstract class Enemy {
+    protected int health;
+    protected boolean isIncreasingDamage;
+    protected ArrayList<EnemySkill> skills = new ArrayList<>();
+    protected int index;
 
-    private Random rand = new Random();
-
-    public Enemy(int health) {
-        this.health = health;
-    }
+    protected Random rand = new Random();
 
     public int skill() {
         if (skills.isEmpty())
@@ -44,4 +40,7 @@ public class Enemy {
     public boolean getIsAlive() {
         return health > 0;
     }
+
+    public abstract String getIdleURL();
+    public abstract String getAttackURL();
 }

@@ -6,363 +6,210 @@ import java.util.Objects;
 
 public class Panel extends JPanel {
 
-    private String enemyURL = "/Assets/EnemiesSprites/Stillborn_Idle.gif";
-    private String backgroundURL = "/Assets/HospitalHallway1.png";
-    private String portraitURL = "/Assets/andrew.png"; // had to change for testing instead of the selection
-    private Image background;
-    private Image enemyAnim;
-    private Image portrait;
-
-    private int enemyHP = 100;
-    private int maxHP = 100;
-    private int playerHP = 100; // player's current health
-
-    // gi - add nako
-
-    private String enemyAttackURL = "/Assets/EnemiesSprites/Stillborn_Attack.gif";
-    private Image enemyAttackAnim;
-    private boolean isEnemyAttacking = false; // Controls which GIF to show
+    private Image background, enemyAnim, enemyAttackAnim, portrait;
+    private int enemyHP = 200, maxEnemyHP = 200;
+    private boolean isEnemyAttacking = false;
     private int enemyXOffset = 0;
 
-    JButton suppressBtn;
-    JButton protectBtn;
-    JButton recoverBtn;
+    private boolean isProcessing = false;
 
-    // Added for Skill Menu
-    JButton skill1Btn;
-    JButton skill2Btn;
-    JButton skill3Btn; // Added Skill 3
-    JButton backBtn;
+    private JButton suppressBtn, protectBtn, recoverBtn, skill1Btn, skill2Btn, skill3Btn, backBtn;
+    private Character player;
+    private Enemy enemy;
 
-    // Linking your classes
-    Character playerCharacter = new Character(100, 0.5);
-    Enemy enemyObject = new Enemy(100);
+    public Panel(Character player, Enemy enemy) {
+        this.player = player;
+        this.enemy = enemy;
+        this.enemyHP = enemy.getHealth();
+        this.maxEnemyHP = enemy.getHealth();
 
-    // JButton escalateBtn;
-
-    public Panel() {
         setLayout(null);
-        background = new ImageIcon(Objects.requireNonNull(getClass().getResource(backgroundURL))).getImage();
-        enemyAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemyURL))).getImage();
-        portrait = new ImageIcon(Objects.requireNonNull(getClass().getResource(portraitURL))).getImage();
-        // gi-add nako
-        enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemyAttackURL))).getImage();
+
+        background = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/HospitalHallway1.png"))).getImage();
+        portrait = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/andrew.png"))).getImage();
+        enemyAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getIdleURL()))).getImage();
+        enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getAttackURL()))).getImage();
 
         initButtons();
     }
-
-    // gi change
 
     private void initButtons() {
         suppressBtn = createActionBtn("SUPPRESS", "Attack enemy", new Color(60, 80, 150));
         protectBtn = createActionBtn("PROTECT", "Defend patient", new Color(160, 150, 60));
         recoverBtn = createActionBtn("RECOVER", "Manage heart", new Color(60, 150, 80));
 
-        // New Skill Buttons
         skill1Btn = createActionBtn("PUNCH", "10-20 DMG", new Color(60, 80, 150));
         skill2Btn = createActionBtn("KICK", "20-30 DMG", new Color(160, 150, 60));
-        skill3Btn = createActionBtn("SLAM", "30-45 DMG", new Color(60, 150, 80)); // Added Skill 3
+        skill3Btn = createActionBtn("SLAM", "30-45 DMG", new Color(60, 150, 80));
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
         toggleSkills(false);
 
+
         suppressBtn.addActionListener(e -> {
+            if (isProcessing) return;
             toggleMenu(false);
             toggleSkills(true);
         });
 
-        // Skill 1 Logic
-        skill1Btn.addActionListener(e -> {
-            int damage = playerCharacter.skill1();
-            applySkillDamage(damage);
-        });
-
-        // Skill 2 Logic
-        skill2Btn.addActionListener(e -> {
-            int damage = playerCharacter.skill2();
-            applySkillDamage(damage);
-        });
-
-        // Skill 3 Logic (SLAM)
-        skill3Btn.addActionListener(e -> {
-            // Using a high damage range for the Slam move
-            int damage = (int) (Math.random() * 16) + 30;
-            applySkillDamage(damage);
-        });
-
-        // Back Logic
         backBtn.addActionListener(e -> {
             toggleSkills(false);
             toggleMenu(true);
         });
 
-        // recover button
+        skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skill1()); });
+        skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skill2()); });
+        skill3Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skill3()); });
+
         recoverBtn.addActionListener(e -> {
-            int heal = (int) (Math.random() * 11) + 15; // Random 15-25 HP
-            playerHP = Math.min(maxHP, playerHP + heal);
-            System.out.println("Stabilizing... HP: " + playerHP);
+            if (isProcessing) return;
+            isProcessing = true;
+            int heal = (int) (Math.random() * 11) + 15;
+            player.recover(heal);
             repaint();
 
-            if (enemyHP > 0) {
+            if (!checkDeath("Cardiag Arrest")) {
                 startEnemyTimer();
             }
         });
 
-        // 5. PROTECT Button Logic
         protectBtn.addActionListener(e -> {
-            System.out.println("Bracing for impact...");
-            playerCharacter.defend();
-            if (enemyHP > 0) {
-                startEnemyTimer();
-            }
+            if (isProcessing) return;
+            isProcessing = true;
+            player.defend();
+            startEnemyTimer();
         });
 
-        add(suppressBtn);
-        add(protectBtn);
-        add(recoverBtn);
-        add(skill1Btn);
-        add(skill2Btn);
-        add(skill3Btn);
-        add(backBtn);
+        add(suppressBtn); add(protectBtn); add(recoverBtn);
+        add(skill1Btn); add(skill2Btn); add(skill3Btn); add(backBtn);
     }
 
-    // Helper for Skill Damage flow
-    private void applySkillDamage(int damage) {
+    private void applyPlayerAction(int damage) {
+        isProcessing = true;
         enemyHP = Math.max(0, enemyHP - damage);
-        repaint();
+        player.resetResistance();
         toggleSkills(false);
         toggleMenu(true);
+        repaint();
 
         if (enemyHP <= 0) {
-            JOptionPane.showMessageDialog(this, "The patient has been suppressed. The hallway is quiet.");
+            JOptionPane.showMessageDialog(this, "The patient has been suppressed.");
             resetBattle();
+            isProcessing = false;
         } else {
             startEnemyTimer();
         }
     }
 
-    private void toggleSkills(boolean b) {
-        if (skill1Btn != null) {
-            skill1Btn.setVisible(b);
-            skill2Btn.setVisible(b);
-            skill3Btn.setVisible(b);
-            backBtn.setVisible(b);
-        }
-    }
-
-    private void toggleMenu(boolean b) {
-        if (suppressBtn != null) {
-            suppressBtn.setVisible(b);
-            protectBtn.setVisible(b);
-            recoverBtn.setVisible(b);
-        }
-    }
-
     private void startEnemyTimer() {
-        Timer timer = new Timer(1000, event -> {
-            enemyAttack();
-        });
+        Timer timer = new Timer(1000, e -> enemyAttack());
         timer.setRepeats(false);
         timer.start();
     }
 
-    // gi-change nako
-
     private void enemyAttack() {
-        // 1. Switch to Attack Mode and Lunge forward
         isEnemyAttacking = true;
-        enemyXOffset = -60; // Jump 60 pixels toward the player
+        enemyXOffset = -60;
         repaint();
 
-        // 2. Wait 500ms (Half a second) for the GIF animation to play out
-        Timer attackTimer = new Timer(500, e -> {
-            // 3. Reset back to Idle mode and original position
+        Timer impactTimer = new Timer(600, e -> {
+            player.takeDamage(enemy.skill());
+            repaint();
+            checkDeath("Heart Failure");
+        });
+        impactTimer.setRepeats(false);
+        impactTimer.start();
+
+        Timer finishAnimationTimer = new Timer(2500, e -> {
             isEnemyAttacking = false;
             enemyXOffset = 0;
-
-            // 4. Deal the actual damage
-            int damage = (int) (Math.random() * 21) + 25;
-            playerHP = Math.max(0, playerHP - damage);
-
+            isProcessing = false;
             repaint();
-
-            // 5. Existing FLATLINE logic for losing
-            if (playerHP <= 0) {
-                int choice = JOptionPane.showConfirmDialog(this,
-                        "The heart has stopped. Time of death: 2:28 AM.\nTry again?",
-                        "FLATLINE", JOptionPane.YES_NO_OPTION);
-
-                if (choice == JOptionPane.YES_OPTION) {
-                    resetBattle();
-                } else {
-                    System.exit(0);
-                }
-            }
         });
-        attackTimer.setRepeats(false);
-        attackTimer.start();
+        finishAnimationTimer.setRepeats(false);
+        finishAnimationTimer.start();
     }
+
+    private boolean checkDeath(String cause) {
+        if (!player.getIsAlive()) {
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "The heart has stopped. " + cause + "\nTry again?",
+                    "FLATLINE", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) resetBattle();
+            else System.exit(0);
+            return true;
+        }
+        return false;
+    }
+
+    private void resetBattle() {
+        player.setHeartBeat(70);
+        enemyHP = maxEnemyHP;
+        isProcessing = false;
+        repaint();
+    }
+
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g; // used Graphics2D to match the background ui instead Graphics, basically more
-        // smooth tan awn match sa ka andrew na ui
+        Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        int w = getWidth(); // getting current width n height
-        int h = getHeight();
-        int hudY = h - 140;
-        int sidePad = 25;
-        int gap = 15;
-
-        // gi section nako
-        drawWorld(g2, w, h); // main area - center
-        drawTopBar(g2, w, sidePad); // top
-        drawHUD(g2, w, hudY, sidePad, gap); // bottom
-
-        updateButtons(w, hudY, sidePad);
+        int w = getWidth(), h = getHeight();
+        drawWorld(g2, w, h);
+        drawTopBar(g2, w, 25);
+        drawHUD(g2, w, h - 140, 25, 15);
+        updateButtons(w, h - 140, 25);
     }
 
     private void drawWorld(Graphics2D g, int w, int h) {
-        if (background != null) {
-            g.drawImage(background, 0, 0, w, h, null);
-        }
-
-        int ex = (w / 2) - 125;
-        int ey = (h / 2) - 140;
-
-        int attackSpriteCorrection = 60;
-
-        if (isEnemyAttacking) {
-            // para dili hiwi inig attack
-            g.drawImage(enemyAttackAnim, ex + enemyXOffset + attackSpriteCorrection, ey, 250, 250, this);
-        } else {
-            g.drawImage(enemyAnim, ex, ey, 250, 250, this);
-        }
-
-        // enemy bar health
-        int barW = 220;
-        int barH = 18;
-        int bx = (w / 2) - (barW / 2);
-        int by = ey - 30;
-
-        // bar background - red
-        g.setColor(new Color(60, 0, 0));
-        g.fillRect(bx, by, barW, barH);
-
-        // bar fill
+        if (background != null) g.drawImage(background, 0, 0, w, h, null);
+        int ex = (w / 2) - 125, ey = (h / 2) - 140;
+        if (isEnemyAttacking) g.drawImage(enemyAttackAnim, ex + enemyXOffset + 60, ey, 250, 250, this);
+        else g.drawImage(enemyAnim, ex, ey, 250, 250, this);
+        int barW = 220, barH = 18, bx = (w / 2) - 110, by = ey - 30;
+        g.setColor(new Color(60, 0, 0)); g.fillRect(bx, by, barW, barH);
         g.setColor(new Color(255, 60, 60));
-        int currentBarW = (int) (barW * (enemyHP / (double) maxHP));
-        g.fillRect(bx, by, currentBarW, barH);
-
-        // gloss sa bar
-        g.setColor(new Color(255, 255, 255, 40));
-        g.fillRect(bx, by, barW, barH / 2);
-
-        // outline
-        g.setColor(Color.WHITE);
-        g.setStroke(new BasicStroke(1.5f)); // Modern thicker line
-        g.drawRect(bx, by, barW, barH);
-
-        // text sa bar
-        g.setFont(new Font("SansSerif", Font.BOLD, 12));
-        String hpLabel = enemyHP + " / " + maxHP;
-
-        FontMetrics metrics = g.getFontMetrics();
-        int textX = bx + (barW - metrics.stringWidth(hpLabel)) / 2;
-        int textY = by + ((barH - metrics.getHeight()) / 2) + metrics.getAscent();
-
-        g.setColor(new Color(0, 0, 0, 150));
-        g.drawString(hpLabel, textX + 1, textY + 1);
-
-        g.setColor(Color.WHITE);
-        g.drawString(hpLabel, textX, textY);
-
-        g.setStroke(new BasicStroke(1));
+        g.fillRect(bx, by, (int) (barW * (enemyHP / (double) maxEnemyHP)), barH);
+        g.setColor(Color.WHITE); g.drawRect(bx, by, barW, barH);
     }
 
     private void drawTopBar(Graphics2D g, int w, int pad) {
-        g.setColor(new Color(0, 0, 0, 220));
-        g.fillRect(0, 0, w, 45);
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Monospaced", Font.BOLD, 20));
-        g.drawString("THIRD FLOOR", pad, 30);
-        g.drawString("2:22 AM", w - pad - 100, 30);
+        g.setColor(new Color(0, 0, 0, 220)); g.fillRect(0, 0, w, 45);
+        g.setColor(Color.WHITE); g.setFont(new Font("Monospaced", Font.BOLD, 20));
+        g.drawString("THIRD FLOOR", pad, 30); g.drawString("2:22 AM", w - pad - 100, 30);
     }
 
     private void drawHUD(Graphics2D g, int w, int y, int pad, int gap) {
-
-        // background sa hud
-        g.setColor(new Color(5, 8, 12));
-        g.fillRect(0, y, w, 140);
-        g.setColor(new Color(45, 50, 55));
-        g.drawLine(0, y, w, y);
-
-        // portrait sa player
-        g.drawImage(portrait, pad, y + 15, 100, 110, null);
-        g.setColor(Color.GRAY);
-        g.drawRect(pad, y + 15, 100, 110);
-
-        // monitor <3
-        int hrX = pad + 100 + gap;
-        int hrY = y + 45;
-        drawHeartMonitor(g, hrX, hrY);
+        g.setColor(new Color(5, 8, 12)); g.fillRect(0, y, w, 140);
+        g.setColor(new Color(45, 50, 55)); g.drawLine(0, y, w, y);
+        if (portrait != null) g.drawImage(portrait, pad, y + 15, 100, 110, null);
+        drawHeartMonitor(g, pad + 100 + gap, y + 45);
     }
 
     private void drawHeartMonitor(Graphics2D g, int x, int y) {
-        g.setColor(new Color(15, 18, 25));
-        g.fillRoundRect(x, y, 175, 80, 5, 5);
-
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Monospaced", Font.BOLD, 14));
+        g.setColor(new Color(15, 18, 25)); g.fillRoundRect(x, y, 175, 80, 5, 5);
+        g.setColor(Color.WHITE); g.setFont(new Font("Monospaced", Font.BOLD, 14));
         g.drawString("PATIENT: ANDREW", x, y - 13);
-
         g.setColor(new Color(100, 255, 200));
-        int[] px = { x + 10, x + 45, x + 55, x + 65, x + 75, x + 85, x + 115, x + 130, x + 145, x + 165 };
-        int[] py = { y + 30, y + 30, y + 10, y + 55, y + 30, y + 30, y + 30, y + 5, y + 65, y + 30 };
+        int[] px = { x+10, x+45, x+55, x+65, x+75, x+85, x+115, x+130, x+145, x+165 };
+        int[] py = { y+30, y+30, y+10, y+55, y+30, y+30, y+30, y+5, y+65, y+30 };
         g.drawPolyline(px, py, px.length);
-
+        int bpm = player.getHeartBeat();
+        g.setColor( (bpm < 50 || bpm > 170) ? Color.RED : new Color(100, 255, 200));
         g.setFont(new Font("SansSerif", Font.BOLD, 36));
-        // g.drawString("90", x + 60, y + 50);
-
-        if (playerHP < 30) {
-            g.setColor(new Color(255, 0, 0)); // Turn the number Bright Red
-            g.setFont(new Font("Monospaced", Font.BOLD, 12));
-            g.drawString("CRITICAL STATE", x + 40, y + 20);
-
-            // Re-set the big font for the HP number
-            g.setFont(new Font("SansSerif", Font.BOLD, 36));
-        } else {
-            g.setColor(new Color(100, 255, 200)); // Keep it Teal
-        }
-
-        // gi change nako
-        g.drawString(String.valueOf(playerHP), x + 60, y + 50); // gi change
+        g.drawString(String.valueOf(bpm), x + 60, y + 50);
     }
 
     private void updateButtons(int w, int y, int pad) {
-        // Reduced button width slightly to fit 4 buttons in 800px frame
         int btnW = 100, btnGap = 10;
         int startX = w - pad - (btnW * 4 + btnGap * 3);
-
-        if (suppressBtn != null) {
-            suppressBtn.setBounds(startX, y + 45, btnW, 80);
-            protectBtn.setBounds(startX + (btnW + btnGap), y + 45, btnW, 80);
-            recoverBtn.setBounds(startX + (btnW + btnGap) * 2, y + 45, btnW, 80);
-        }
-
-        // Skill Menu Positioning
-        if (skill1Btn != null) {
-            skill1Btn.setBounds(startX, y + 45, btnW, 80);
-            skill2Btn.setBounds(startX + (btnW + btnGap), y + 45, btnW, 80);
-            skill3Btn.setBounds(startX + (btnW + btnGap) * 2, y + 45, btnW, 80);
-            backBtn.setBounds(startX + (btnW + btnGap) * 3, y + 45, btnW, 80);
-        }
+        JButton[] mBtns = {suppressBtn, protectBtn, recoverBtn};
+        JButton[] sBtns = {skill1Btn, skill2Btn, skill3Btn, backBtn};
+        for (int i = 0; i < 3; i++) if(mBtns[i]!=null) mBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
+        for (int i = 0; i < 4; i++) if(sBtns[i]!=null) sBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
     }
 
-    // combat controls, template each button
     private JButton createActionBtn(String title, String sub, Color theme) {
         String label = "<html><center><font color='white' size='4'><b>" + title + "</b></font><br>" +
                 "<font color='#bbbbbb' size='2'>" + sub + "</font></center></html>";
@@ -373,19 +220,11 @@ public class Panel extends JPanel {
         return btn;
     }
 
-    public int getPlayerHP() {
-        return playerHP;
+    private void toggleSkills(boolean b) {
+        skill1Btn.setVisible(b); skill2Btn.setVisible(b); skill3Btn.setVisible(b); backBtn.setVisible(b);
     }
 
-    public void setPlayerHP(int playerHP) {
-        this.playerHP = playerHP;
-    }
-
-    // gi add
-    private void resetBattle() {
-        playerHP = 100;
-        enemyHP = 100;
-        System.out.println("The cycle restarts at 2:28 AM.");
-        repaint();
+    private void toggleMenu(boolean b) {
+        suppressBtn.setVisible(b); protectBtn.setVisible(b); recoverBtn.setVisible(b);
     }
 }
