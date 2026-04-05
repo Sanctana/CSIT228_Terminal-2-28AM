@@ -1,6 +1,5 @@
 module terminal228am {
     requires transitive java.desktop;
-    requires common;
 
     exports battle;
     exports entity;

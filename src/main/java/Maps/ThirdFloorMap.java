@@ -2,7 +2,6 @@ package Maps;
 
 import main.GamePanel;
 import tile.Map;
-import tile.TileType;
 
 public class ThirdFloorMap extends Map {
     public ThirdFloorMap(GamePanel gp) {
