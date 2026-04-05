@@ -8,7 +8,7 @@ public class FirstFloorMap extends Map {
     public FirstFloorMap(GamePanel gp) {
         super(gp, "1stFloorMap.txt");
 
-        setup("blackTiles", TileType.WALKABLE); // 37
+        setup("blackTiles", TileType.TO_PREVIOUS_MAP); // 37
     }
 
     @Override

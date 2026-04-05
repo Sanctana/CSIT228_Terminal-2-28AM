@@ -1,8 +1,8 @@
 plugins {
     java
     application
-    id("org.javamodularity.moduleplugin") version "2.0.0"
-    id("org.beryx.jlink") version "3.1.5"
+    id("org.javamodularity.moduleplugin") version "latest.release"
+    id("org.beryx.jlink") version "latest.release"
 }
 
 version = "1.0-SNAPSHOT"
@@ -11,7 +11,7 @@ repositories {
     mavenCentral()
 }
 
-val junitVersion = "5.12.1"
+val junitVersion = "latest.release"
 
 java {
     toolchain {
@@ -35,7 +35,7 @@ tasks.register<JavaExec>("runApp") {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:latest.release")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
