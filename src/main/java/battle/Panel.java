@@ -14,6 +14,8 @@ public class Panel extends JPanel {
     private boolean isProcessing = false;
 
     private JButton suppressBtn, protectBtn, recoverBtn, skill1Btn, skill2Btn, skill3Btn, backBtn;
+    private JButton action1Btn, action2Btn, action3Btn;
+
     private Character player;
     private Enemy enemy;
 
@@ -41,10 +43,15 @@ public class Panel extends JPanel {
         skill1Btn = createActionBtn(player.skills.get(0).getSkillName(), player.skills.get(0).getFloorDMG() + "-" + player.skills.get(0).getCeilDMG() + "DMG", new Color(60, 80, 150));
         skill2Btn = createActionBtn(player.skills.get(1).getSkillName(), player.skills.get(1).getFloorDMG() + "-" + player.skills.get(1).getCeilDMG() + "DMG", new Color(160, 150, 60));
         skill3Btn = createActionBtn(player.skills.get(2).getSkillName(), player.skills.get(2).getFloorDMG() + "-" + player.skills.get(2).getCeilDMG() + "DMG", new Color(60, 150, 80));
+
+        action1Btn = createActionBtn("ACTION 1", "", new Color(160, 150, 60));
+        action2Btn = createActionBtn("ACTION 2", "", new Color(160, 150, 60));
+        action3Btn = createActionBtn("ACTION 3", "", new Color(160, 150, 60));
+
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
         toggleSkills(false);
-
+        toggleProtectActions(false);
 
         suppressBtn.addActionListener(e -> {
             if (isProcessing) return;
@@ -52,8 +59,15 @@ public class Panel extends JPanel {
             toggleSkills(true);
         });
 
+        protectBtn.addActionListener(e -> {
+            if (isProcessing) return;
+            toggleMenu(false);
+            toggleProtectActions(true);
+        });
+
         backBtn.addActionListener(e -> {
             toggleSkills(false);
+            toggleProtectActions(false);
             toggleMenu(true);
         });
 
@@ -73,15 +87,10 @@ public class Panel extends JPanel {
             }
         });
 
-        protectBtn.addActionListener(e -> {
-            if (isProcessing) return;
-            isProcessing = true;
-            player.defend();
-            startEnemyTimer();
-        });
-
         add(suppressBtn); add(protectBtn); add(recoverBtn);
-        add(skill1Btn); add(skill2Btn); add(skill3Btn); add(backBtn);
+        add(skill1Btn); add(skill2Btn); add(skill3Btn);
+        add(action1Btn); add(action2Btn); add(action3Btn);
+        add(backBtn);
     }
 
     private void applyPlayerAction(int damage) {
@@ -89,6 +98,7 @@ public class Panel extends JPanel {
         enemyHP = Math.max(0, enemyHP - damage);
         player.resetResistance();
         toggleSkills(false);
+        toggleProtectActions(false);
         toggleMenu(true);
         repaint();
 
@@ -113,7 +123,7 @@ public class Panel extends JPanel {
         }
 
         isEnemyAttacking = true;
-        enemyXOffset = -60; // Lunge forward
+        enemyXOffset = -60;
         repaint();
 
         Timer damageTimer = new Timer(600, e -> {
@@ -155,7 +165,6 @@ public class Panel extends JPanel {
         isProcessing = false;
         repaint();
     }
-
 
     @Override
     public void paintComponent(Graphics g) {
@@ -213,8 +222,11 @@ public class Panel extends JPanel {
         int startX = w - pad - (btnW * 4 + btnGap * 3);
         JButton[] mBtns = {suppressBtn, protectBtn, recoverBtn};
         JButton[] sBtns = {skill1Btn, skill2Btn, skill3Btn, backBtn};
+        JButton[] pBtns = {action1Btn, action2Btn, action3Btn, backBtn};
+
         for (int i = 0; i < 3; i++) if(mBtns[i]!=null) mBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
         for (int i = 0; i < 4; i++) if(sBtns[i]!=null) sBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
+        for (int i = 0; i < 4; i++) if(pBtns[i]!=null) pBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
     }
 
     private JButton createActionBtn(String title, String sub, Color theme) {
@@ -229,6 +241,10 @@ public class Panel extends JPanel {
 
     private void toggleSkills(boolean b) {
         skill1Btn.setVisible(b); skill2Btn.setVisible(b); skill3Btn.setVisible(b); backBtn.setVisible(b);
+    }
+
+    private void toggleProtectActions(boolean b) {
+        action1Btn.setVisible(b); action2Btn.setVisible(b); action3Btn.setVisible(b); backBtn.setVisible(b);
     }
 
     private void toggleMenu(boolean b) {
