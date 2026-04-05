@@ -7,8 +7,6 @@ import tile.TileType;
 public class ThirdFloorMap extends Map {
     public ThirdFloorMap(GamePanel gp) {
         super(gp, "3rdFloorMap.txt");
-
-        setup("blackTiles", TileType.TO_NEXT_MAP); // 36
     }
 
     @Override

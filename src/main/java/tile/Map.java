@@ -1,11 +1,12 @@
 package tile;
 
 import main.GamePanel;
-import common.UtilityTool;
-import common.DataStructures.Pair.Pair;
 import entity.EntityState;
 
 import javax.imageio.ImageIO;
+
+import Utilities.UtilityTool;
+
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,6 +78,7 @@ public abstract class Map {
         setup("lowerBedV2", TileType.WALKABLE); // 34
 
         setup("blackTiles", TileType.SPAWN_POINT); // 35
+        setup("blackTiles", TileType.TO_NEXT_MAP); // 36
     }
 
     public void setup(String imageName, TileType tileType) {
@@ -93,10 +95,10 @@ public abstract class Map {
     /**
      * Loads the map from a text file with dynamically determined dimensions
      * 
-     * @return Pair<Integer, Integer> representing the row and column of the
+     * @return Point representing the column and row of the
      *         player's spawn point
      */
-    public Pair<Integer, Integer> loadMap() {
+    public Point loadMap() {
         Pattern pattern = Pattern.compile("\s+");
 
         try (BufferedReader bufferedReader = new BufferedReader(
@@ -119,7 +121,7 @@ public abstract class Map {
                 int[] cols = mapTileNum.get(row);
                 for (int col = 0, len = cols.length; col < len; col++) {
                     if (cols[col] == 35) {
-                        return new Pair<>(row, col);
+                        return new Point(col, row); // x = col, y = row
                     }
                 }
             }

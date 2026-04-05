@@ -1,8 +1,8 @@
 plugins {
     java
     application
-    id("org.javamodularity.moduleplugin") version "1.8.15"
-    id("org.beryx.jlink") version "2.25.0"
+    id("org.javamodularity.moduleplugin") version "2.0.0"
+    id("org.beryx.jlink") version "3.1.5"
 }
 
 version = "1.0-SNAPSHOT"
@@ -15,7 +15,7 @@ val junitVersion = "5.12.1"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(26)
     }
 }
 

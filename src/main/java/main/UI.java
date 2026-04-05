@@ -15,7 +15,7 @@ public class UI {
     public String message;
     int messageCounter;
     public int commandNum;
-    public TitleScreenState titleScreenState;
+    TitleScreenState titleScreenState;
     int pulseCounter;
     boolean pulseOn;
 

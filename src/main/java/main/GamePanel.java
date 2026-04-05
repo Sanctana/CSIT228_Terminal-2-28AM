@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
-import common.DataStructures.Pair.Pair;
 
 enum GameState {
     TITLE,
@@ -48,7 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player;
 
     // GAME STATE
-    public GameState gameState;
+    GameState gameState;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
 
@@ -117,16 +116,16 @@ public class GamePanel extends JPanel implements Runnable {
             if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
                 tileM = tileM.transitionToMap(player.state);
 
-                Pair<Integer, Integer> spawnPoint = tileM.loadMap();
-                player.setLocation(spawnPoint.getKey(), spawnPoint.getValue());
+                Point spawnPoint = tileM.loadMap();
+                player.setLocation(spawnPoint.y, spawnPoint.x);
 
                 player.state = EntityState.IDLE;
             }
         } else if (gameState == GameState.TRANSITION) {
             // First load of the map, so we need to set the player's position to the spawn
             // point
-            Pair<Integer, Integer> spawnPoint = tileM.loadMap();
-            player.setLocation(spawnPoint.getKey(), spawnPoint.getValue());
+            Point spawnPoint = tileM.loadMap();
+            player.setLocation(spawnPoint.y, spawnPoint.x);
 
             gameState = GameState.PLAY;
         }
