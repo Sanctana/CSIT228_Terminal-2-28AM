@@ -1,27 +1,30 @@
 package battle;
 
 import java.util.Random;
+import java.util.ArrayList;
+public abstract class Character {
+    protected String name;
+    protected int heartBeat;
+    protected int maxHeartBeat = 200;
+    protected double resistance;
+    protected double initialResistance;
+    protected Random random = new Random();
+    protected ArrayList<Skill> skills = new ArrayList<>();
 
-public class Character {
-    private int heartBeat;
-    private int maxHeartBeat = 200;
-    private double resistance;
-    private Random random = new Random();
-
-    public Character(int heartBeat, double resistance) {
+    public Character(int heartBeat, double resistance, String name) {
         this.heartBeat = heartBeat;
         this.resistance = resistance;
+        this.name = name;
+        this.initialResistance = resistance;
     }
 
-    public int skill1() { return random.nextInt(11) + 10; }
-    public int skill2() { return random.nextInt(11) + 20; }
-    public int skill3() { return random.nextInt(16) + 30; }
 
     public void defend() { this.resistance = 0.75; }
-    public void resetResistance() { this.resistance = 0.5; }
+    public void resetResistance() { this.resistance = initialResistance; }
 
     public void takeDamage(int damage) {
-        int finalDamage = (int) (damage * (1.0 - resistance));
+        int reduction = (int) (damage * resistance);
+        int finalDamage = damage - reduction;
         this.heartBeat -= finalDamage;
     }
 
@@ -34,5 +37,9 @@ public class Character {
 
     public boolean getIsAlive() {
         return heartBeat >= 40 && heartBeat <= 180;
+    }
+
+    public String getName(){
+        return name;
     }
 }

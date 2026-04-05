@@ -35,12 +35,12 @@ public class Panel extends JPanel {
 
     private void initButtons() {
         suppressBtn = createActionBtn("SUPPRESS", "Attack enemy", new Color(60, 80, 150));
-        protectBtn = createActionBtn("PROTECT", "Defend patient", new Color(160, 150, 60));
-        recoverBtn = createActionBtn("RECOVER", "Manage heart", new Color(60, 150, 80));
+        protectBtn = createActionBtn("ACTION", "Select an action", new Color(160, 150, 60));
+        recoverBtn = createActionBtn("ITEM", "Use an item", new Color(60, 150, 80));
 
-        skill1Btn = createActionBtn("PUNCH", "10-20 DMG", new Color(60, 80, 150));
-        skill2Btn = createActionBtn("KICK", "20-30 DMG", new Color(160, 150, 60));
-        skill3Btn = createActionBtn("SLAM", "30-45 DMG", new Color(60, 150, 80));
+        skill1Btn = createActionBtn(player.skills.get(0).getSkillName(), player.skills.get(0).getFloorDMG() + "-" + player.skills.get(0).getCeilDMG() + "DMG", new Color(60, 80, 150));
+        skill2Btn = createActionBtn(player.skills.get(1).getSkillName(), player.skills.get(1).getFloorDMG() + "-" + player.skills.get(1).getCeilDMG() + "DMG", new Color(160, 150, 60));
+        skill3Btn = createActionBtn(player.skills.get(2).getSkillName(), player.skills.get(2).getFloorDMG() + "-" + player.skills.get(2).getCeilDMG() + "DMG", new Color(60, 150, 80));
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
         toggleSkills(false);
@@ -57,9 +57,9 @@ public class Panel extends JPanel {
             toggleMenu(true);
         });
 
-        skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skill1()); });
-        skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skill2()); });
-        skill3Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skill3()); });
+        skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skills.get(0).getDamage()); });
+        skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skills.get(1).getDamage()); });
+        skill3Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skills.get(2).getDamage()); });
 
         recoverBtn.addActionListener(e -> {
             if (isProcessing) return;
@@ -113,26 +113,28 @@ public class Panel extends JPanel {
         }
 
         isEnemyAttacking = true;
-        enemyXOffset = -60;
+        enemyXOffset = -60; // Lunge forward
         repaint();
 
-        Timer attackSequence = new Timer(2000, e -> {
+        Timer damageTimer = new Timer(600, e -> {
             player.takeDamage(enemy.skill());
-
-            isEnemyAttacking = false;
-            enemyXOffset = 0;
-            isProcessing = false;
-
-            if (enemyAnim != null) {
-                enemyAnim.flush();
-            }
-
             repaint();
             checkDeath("Cardiac Event");
         });
+        damageTimer.setRepeats(false);
+        damageTimer.start();
 
-        attackSequence.setRepeats(false);
-        attackSequence.start();
+        Timer resetTimer = new Timer(1200, e -> {
+            isEnemyAttacking = false;
+            enemyXOffset = 0;
+            isProcessing = false;
+            if (enemyAnim != null) {
+                enemyAnim.flush();
+            }
+            repaint();
+        });
+        resetTimer.setRepeats(false);
+        resetTimer.start();
     }
 
     private boolean checkDeath(String cause) {
@@ -195,7 +197,7 @@ public class Panel extends JPanel {
     private void drawHeartMonitor(Graphics2D g, int x, int y) {
         g.setColor(new Color(15, 18, 25)); g.fillRoundRect(x, y, 175, 80, 5, 5);
         g.setColor(Color.WHITE); g.setFont(new Font("Monospaced", Font.BOLD, 14));
-        g.drawString("PATIENT: ANDREW", x, y - 13);
+        g.drawString("PATIENT: " + player.getName(), x, y - 13);
         g.setColor(new Color(100, 255, 200));
         int[] px = { x+10, x+45, x+55, x+65, x+75, x+85, x+115, x+130, x+145, x+165 };
         int[] py = { y+30, y+30, y+10, y+55, y+30, y+30, y+30, y+5, y+65, y+30 };
