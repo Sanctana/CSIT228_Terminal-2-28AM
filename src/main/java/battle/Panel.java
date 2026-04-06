@@ -88,6 +88,7 @@ public class Panel extends JPanel {
                 toggleProtectActions(false);
                 toggleMenu(true);
                 startEnemyTimer();
+
             }
         });
         action2Btn.addActionListener(e ->{
@@ -98,6 +99,7 @@ public class Panel extends JPanel {
                 toggleProtectActions(false);
                 toggleMenu(true);
                 startEnemyTimer();
+
             }
         });
         action3Btn.addActionListener(e ->{
@@ -108,6 +110,7 @@ public class Panel extends JPanel {
                 toggleProtectActions(false);
                 toggleMenu(true);
                 startEnemyTimer();
+
             }
         });
 
@@ -174,6 +177,8 @@ public class Panel extends JPanel {
             isEnemyAttacking = false;
             enemyXOffset = 0;
             isProcessing = false;
+
+            player.resetResistance();
             if (enemyAnim != null) {
                 enemyAnim.flush();
             }
