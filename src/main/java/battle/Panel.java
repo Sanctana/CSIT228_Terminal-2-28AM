@@ -191,7 +191,7 @@ public class Panel extends JPanel {
     private boolean checkDeath(String cause) {
         if (!player.getIsAlive()) {
             int choice = JOptionPane.showConfirmDialog(this,
-                    "The heart has stopped. " + cause + "\nTry again?",
+                    "The patient has died. " + cause + "\nTry again?",
                     "FLATLINE", JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) resetBattle();
             else System.exit(0);
