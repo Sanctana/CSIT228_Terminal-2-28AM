@@ -80,6 +80,9 @@ public abstract class Map {
 
         setup("blackTiles", TileType.SPAWN_POINT); // 35
         setup("blackTiles", TileType.TO_NEXT_MAP); // 36
+        setup("blackTilesFlower", TileType.COLLISION_TILE); // 37
+        setup("LeftDoorHor", TileType.COLLISION_TILE); // 38
+        setup("RightDoorHor", TileType.COLLISION_TILE); // 39
     }
 
     public void setup(String imageName, TileType tileType) {
