@@ -2,11 +2,9 @@ package tile;
 
 import main.GamePanel;
 import entity.EntityState;
-
-import javax.imageio.ImageIO;
-
 import Utilities.UtilityTool;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;

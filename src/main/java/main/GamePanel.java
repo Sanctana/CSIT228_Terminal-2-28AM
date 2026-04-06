@@ -7,15 +7,16 @@ import tile.Map;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Stack;
 
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
 
 enum GameState {
-    TITLE,
-    PLAY,
-    PAUSE,
+    TITLE, PLAY, PAUSE,
+
+    // First load of the map
     TRANSITION
 }
 
@@ -50,6 +51,8 @@ public class GamePanel extends JPanel implements Runnable {
     GameState gameState;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
+
+    public Stack<Point> previousPlayerPositions = new Stack<>();
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -113,11 +116,20 @@ public class GamePanel extends JPanel implements Runnable {
             player.update();
 
             // Check if the player is transitioning to another map
-            if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
+            if (player.state == EntityState.TO_NEXT_MAP) {
+                player.storeCurrentPosition();
+
                 tileM = tileM.transitionToMap(player.state);
 
                 Point spawnPoint = tileM.loadMap();
                 player.setLocation(spawnPoint.y, spawnPoint.x);
+
+                player.state = EntityState.IDLE;
+            } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
+                tileM = tileM.transitionToMap(player.state);
+                tileM.loadMap();
+
+                player.restorePreviousPosition(); // Restore the player's previous position after transitioning back
 
                 player.state = EntityState.IDLE;
             }
