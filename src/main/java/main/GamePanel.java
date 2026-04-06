@@ -30,6 +30,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
+
     SoundManager music = new SoundManager();
 
     // FULL SCREEN
