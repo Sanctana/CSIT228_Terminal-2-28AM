@@ -1,4 +1,4 @@
-package tile;
+package Utilities.States;
 
 public enum TileType {
     WALKABLE,

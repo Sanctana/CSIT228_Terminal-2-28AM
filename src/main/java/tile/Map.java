@@ -3,6 +3,7 @@ package tile;
 import main.GamePanel;
 import entity.EntityState;
 import Utilities.UtilityTool;
+import Utilities.States.TileType;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,11 +22,13 @@ public abstract class Map {
     public volatile int maxWorldCol;
     public volatile int maxWorldRow;
 
-    String mapFile;
+    private String mapFile;
+    private String mapName;
 
-    public Map(GamePanel gp, String mapFile) {
+    public Map(GamePanel gp, String mapFile, String mapName) {
         this.gp = gp;
         this.mapFile = mapFile;
+        this.mapName = mapName;
 
         tile = new ArrayList<Tile>();
         mapTileNum = new ArrayList<int[]>();
@@ -93,8 +96,7 @@ public abstract class Map {
     /**
      * Loads the map from a text file with dynamically determined dimensions
      * 
-     * @return Point representing the column and row of the
-     *         player's spawn point
+     * @return Point representing the column and row of the player's spawn point
      */
     public Point loadMap() {
         Pattern pattern = Pattern.compile("\s+");
@@ -157,10 +159,14 @@ public abstract class Map {
 
     public Map transitionToMap(EntityState state) {
         return switch (state) {
-            case TO_NEXT_MAP -> getNextMap();
-            case TO_PREVIOUS_MAP -> getPreviousMap();
-            default -> this;
+        case TO_NEXT_MAP -> getNextMap();
+        case TO_PREVIOUS_MAP -> getPreviousMap();
+        default -> this;
         };
+    }
+
+    public String getMapName() {
+        return mapName;
     }
 
     public abstract Map getNextMap();

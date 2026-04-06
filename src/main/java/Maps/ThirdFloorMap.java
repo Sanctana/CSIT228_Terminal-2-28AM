@@ -5,7 +5,7 @@ import tile.Map;
 
 public class ThirdFloorMap extends Map {
     public ThirdFloorMap(GamePanel gp) {
-        super(gp, "3rdFloorMap.txt");
+        super(gp, "3rdFloorMap.txt", "3RD FLOOR");
     }
 
     @Override

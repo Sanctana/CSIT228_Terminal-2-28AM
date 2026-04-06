@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.ImageIcon;
 
+import Utilities.States.Direction;
 import main.GamePanel;
 import main.KeyHandler;
 
@@ -148,6 +149,7 @@ public class Player extends Entity {
     }
 
     public void storeCurrentPosition() {
+        // Align to tile grid
         int x = worldX / gp.tileSize;
         int y = worldY / gp.tileSize;
 
@@ -165,7 +167,7 @@ public class Player extends Entity {
     public void restorePreviousPosition() {
         if (!gp.previousPlayerPositions.isEmpty()) {
             Point previousPosition = gp.previousPlayerPositions.pop();
-            setLocation(previousPosition.y, previousPosition.x); // Align to the tile grid
+            setLocation(previousPosition.y, previousPosition.x);
         }
     }
 }

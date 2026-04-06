@@ -2,6 +2,7 @@ package entity;
 
 import java.awt.*;
 
+import Utilities.States.Direction;
 import main.GamePanel;
 
 public abstract class Entity {

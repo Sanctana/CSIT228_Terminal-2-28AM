@@ -1,52 +1,42 @@
-package main;
+package UI;
 
 import java.awt.*;
 
-enum TitleScreenState {
-    MAIN_MENU,
-    CHARACTER_SELECT
-}
+import main.GamePanel;
+import Utilities.States.TitleScreenState;
 
 public class UI {
-    GamePanel gp;
-    Graphics2D g2;
+    private GamePanel gp;
+    private Graphics2D g2;
 
-    Font arial_40, arial_80B;
-    public String message;
+    private Font arial_40;
     int messageCounter;
     public int commandNum;
-    TitleScreenState titleScreenState;
+    public TitleScreenState titleScreenState;
     int pulseCounter;
     boolean pulseOn;
 
-    public UI(GamePanel gp) {
+    public UI(GamePanel gp, Graphics2D g2) {
         this.gp = gp;
+        this.g2 = g2;
 
         arial_40 = new Font("Arial", Font.PLAIN, 40);
-        arial_80B = new Font("Arial", Font.BOLD, 80);
 
         titleScreenState = TitleScreenState.MAIN_MENU;
         messageCounter = commandNum = pulseCounter = 0;
     }
 
-    public void showMessage(String text) {
-        message = text;
-    }
-
-    public void draw(Graphics2D g2) {
-        this.g2 = g2;
-
+    public void draw() {
         g2.setFont(arial_40);
         g2.setColor(Color.white);
 
-        if (gp.gameState == GameState.TITLE) {
-            drawTitleScreen();
+        switch (gp.gameState) {
+        case TITLE -> drawTitleScreen();
+        case PLAY -> drawPlayerUI();
+        case PAUSE -> drawPauseScreen();
+        // Optionally, you can add a loading screen here
+        case FIRST_LOAD -> {
         }
-        if (gp.gameState == GameState.PLAY) {
-            drawPlayerUI();
-        }
-        if (gp.gameState == GameState.PAUSE) {
-            drawPauseScreen();
         }
     }
 
@@ -158,11 +148,11 @@ public class UI {
             return "";
 
         return switch (gp.player.characterType) {
-            case DETECTIVE -> "JOHN LOYD: THE DETECTIVE";
-            case OFFICER -> "ANDREW: THE OFFICER";
-            case INTRUDER -> "TRIXY: THE INTRUDER";
-            case ARTIST -> "TRIA: THE ARTIST";
-            case COLLECTOR -> "YOHANN: THE COLLECTOR";
+        case DETECTIVE -> "JOHN LOYD: THE DETECTIVE";
+        case OFFICER -> "ANDREW: THE OFFICER";
+        case INTRUDER -> "TRIXY: THE INTRUDER";
+        case ARTIST -> "TRIA: THE ARTIST";
+        case COLLECTOR -> "YOHANN: THE COLLECTOR";
         };
     }
 
@@ -198,7 +188,7 @@ public class UI {
         // ===== BOTTOM RIGHT (FLOOR + TIME) =====
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
-        String floorText = "3RD FLOOR - 2:28 AM";
+        String floorText = gp.map.getMapName() + " - 2:28 AM";
 
         int textWidth = (int) g2.getFontMetrics().getStringBounds(floorText, g2).getWidth();
 
@@ -271,7 +261,6 @@ public class UI {
     public void drawPauseScreen() {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 80F));
         String text = "PAUSED";
-
         int x = getXforCenteredText(text);
         int y = gp.screenHeight / 2;
 

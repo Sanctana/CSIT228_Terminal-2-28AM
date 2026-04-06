@@ -12,13 +12,8 @@ import java.util.Stack;
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
-
-enum GameState {
-    TITLE, PLAY, PAUSE,
-
-    // First load of the map
-    TRANSITION
-}
+import UI.UI;
+import Utilities.States.GameState;
 
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 8;
@@ -31,7 +26,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
-    SoundManager music = new SoundManager();
+    private SoundManager music = new SoundManager();
 
     // FULL SCREEN
     private int screenWidth2 = screenWidth;
@@ -40,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
     private Graphics2D graphics2d;
     private final Object renderLock = new Object();
 
-    public Map tileM;
+    public Map map;
     KeyHandler keyH = new KeyHandler(this);
     private Thread gameThread;
     public CollisionChecker cChecker;
@@ -48,7 +43,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player;
 
     // GAME STATE
-    GameState gameState;
+    public GameState gameState;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
 
@@ -61,10 +56,9 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyH);
         this.setFocusable(true);
 
-        tileM = new ThirdFloorMap(this); // Default map
+        map = new ThirdFloorMap(this); // Default map
         gameThread = new Thread(this, "GameLoop");
         cChecker = new CollisionChecker(this);
-        ui = new UI(this);
     }
 
     public void setupGame() {
@@ -75,6 +69,8 @@ public class GamePanel extends JPanel implements Runnable {
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         graphics2d = (Graphics2D) tempScreen.getGraphics();
+
+        ui = new UI(this, graphics2d);
     }
 
     public void setFullScreen() {
@@ -119,24 +115,24 @@ public class GamePanel extends JPanel implements Runnable {
             if (player.state == EntityState.TO_NEXT_MAP) {
                 player.storeCurrentPosition();
 
-                tileM = tileM.transitionToMap(player.state);
+                map = map.transitionToMap(player.state);
 
-                Point spawnPoint = tileM.loadMap();
+                Point spawnPoint = map.loadMap();
                 player.setLocation(spawnPoint.y, spawnPoint.x);
 
                 player.state = EntityState.IDLE;
             } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
-                tileM = tileM.transitionToMap(player.state);
-                tileM.loadMap();
+                map = map.transitionToMap(player.state);
+                map.loadMap();
 
                 player.restorePreviousPosition(); // Restore the player's previous position after transitioning back
 
                 player.state = EntityState.IDLE;
             }
-        } else if (gameState == GameState.TRANSITION) {
+        } else if (gameState == GameState.FIRST_LOAD) {
             // First load of the map, so we need to set the player's position to the spawn
             // point
-            Point spawnPoint = tileM.loadMap();
+            Point spawnPoint = map.loadMap();
             player.setLocation(spawnPoint.y, spawnPoint.x);
 
             gameState = GameState.PLAY;
@@ -161,15 +157,15 @@ public class GamePanel extends JPanel implements Runnable {
 
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
-                ui.draw(graphics2d);
+                ui.draw();
             }
             // OTHERS
             else if (gameState == GameState.PLAY || gameState == GameState.PAUSE) {
-                tileM.draw(graphics2d);
+                map.draw(graphics2d);
                 player.draw(graphics2d);
 
                 eManager.draw(graphics2d);
-                ui.draw(graphics2d);
+                ui.draw();
             }
         }
     }
