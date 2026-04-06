@@ -10,7 +10,7 @@ public abstract class Character {
     protected double initialResistance;
     protected Random random = new Random();
     protected ArrayList<Skill> skills = new ArrayList<>();
-
+    protected ArrayList<Action> actions = new ArrayList<>();
     public Character(int heartBeat, double resistance, String name) {
         this.heartBeat = heartBeat;
         this.resistance = resistance;
@@ -19,7 +19,7 @@ public abstract class Character {
     }
 
 
-    public void defend() { this.resistance = 0.75; }
+    public void setResistance(double action) { this.resistance = action; }
     public void resetResistance() { this.resistance = initialResistance; }
 
     public void takeDamage(int damage) {
