@@ -65,7 +65,7 @@ public class GamePanel extends JPanel implements Runnable {
         eManager.setup();
         gameState = GameState.TITLE;
 
-        playMusic(0);
+        //playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         graphics2d = (Graphics2D) tempScreen.getGraphics();
