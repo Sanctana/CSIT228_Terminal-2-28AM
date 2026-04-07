@@ -71,48 +71,13 @@ public class Panel extends JPanel {
             toggleMenu(true);
         });
 
-        skill1Btn.addActionListener(e -> {
-            if(!isProcessing) applyPlayerAction(player.skills.get(0).getDamage());
-        });
-        skill2Btn.addActionListener(e -> {
-            if(!isProcessing) applyPlayerAction(player.skills.get(1).getDamage());
-        });
-        skill3Btn.addActionListener(e -> {
-            if(!isProcessing) applyPlayerAction(player.skills.get(2).getDamage());
-        });
-        action1Btn.addActionListener(e ->{
-            if(!isProcessing){
-                isProcessing = true;
+        skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(0)); });
+        skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(1)); });
+        skill3Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(2)); });
 
-                player.setResistance(player.actions.get(0).action());
-                toggleProtectActions(false);
-                toggleMenu(true);
-                startEnemyTimer();
-
-            }
-        });
-        action2Btn.addActionListener(e ->{
-            if(!isProcessing){
-                isProcessing = true;
-
-                player.setResistance(player.actions.get(1).action());
-                toggleProtectActions(false);
-                toggleMenu(true);
-                startEnemyTimer();
-
-            }
-        });
-        action3Btn.addActionListener(e ->{
-            if(!isProcessing){
-                isProcessing = true;
-
-                player.setResistance(player.actions.get(2).action());
-                toggleProtectActions(false);
-                toggleMenu(true);
-                startEnemyTimer();
-
-            }
-        });
+        action1Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(0, this); finalizeAction(); } });
+        action2Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(1, this); finalizeAction(); } });
+        action3Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(2, this); finalizeAction(); } });
 
         recoverBtn.addActionListener(e -> {
             if (isProcessing) return;
@@ -130,6 +95,13 @@ public class Panel extends JPanel {
         add(skill1Btn); add(skill2Btn); add(skill3Btn);
         add(action1Btn); add(action2Btn); add(action3Btn);
         add(backBtn);
+    }
+
+    private void finalizeAction() {
+        toggleProtectActions(false);
+        toggleMenu(true);
+        repaint();
+        startEnemyTimer();
     }
 
     private void applyPlayerAction(int damage) {

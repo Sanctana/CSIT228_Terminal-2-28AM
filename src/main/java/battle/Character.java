@@ -19,8 +19,12 @@ public abstract class Character {
     }
 
 
-    public void setResistance(double action) { this.resistance = action; }
-    public void resetResistance() { this.resistance = initialResistance; }
+    public void setResistance(double action) {
+        this.resistance = action;
+    }
+    public void resetResistance() {
+        this.resistance = initialResistance;
+    }
 
     public void takeDamage(int damage) {
         int reduction = (int) (damage * resistance);
@@ -32,14 +36,34 @@ public abstract class Character {
         this.heartBeat += heal;
     }
 
-    public int getHeartBeat() { return heartBeat; }
-    public void setHeartBeat(int hb) { this.heartBeat = hb; }
+    public int getHeartBeat() {
+        return heartBeat;
+    }
+
+    public void setHeartBeat(int hb) {
+        this.heartBeat = hb;
+    }
 
     public boolean getIsAlive() {
         return heartBeat >= 40 && heartBeat <= 180;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
+
+    public int useSkill(int index) {
+        if (index >= 0 && index < skills.size()) {
+            return skills.get(index).getDamage();
+        }
+        return 0;
+    }
+
+    public void useAction(int index, Panel panel) {
+        if (index >= 0 && index < actions.size()) {
+            this.setResistance(actions.get(index).action());
+        }
+    }
+
+
 }
