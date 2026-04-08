@@ -7,6 +7,9 @@ public class CharacterContainer {
         characterList.add(new Officer());
         characterList.add(new DebtCollector());
         characterList.add(new Detective());
+        characterList.add(new Intruder());
+        characterList.add(new Artist());
+
     }
     public Character getCharacter(int index){
         try{

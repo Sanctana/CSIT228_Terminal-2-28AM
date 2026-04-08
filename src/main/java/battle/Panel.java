@@ -249,6 +249,8 @@ public class Panel extends JPanel {
         btn.setBackground(new Color(10, 12, 18));
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createLineBorder(theme, 2));
+
+        btn.setForeground(Color.WHITE);
         return btn;
     }
 
@@ -262,5 +264,16 @@ public class Panel extends JPanel {
 
     private void toggleMenu(boolean b) {
         suppressBtn.setVisible(b); protectBtn.setVisible(b); recoverBtn.setVisible(b);
+    }
+
+    public void refreshButtonText() {
+        skill1Btn.setText("<html><center><font color='white'><b>" + player.skills.get(0).getSkillName() + "</b></font><br>" +
+                "<font color='white' size='2'>" + player.skills.get(0).getFloorDMG() + "-" +
+                player.skills.get(0).getCeilDMG() + "DMG</font></center></html>");
+
+        skill2Btn.setText("<html><center><font color='white'><b>" + player.skills.get(1).getSkillName() + "</b></font><br>" +
+                "<font color='white' size='2'>" + player.skills.get(1).getFloorDMG() + "-" +
+                player.skills.get(1).getCeilDMG() + "DMG</font></center></html>");
+        repaint();
     }
 }
