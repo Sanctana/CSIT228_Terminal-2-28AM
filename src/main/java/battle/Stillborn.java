@@ -3,8 +3,8 @@ package battle;
 public class Stillborn extends Enemy {
     public Stillborn() {
         this.health = 200;
-        this.skills.add(new EnemySkill(20, 30));
-        this.skills.add(new EnemySkill(25, 40));
+        this.skills.add(new EnemySkill(20, 30,false));
+        this.skills.add(new EnemySkill(25, 40,false));
     }
 
     @Override

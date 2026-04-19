@@ -8,7 +8,7 @@ public abstract class Enemy {
     protected boolean isIncreasingDamage;
     protected ArrayList<EnemySkill> skills = new ArrayList<>();
     protected int index;
-
+    private int damageOutput;
     protected Random rand = new Random();
 
     public int skill() {
@@ -22,7 +22,11 @@ public abstract class Enemy {
         int minDmg = chosenSkill.getFloorDMG();
         int maxDmg = chosenSkill.getCeilDMG();
 
-        return rand.nextInt(maxDmg - minDmg + 1) + minDmg; // random damage between min and max
+        damageOutput = rand.nextInt(maxDmg - minDmg + 1) + minDmg;
+        if(chosenSkill.getIsIncreasingDamage()){
+            damageOutput *= -1;
+        }
+        return damageOutput;
     }
 
     public void setHealth(int health) {

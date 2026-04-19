@@ -7,6 +7,7 @@ public class EnemyContainer {
     public EnemyContainer(){
         enemies.add(new Scalper());
         enemies.add(new Stillborn());
+        enemies.add(new Brighteyes());
     }
 
     public Enemy getEnemyAt(int index){

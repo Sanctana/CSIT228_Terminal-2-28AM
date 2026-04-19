@@ -3,10 +3,11 @@ package battle;
 public class EnemySkill {
     private int floorDMG;
     private int ceilDMG;
-
-    public EnemySkill(int floorDMG, int ceilDMG) {
+    private boolean isIncreasingDamage;
+    public EnemySkill(int floorDMG, int ceilDMG, boolean isIncreasingDamage) {
         this.floorDMG = floorDMG;
         this.ceilDMG = ceilDMG;
+        this.isIncreasingDamage = isIncreasingDamage;
     }
 
     public int getFloorDMG() {
@@ -15,5 +16,9 @@ public class EnemySkill {
 
     public int getCeilDMG() {
         return ceilDMG;
+    }
+
+    public boolean getIsIncreasingDamage(){
+        return isIncreasingDamage;
     }
 }
