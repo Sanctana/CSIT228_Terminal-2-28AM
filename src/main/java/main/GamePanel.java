@@ -1,19 +1,17 @@
 package main;
 
-import environment.EnvironmentManager;
-import entity.Player;
-import entity.EntityState;
-import tile.Map;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Stack;
-
 import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
 import UI.UI;
 import Utilities.States.GameState;
+import environment.EnvironmentManager;
+import entity.Player;
+import entity.EntityState;
+import tile.Map;
 
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 8;
@@ -36,18 +34,16 @@ public class GamePanel extends JPanel implements Runnable {
     private final Object renderLock = new Object();
 
     public Map map;
-    KeyHandler keyH = new KeyHandler(this);
     private Thread gameThread;
     public CollisionChecker cChecker;
     public UI ui;
     public Player player;
-
-    // GAME STATE
     public GameState gameState;
+    public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
+                                                                 // transitions
 
     EnvironmentManager eManager = new EnvironmentManager(this);
-
-    public Stack<Point> previousPlayerPositions = new Stack<>();
+    KeyHandler keyH = new KeyHandler(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -65,7 +61,7 @@ public class GamePanel extends JPanel implements Runnable {
         eManager.setup();
         gameState = GameState.TITLE;
 
-        //playMusic(0);
+        // playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         graphics2d = (Graphics2D) tempScreen.getGraphics();
@@ -155,18 +151,19 @@ public class GamePanel extends JPanel implements Runnable {
             graphics2d.setColor(getBackground());
             graphics2d.fillRect(0, 0, screenWidth, screenHeight);
 
+            if (gameState == GameState.FIRST_LOAD) {
+                return;
+            }
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
                 ui.draw();
+                return;
             }
-            // OTHERS
-            else if (gameState == GameState.PLAY || gameState == GameState.PAUSE) {
-                map.draw(graphics2d);
-                player.draw(graphics2d);
 
-                eManager.draw(graphics2d);
-                ui.draw();
-            }
+            map.draw(graphics2d);
+            player.draw(graphics2d);
+            eManager.draw(graphics2d);
+            ui.draw();
         }
     }
 

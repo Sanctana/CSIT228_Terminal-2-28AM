@@ -9,4 +9,5 @@ module terminal228am {
     exports tile;
     exports Utilities.States;
     exports UI;
+    exports Inventory;
 }

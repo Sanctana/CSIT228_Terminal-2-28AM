@@ -163,9 +163,9 @@ public abstract class Map {
 
     public Map transitionToMap(EntityState state) {
         return switch (state) {
-        case TO_NEXT_MAP -> getNextMap();
-        case TO_PREVIOUS_MAP -> getPreviousMap();
-        default -> this;
+            case TO_NEXT_MAP -> getNextMap();
+            case TO_PREVIOUS_MAP -> getPreviousMap();
+            default -> this;
         };
     }
 

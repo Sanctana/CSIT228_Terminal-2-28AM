@@ -1,9 +1,12 @@
 package UI;
 
 import java.awt.*;
+import java.util.ArrayList;
 
+import Inventory.Item;
 import main.GamePanel;
 import Utilities.States.TitleScreenState;
+import entity.Player;
 
 public class UI {
     private GamePanel gp;
@@ -34,9 +37,97 @@ public class UI {
         case TITLE -> drawTitleScreen();
         case PLAY -> drawPlayerUI();
         case PAUSE -> drawPauseScreen();
+        case INVENTORY -> {
+            drawPlayerUI();
+            drawInventoryScreen(gp.player);
+        }
         // Optionally, you can add a loading screen here
         case FIRST_LOAD -> {
         }
+        }
+    }
+
+    public void drawInventoryScreen(Player player) { 
+        if (player == null) {
+            return;
+        }
+
+        ArrayList<Item> inventory = player.getInventory();
+
+        int frameX = gp.tileSize;
+        int frameY = gp.tileSize;
+        int frameWidth = gp.screenWidth - (gp.tileSize * 2);
+        int frameHeight = gp.screenHeight - (gp.tileSize * 2);
+
+        g2.setColor(new Color(0, 0, 0, 210));
+        g2.fillRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setColor(new Color(230, 230, 230));
+        g2.setStroke(new BasicStroke(4f));
+        g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        int listStartX = frameX + gp.tileSize;
+        int listStartY = frameY + gp.tileSize + 8;
+        int rowHeight = 56;
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 52F));
+        if (inventory.isEmpty()) {
+            g2.setColor(new Color(210, 210, 210));
+            g2.drawString("No items", listStartX, listStartY);
+        } else {
+            int selectedIndex = Math.max(0, Math.min(commandNum, inventory.size() - 1));
+
+            for (int i = 0; i < inventory.size(); i++) {
+                int rowY = listStartY + (i * rowHeight);
+
+                if (i == selectedIndex) {
+                    g2.setColor(new Color(255, 70, 70));
+                    g2.drawString(">", listStartX - 36, rowY);
+                    g2.setColor(Color.white);
+                } else {
+                    g2.setColor(new Color(220, 220, 220));
+                }
+
+                g2.drawString(inventory.get(i).getName(), listStartX, rowY);
+            }
+
+            int subtitleY = frameY + frameHeight - gp.tileSize - 54;
+            g2.setColor(new Color(190, 190, 190));
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
+            drawWrappedText(inventory.get(selectedIndex).getDescription(), listStartX, subtitleY,
+                    frameWidth - (gp.tileSize * 2), 34);
+        }
+
+        int instructionY = frameY + frameHeight - (gp.tileSize / 2);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 40F));
+        g2.setColor(Color.white);
+        g2.drawString("Press Enter to use", listStartX, instructionY);
+    }
+
+    private void drawWrappedText(String text, int x, int y, int maxWidth, int lineHeight) {
+        if (text == null || text.isBlank()) {
+            return;
+        }
+
+        String[] words = text.split("\\s+");
+        StringBuilder line = new StringBuilder();
+        int drawY = y;
+
+        for (String word : words) {
+            String candidate = line.isEmpty() ? word : line + " " + word;
+            int width = g2.getFontMetrics().stringWidth(candidate);
+
+            if (width > maxWidth && !line.isEmpty()) {
+                g2.drawString(line.toString(), x, drawY);
+                line = new StringBuilder(word);
+                drawY += lineHeight;
+            } else {
+                line = new StringBuilder(candidate);
+            }
+        }
+
+        if (!line.isEmpty()) {
+            g2.drawString(line.toString(), x, drawY);
         }
     }
 

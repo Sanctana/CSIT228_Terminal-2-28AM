@@ -2,6 +2,7 @@ package main;
 
 import entity.CharacterType;
 import entity.Player;
+import Inventory.Item;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -31,25 +32,60 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        if (gp.gameState == GameState.INVENTORY) {
+            handleInventoryInput(code);
+            return;
+        }
+
         // PLAY STATE
-        if (code == KeyEvent.VK_W) {
-            upPressed = true; // D
-        }
-        if (code == KeyEvent.VK_S) {
-            downPressed = true;
-        }
-        if (code == KeyEvent.VK_A) {
-            leftPressed = true;
-        }
-        if (code == KeyEvent.VK_D) {
-            rightPressed = true;
-        }
-        if (code == KeyEvent.VK_ESCAPE) {
+        switch (code) {
+        case KeyEvent.VK_W -> upPressed = true;
+        case KeyEvent.VK_S -> downPressed = true;
+        case KeyEvent.VK_A -> leftPressed = true;
+        case KeyEvent.VK_D -> rightPressed = true;
+        case KeyEvent.VK_ESCAPE -> {
             if (gp.gameState == GameState.PLAY) {
                 gp.gameState = GameState.PAUSE;
             } else if (gp.gameState == GameState.PAUSE) {
                 gp.gameState = GameState.PLAY;
             }
+        }
+        case KeyEvent.VK_I -> {
+            if (gp.gameState == GameState.PLAY) {
+                gp.gameState = GameState.INVENTORY;
+                gp.ui.commandNum = 0;
+            } else if (gp.gameState == GameState.INVENTORY) {
+                gp.gameState = GameState.PLAY;
+            }
+        }
+        }
+    }
+
+    private void handleInventoryInput(int code) {
+        int options = gp.player == null ? 0 : gp.player.getInventory().size();
+
+        if (code == KeyEvent.VK_I || code == KeyEvent.VK_ESCAPE) {
+            gp.gameState = GameState.PLAY;
+            return;
+        }
+
+        if (options <= 0) {
+            return;
+        }
+
+        if (code == KeyEvent.VK_W) {
+            gp.ui.commandNum = (gp.ui.commandNum - 1 + options) % options;
+            return;
+        }
+
+        if (code == KeyEvent.VK_S) {
+            gp.ui.commandNum = (gp.ui.commandNum + 1) % options;
+            return;
+        }
+
+        if (code == KeyEvent.VK_ENTER) {
+            Item selectedItem = gp.player.getInventory().get(gp.ui.commandNum);
+            selectedItem.use(gp.player);
         }
     }
 

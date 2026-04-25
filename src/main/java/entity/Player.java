@@ -4,21 +4,28 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.swing.ImageIcon;
 
+import Inventory.Item;
 import Utilities.States.Direction;
 import main.GamePanel;
 import main.KeyHandler;
 
 public class Player extends Entity {
-    KeyHandler keyH;
-
     public int heartRate = 70; // current BPM
     public int minHeartRate = 40;
     public int maxHeartRate = 180;
     public final int screenX;
     public final int screenY;
     public CharacterType characterType;
+
+    KeyHandler keyH;
+
+    private ArrayList<Item> inventory = new ArrayList<>(
+            Arrays.asList(new Inventory.Defibrillator(), new Inventory.IVFluids(), new Inventory.Scalpel()));
 
     public Player(GamePanel gp, KeyHandler keyH, CharacterType characterType) {
         super(gp);
@@ -40,8 +47,8 @@ public class Player extends Entity {
     }
 
     public void setLocation(int row, int col) {
-        worldX = gp.tileSize * col;
         worldY = gp.tileSize * row;
+        worldX = gp.tileSize * col;
     }
 
     public void getPlayerImage() {
@@ -126,7 +133,6 @@ public class Player extends Entity {
     }
 
     public void draw(Graphics2D g2) {
-
         Image image = null;
 
         if (state == EntityState.MOVING) {
@@ -169,5 +175,9 @@ public class Player extends Entity {
             Point previousPosition = gp.previousPlayerPositions.pop();
             setLocation(previousPosition.y, previousPosition.x);
         }
+    }
+
+    public ArrayList<Item> getInventory() {
+        return inventory;
     }
 }
