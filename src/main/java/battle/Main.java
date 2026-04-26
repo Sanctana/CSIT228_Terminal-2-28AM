@@ -12,6 +12,7 @@ public class Main {
         frame.setSize(800, 500);
         frame.setResizable(false);
 
+
         frame.setContentPane(new Panel(characterContainer.getCharacter(1), enemyContainer.getRandomEnemy()));
 
         frame.setLocationRelativeTo(null);
