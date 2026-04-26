@@ -10,13 +10,8 @@ import entity.Entity;
 import main.GamePanel;
 
 public abstract class Character extends Entity{
-    protected String name;
     protected int maxHeartBeat = 200;
-    protected double resistance;
-    protected double initialResistance;
     protected Random random = new Random();
-    protected ArrayList<Skill> skills = new ArrayList<>();
-    protected ArrayList<Action> actions = new ArrayList<>();
 
     public Character(int heartBeat, double resistance, String name, GamePanel gp) {
         super(gp);
@@ -41,11 +36,11 @@ public abstract class Character extends Entity{
     public void takeDamage(int damage) {
         int reduction = (int) (damage * resistance);
         int finalDamage = damage - reduction;
-        this.heartRate -= finalDamage;
+        setHeartBeat(getHeartBeat() - finalDamage);
     }
 
     public void recover(int heal) {
-        this.heartRate += heal;
+        setHeartBeat(getHeartBeat() + heal);
     }
 
     public int getHeartBeat() {

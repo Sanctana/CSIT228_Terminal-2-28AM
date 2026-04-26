@@ -37,6 +37,12 @@ public class UI {
         case TITLE -> drawTitleScreen();
         case PLAY -> drawPlayerUI();
         case PAUSE -> drawPauseScreen();
+        case ENEMY_ENCOUNTER -> {
+            drawPlayerUI();
+            drawEnemyEncounter();
+        }
+        case BATTLE -> {
+        }
         case INVENTORY -> {
             drawPlayerUI();
             drawInventoryScreen(gp.player);
@@ -49,6 +55,20 @@ public class UI {
         case FIRST_LOAD -> {
         }
         }
+    }
+
+    private void drawEnemyEncounter() {
+        g2.setColor(new Color(0, 0, 0, 180));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 54F));
+        g2.setColor(Color.WHITE);
+        String title = "Enemy found";
+        g2.drawString(title, getXforCenteredText(title), gp.screenHeight / 2 - 20);
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 32F));
+        String enemyText = gp.getEncounterMessage();
+        g2.drawString(enemyText, getXforCenteredText(enemyText), gp.screenHeight / 2 + 35);
     }
 
     public void drawInventoryScreen(Player player) { 
@@ -343,6 +363,26 @@ public class UI {
 
             g2.setColor(new Color(180, 0, 0, alpha));
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        }
+
+        if (gp.isOneShotModeEnabled()) {
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18F));
+            g2.setColor(new Color(255, 80, 80));
+            g2.drawString("ONE-SHOT MODE", margin, 118);
+        }
+
+        String statusMessage = gp.getStatusMessage();
+        if (!statusMessage.isBlank()) {
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
+            int messageWidth = g2.getFontMetrics().stringWidth(statusMessage);
+            int boxX = (gp.screenWidth - messageWidth) / 2 - 20;
+            int boxY = gp.screenHeight - 90;
+            int boxWidth = messageWidth + 40;
+
+            g2.setColor(new Color(0, 0, 0, 180));
+            g2.fillRoundRect(boxX, boxY, boxWidth, 42, 14, 14);
+            g2.setColor(Color.WHITE);
+            g2.drawString(statusMessage, boxX + 20, boxY + 28);
         }
     }
 

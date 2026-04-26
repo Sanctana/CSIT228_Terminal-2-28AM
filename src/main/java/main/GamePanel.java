@@ -4,11 +4,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Stack;
 import javax.swing.JPanel;
-import battle.Panel;
 
 import Maps.ThirdFloorMap;
 import UI.UI;
 import Utilities.States.GameState;
+import Utilities.States.TileType;
+import battle.BattleLauncher;
+import battle.Character;
+import battle.Enemy;
 import environment.EnvironmentManager;
 import entity.Player;
 import entity.EntityState;
@@ -39,15 +42,23 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker;
     public UI ui;
     public Player player;
-    public battle.Panel battlePanel;
     public GameState gameState;
     public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
                                                                  // transitions
+    private boolean battleTileReady = true;
+    private JPanel activeBattlePanel;
+    private Enemy pendingEnemy;
+    private long encounterStartTime;
+    private String encounterMessage = "";
+    private boolean oneShotModeEnabled = false;
+    private String statusMessage = "";
+    private long statusMessageUntil = 0L;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
     KeyHandler keyH = new KeyHandler(this);
 
     public GamePanel() {
+        this.setLayout(null);
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
@@ -108,41 +119,131 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         if (gameState == GameState.PLAY) {
             player.update();
+            handleBattleTileTrigger();
             if (player.heartRate <= 40 || player.heartRate >= 180) {
                 gameState = GameState.GAMEOVER;
             }
 
             if (player.state == EntityState.TO_NEXT_MAP) {
                 player.storeCurrentPosition();
+
                 map = map.transitionToMap(player.state);
+
                 Point spawnPoint = map.loadMap();
                 player.setLocation(spawnPoint.y, spawnPoint.x);
+
                 player.state = EntityState.IDLE;
             } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
                 map = map.transitionToMap(player.state);
                 map.loadMap();
-                player.restorePreviousPosition();
+
+                player.restorePreviousPosition(); // Restore the player's previous position after transitioning back
+
                 player.state = EntityState.IDLE;
             }
-        }
-        // --- NEW LOGIC START ---
-        else if (gameState == GameState.BATTLE) {
-            if (battlePanel == null) {
+        } else if (gameState == GameState.ENEMY_ENCOUNTER) {
+            if (System.currentTimeMillis() - encounterStartTime >= 1200L) {
                 startBattle();
             }
-        }
-        // --- NEW LOGIC END ---
-        else if (gameState == GameState.FIRST_LOAD) {
+        } else if (gameState == GameState.FIRST_LOAD) {
+            // First load of the map, so we need to set the player's position to the spawn
+            // point
             Point spawnPoint = map.loadMap();
             player.setLocation(spawnPoint.y, spawnPoint.x);
+
             gameState = GameState.PLAY;
         }
     }
 
-    public void startBattle() {
-        battle.EnemyContainer ec = new battle.EnemyContainer();
-        // This creates your battle panel using the player and a random enemy
-        battlePanel = new battle.Panel(player, ec.getRandomEnemy());
+    private void handleBattleTileTrigger() {
+        TileType currentTileType = cChecker.getTileTypeUnderEntity(player);
+
+        if (currentTileType == TileType.BATTLE_TRIGGER) {
+            if (battleTileReady) {
+                battleTileReady = false;
+                triggerBattle();
+            }
+            return;
+        }
+
+        battleTileReady = true;
+    }
+
+    private void triggerBattle() {
+        pendingEnemy = BattleLauncher.createRandomEnemy();
+        encounterMessage = pendingEnemy.getClass().getSimpleName() + " appeared";
+        encounterStartTime = System.currentTimeMillis();
+        gameState = GameState.ENEMY_ENCOUNTER;
+    }
+
+    private void startBattle() {
+        if (pendingEnemy == null) {
+            gameState = GameState.PLAY;
+            return;
+        }
+
+        activeBattlePanel = BattleLauncher.createBattlePanel(this, pendingEnemy, new BattleLauncher.BattleResultListener() {
+            @Override
+            public void onBattleWon(Character battlePlayer) {
+                endBattle(battlePlayer, false);
+            }
+
+            @Override
+            public void onBattleLost(Character battlePlayer) {
+                endBattle(battlePlayer, true);
+            }
+        });
+        activeBattlePanel.setBounds(0, 0, screenWidth, screenHeight);
+        add(activeBattlePanel);
+        setComponentZOrder(activeBattlePanel, 0);
+        revalidate();
+        repaint();
+        gameState = GameState.BATTLE;
+    }
+
+    private void endBattle(Character battlePlayer, boolean lostBattle) {
+        player.heartRate = battlePlayer.getHeartBeat();
+        player.itemAmounts = battlePlayer.getItemAmounts().clone();
+
+        if (activeBattlePanel != null) {
+            remove(activeBattlePanel);
+            activeBattlePanel = null;
+        }
+
+        pendingEnemy = null;
+        encounterMessage = "";
+        player.state = EntityState.IDLE;
+
+        revalidate();
+        repaint();
+        requestFocusInWindow();
+
+        gameState = lostBattle ? GameState.GAMEOVER : GameState.PLAY;
+    }
+
+    public String getEncounterMessage() {
+        return encounterMessage;
+    }
+
+    public boolean isOneShotModeEnabled() {
+        return oneShotModeEnabled;
+    }
+
+    public void toggleOneShotMode() {
+        oneShotModeEnabled = !oneShotModeEnabled;
+        showStatusMessage("One-shot mode: " + (oneShotModeEnabled ? "ON" : "OFF"));
+    }
+
+    public void showStatusMessage(String message) {
+        statusMessage = message;
+        statusMessageUntil = System.currentTimeMillis() + 1800L;
+    }
+
+    public String getStatusMessage() {
+        if (System.currentTimeMillis() > statusMessageUntil) {
+            return "";
+        }
+        return statusMessage;
     }
 
     @Override
@@ -164,22 +265,11 @@ public class GamePanel extends JPanel implements Runnable {
             if (gameState == GameState.FIRST_LOAD) {
                 return;
             }
-
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
                 ui.draw();
                 return;
             }
-
-            // --- NEW BATTLE DRAWING ---
-            if (gameState == GameState.BATTLE) {
-                if (battlePanel != null) {
-                    // Ensure your battle.Panel has a 'draw' method that takes Graphics2D
-                    battlePanel.draw(graphics2d);
-                }
-                return; // STOP drawing the map and player while in battle
-            }
-            // --------------------------
 
             map.draw(graphics2d);
             player.draw(graphics2d);
@@ -193,5 +283,5 @@ public class GamePanel extends JPanel implements Runnable {
         music.play();
         music.loop();
     }
-}
 
+}

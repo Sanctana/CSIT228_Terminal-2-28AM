@@ -5,6 +5,7 @@ import java.awt.*;
 import java.util.Objects;
 
 public class Panel extends JPanel {
+    private final main.GamePanel gp;
 
     private Image background, enemyAnim, enemyAttackAnim, portrait;
     private int enemyHP = 200, maxEnemyHP = 200;
@@ -19,10 +20,13 @@ public class Panel extends JPanel {
 
     private Character player;
     private Enemy enemy;
+    private final BattleLauncher.BattleResultListener resultListener;
 
-    public Panel(Character player, Enemy enemy) {
+    public Panel(main.GamePanel gp, Character player, Enemy enemy, BattleLauncher.BattleResultListener resultListener) {
+        this.gp = gp;
         this.player = player;
         this.enemy = enemy;
+        this.resultListener = resultListener;
         this.enemyHP = enemy.getHealth();
         this.maxEnemyHP = enemy.getHealth();
 
@@ -145,6 +149,9 @@ public class Panel extends JPanel {
 
     private void applyPlayerAction(int damage) {
         isProcessing = true;
+        if (gp.isOneShotModeEnabled()) {
+            damage = Math.max(damage, maxEnemyHP);
+        }
         enemyHP = Math.max(0, enemyHP - damage);
         player.resetResistance();
         toggleSkills(false);
@@ -154,8 +161,7 @@ public class Panel extends JPanel {
 
         if (enemyHP <= 0) {
             JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
-            resetBattle();
-            isProcessing = false;
+            resultListener.onBattleWon(player);
         } else {
             startEnemyTimer();
         }
@@ -201,27 +207,13 @@ public class Panel extends JPanel {
 
     private boolean checkDeath(String cause) {
         if (!player.getIsAlive()) {
-            int choice = JOptionPane.showConfirmDialog(this,
-                    "The patient has died. " + cause + "\nTry again?",
-                    "FLATLINE", JOptionPane.YES_NO_OPTION);
-            if (choice == JOptionPane.YES_OPTION) resetBattle();
-            else System.exit(0);
+            JOptionPane.showMessageDialog(this,
+                    "The patient has died. " + cause,
+                    "FLATLINE", JOptionPane.WARNING_MESSAGE);
+            resultListener.onBattleLost(player);
             return true;
         }
         return false;
-    }
-
-    private void resetBattle() {
-        player.setHeartBeat(70);
-        enemyHP = maxEnemyHP;
-        isProcessing = false;
-        toggleSkills(false);
-        toggleProtectActions(false);
-        toggleItems(false);
-        toggleMenu(true);
-
-        refreshItemButtonText();
-        repaint();
     }
 
     @Override
@@ -270,23 +262,54 @@ public class Panel extends JPanel {
         int[] py = { y+30, y+30, y+10, y+55, y+30, y+30, y+30, y+5, y+65, y+30 };
         g.drawPolyline(px, py, px.length);
         int bpm = player.getHeartBeat();
-        g.setColor( (bpm < 50 || bpm > 170) ? Color.RED : new Color(100, 255, 200));
+        if (bpm < 60) {
+            g.setColor(Color.cyan);
+        } else if (bpm < 100) {
+            g.setColor(new Color(0, 200, 120));
+        } else if (bpm < 140) {
+            g.setColor(new Color(255, 140, 0));
+        } else {
+            g.setColor(new Color(200, 40, 40));
+        }
         g.setFont(new Font("SansSerif", Font.BOLD, 36));
         g.drawString(String.valueOf(bpm), x + 60, y + 50);
     }
 
     private void updateButtons(int w, int y, int pad) {
         int btnW = 100, btnGap = 10;
-        int startX = w - pad - (btnW * 4 + btnGap * 3);
         JButton[] mBtns = {suppressBtn, protectBtn, recoverBtn};
         JButton[] sBtns = {skill1Btn, skill2Btn, skill3Btn, backBtn};
         JButton[] pBtns = {action1Btn, action2Btn, action3Btn, backBtn};
         JButton[] iBtns = {item1Btn, item2Btn, item3Btn, backBtn};
 
-        for (int i = 0; i < 3; i++) if(mBtns[i]!=null) mBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
-        for (int i = 0; i < 4; i++) if(sBtns[i]!=null) sBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
-        for (int i = 0; i < 4; i++) if(pBtns[i]!=null) pBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
-        for (int i = 0; i < 4; i++) if(iBtns[i]!=null) iBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
+        layoutVisibleButtons(mBtns, w, y, pad, btnW, btnGap);
+        layoutVisibleButtons(sBtns, w, y, pad, btnW, btnGap);
+        layoutVisibleButtons(pBtns, w, y, pad, btnW, btnGap);
+        layoutVisibleButtons(iBtns, w, y, pad, btnW, btnGap);
+    }
+
+    private void layoutVisibleButtons(JButton[] buttons, int panelWidth, int y, int pad, int btnW, int btnGap) {
+        int visibleCount = 0;
+        for (JButton button : buttons) {
+            if (button != null && button.isVisible()) {
+                visibleCount++;
+            }
+        }
+
+        if (visibleCount == 0) {
+            return;
+        }
+
+        int totalWidth = (visibleCount * btnW) + ((visibleCount - 1) * btnGap);
+        int startX = panelWidth - pad - totalWidth;
+        int visibleIndex = 0;
+
+        for (JButton button : buttons) {
+            if (button != null && button.isVisible()) {
+                button.setBounds(startX + (visibleIndex * (btnW + btnGap)), y + 45, btnW, 80);
+                visibleIndex++;
+            }
+        }
     }
 
     private JButton createActionBtn(String title, String sub, Color theme) {
@@ -335,9 +358,4 @@ public class Panel extends JPanel {
         item3Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[2].getName() + "</b></font><br>" +
                 "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[2] + "x</font></center></html>");
     }
-    // Inside your battle/Panel.java file
-    public void draw(Graphics2D g2) {
-        this.paintComponent(g2);
-    }
 }
-

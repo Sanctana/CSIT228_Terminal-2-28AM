@@ -84,6 +84,7 @@ public abstract class Map {
         setup("LeftDoorHor", TileType.COLLISION_TILE); // 38
         setup("RightDoorHor", TileType.COLLISION_TILE); // 39
         setup("blackTiles", TileType.TO_PREVIOUS_MAP); // 40
+        setup("floorTileBrighter", TileType.BATTLE_TRIGGER); // 41
     }
 
     public void setup(String imageName, TileType tileType) {

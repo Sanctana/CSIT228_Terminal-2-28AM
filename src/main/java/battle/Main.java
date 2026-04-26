@@ -14,7 +14,18 @@ public class Main {
         frame.setResizable(false);
 
 
-        frame.setContentPane(new Panel(characterContainer.getCharacter(1), enemyContainer.getRandomEnemy()));
+        frame.setContentPane(new Panel(gp, characterContainer.getCharacter(1), enemyContainer.getRandomEnemy(),
+                new BattleLauncher.BattleResultListener() {
+                    @Override
+                    public void onBattleWon(Character player) {
+                        frame.dispose();
+                    }
+
+                    @Override
+                    public void onBattleLost(Character player) {
+                        frame.dispose();
+                    }
+                }));
 
         frame.setLocationRelativeTo(null);
 

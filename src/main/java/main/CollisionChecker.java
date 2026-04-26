@@ -15,7 +15,20 @@ public class CollisionChecker {
     }
 
     private boolean isWalkable(TileType tileType) {
-        return tileType == TileType.WALKABLE || tileType == TileType.SPAWN_POINT;
+        return tileType == TileType.WALKABLE
+                || tileType == TileType.SPAWN_POINT
+                || tileType == TileType.BATTLE_TRIGGER;
+    }
+
+    public TileType getTileTypeUnderEntity(Entity entity) {
+        int centerX = entity.worldX + entity.solidArea.x + (entity.solidArea.width / 2);
+        int centerY = entity.worldY + entity.solidArea.y + (entity.solidArea.height / 2);
+
+        int col = centerX / gp.tileSize;
+        int row = centerY / gp.tileSize;
+        int tileNum = gp.map.mapTileNum.get(row)[col];
+
+        return gp.map.tile.get(tileNum).getTileType();
     }
 
     public void checkTile(Entity entity) {

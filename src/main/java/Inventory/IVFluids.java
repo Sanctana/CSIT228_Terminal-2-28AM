@@ -10,6 +10,6 @@ public class IVFluids extends Item {
 
     @Override
     public void use(battle.Character character) {
-        character.heartRate += 40;
+        character.setHeartBeat(character.getHeartBeat() + 40);
     }
 }

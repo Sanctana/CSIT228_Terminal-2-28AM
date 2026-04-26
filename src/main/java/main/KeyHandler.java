@@ -42,12 +42,17 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        if (gp.gameState != GameState.PLAY && gp.gameState != GameState.PAUSE) {
+            return;
+        }
+
         // PLAY STATE
         switch (code) {
         case KeyEvent.VK_W -> upPressed = true;
         case KeyEvent.VK_S -> downPressed = true;
         case KeyEvent.VK_A -> leftPressed = true;
         case KeyEvent.VK_D -> rightPressed = true;
+        case KeyEvent.VK_O -> gp.toggleOneShotMode();
         case KeyEvent.VK_ESCAPE -> {
             if (gp.gameState == GameState.PLAY) {
                 gp.gameState = GameState.PAUSE;

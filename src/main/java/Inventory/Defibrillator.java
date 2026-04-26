@@ -10,7 +10,6 @@ public class Defibrillator extends Item {
 
     @Override
     public void use(battle.Character character) {
-
-        character.heartRate = random.nextInt(70,81);
+        character.setHeartBeat(random.nextInt(70,81));
     }
 }
