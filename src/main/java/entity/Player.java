@@ -180,4 +180,11 @@ public class Player extends Entity {
     public ArrayList<Item> getInventory() {
         return inventory;
     }
+
+    public void useItem(int index) {
+        if (index >= 0 && index < inventory.size()) {
+            inventory.get(index).use(this);
+            inventory.remove(index); // Remove the item from inventory after use
+        }
+    }
 }

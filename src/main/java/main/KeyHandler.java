@@ -84,8 +84,8 @@ public class KeyHandler implements KeyListener {
         }
 
         if (code == KeyEvent.VK_ENTER) {
-            Item selectedItem = gp.player.getInventory().get(gp.ui.commandNum);
-            selectedItem.use(gp.player);
+            gp.player.useItem(gp.ui.commandNum);
+            gp.ui.commandNum = 0; // Reset selection after using an item
         }
     }
 
