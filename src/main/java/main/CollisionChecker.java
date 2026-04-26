@@ -1,14 +1,11 @@
 package main;
 
 import Utilities.States.TileType;
-import Utilities.States.GameState; // ADDED THIS IMPORT
 import entity.Entity;
 import entity.EntityState;
-import entity.Player;
 
 public class CollisionChecker {
     GamePanel gp;
-    java.util.Random random = new java.util.Random();
 
     public CollisionChecker(GamePanel gp) {
         this.gp = gp;
@@ -76,21 +73,8 @@ public class CollisionChecker {
             entity.state = EntityState.IDLE;
         } else if (isWalkable(tileType1) && isWalkable(tileType2)) {
             entity.state = EntityState.MOVING;
-            if (entity instanceof Player) {
-                checkRandomEncounter(10);
-            }
-        } else if (tileType1 == TileType.DANGER_ZONE || tileType2 == TileType.DANGER_ZONE) {
-            entity.state = EntityState.MOVING;
-            if (entity instanceof Player) {
-                checkRandomEncounter(1000);
-            }
-        }
-    }
-
-    private void checkRandomEncounter(int chance) {
-        if (random.nextInt(1000) < chance) {
-            gp.gameState = GameState.BATTLE;
-            gp.player.state = EntityState.IDLE;
+        } else {
+            entity.state = EntityState.IDLE;
         }
     }
 }

@@ -24,6 +24,7 @@ tasks.withType<JavaCompile> {
 }
 
 application {
+    mainModule.set("terminal228am")
     mainClass.set("main.Main")
 }
 

@@ -2,7 +2,6 @@ package main;
 
 import entity.CharacterType;
 import entity.Player;
-import Inventory.Item;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

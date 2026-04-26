@@ -1,11 +1,7 @@
 package battle;
 
 import Inventory.Item;
-import Inventory.Scalpel;
-import Inventory.Defibrillator;
-import Inventory.IVFluids;
 import java.util.Random;
-import java.util.ArrayList;
 import entity.Entity;
 import main.GamePanel;
 

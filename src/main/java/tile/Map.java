@@ -104,7 +104,8 @@ public abstract class Map {
      * @return Point representing the column and row of the player's spawn point
      */
     public Point loadMap() {
-        Pattern pattern = Pattern.compile("\s+");
+        Pattern pattern = Pattern.compile("\\s+");
+        mapTileNum.clear();
 
         try (BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(getClass().getResourceAsStream("/maps/" + mapFile)))) {

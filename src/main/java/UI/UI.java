@@ -1,7 +1,6 @@
 package UI;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 import Inventory.Item;
 import main.GamePanel;
@@ -13,7 +12,6 @@ public class UI {
     private Graphics2D g2;
 
     private Font arial_40;
-    int messageCounter;
     public int commandNum;
     public TitleScreenState titleScreenState;
     int pulseCounter;
@@ -26,7 +24,7 @@ public class UI {
         arial_40 = new Font("Arial", Font.PLAIN, 40);
 
         titleScreenState = TitleScreenState.MAIN_MENU;
-        messageCounter = commandNum = pulseCounter = 0;
+        commandNum = pulseCounter = 0;
     }
 
     public void draw() {
@@ -314,19 +312,11 @@ public class UI {
         g2.drawString(floorText, x2 + flicker, y2);
 
         // ===== HEART RATE DISPLAY =====
-        float pulseScale = 1f;
-
         pulseCounter++;
         if (pulseCounter > 30) {
             pulseOn = !pulseOn;
             pulseCounter = 0;
         }
-
-        if (pulseOn) {
-            pulseScale = 1.1f; // expand
-        }
-
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F * pulseScale));
 
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
 
