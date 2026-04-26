@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Stack;
 import javax.swing.JPanel;
+import battle.Panel;
 
 import Maps.ThirdFloorMap;
 import UI.UI;
@@ -38,6 +39,7 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker;
     public UI ui;
     public Player player;
+    public battle.Panel battlePanel;
     public GameState gameState;
     public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
                                                                  // transitions
@@ -112,29 +114,35 @@ public class GamePanel extends JPanel implements Runnable {
 
             if (player.state == EntityState.TO_NEXT_MAP) {
                 player.storeCurrentPosition();
-
                 map = map.transitionToMap(player.state);
-
                 Point spawnPoint = map.loadMap();
                 player.setLocation(spawnPoint.y, spawnPoint.x);
-
                 player.state = EntityState.IDLE;
             } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
                 map = map.transitionToMap(player.state);
                 map.loadMap();
-
-                player.restorePreviousPosition(); // Restore the player's previous position after transitioning back
-
+                player.restorePreviousPosition();
                 player.state = EntityState.IDLE;
             }
-        } else if (gameState == GameState.FIRST_LOAD) {
-            // First load of the map, so we need to set the player's position to the spawn
-            // point
+        }
+        // --- NEW LOGIC START ---
+        else if (gameState == GameState.BATTLE) {
+            if (battlePanel == null) {
+                startBattle();
+            }
+        }
+        // --- NEW LOGIC END ---
+        else if (gameState == GameState.FIRST_LOAD) {
             Point spawnPoint = map.loadMap();
             player.setLocation(spawnPoint.y, spawnPoint.x);
-
             gameState = GameState.PLAY;
         }
+    }
+
+    public void startBattle() {
+        battle.EnemyContainer ec = new battle.EnemyContainer();
+        // This creates your battle panel using the player and a random enemy
+        battlePanel = new battle.Panel(player, ec.getRandomEnemy());
     }
 
     @Override
@@ -156,11 +164,22 @@ public class GamePanel extends JPanel implements Runnable {
             if (gameState == GameState.FIRST_LOAD) {
                 return;
             }
+
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
                 ui.draw();
                 return;
             }
+
+            // --- NEW BATTLE DRAWING ---
+            if (gameState == GameState.BATTLE) {
+                if (battlePanel != null) {
+                    // Ensure your battle.Panel has a 'draw' method that takes Graphics2D
+                    battlePanel.draw(graphics2d);
+                }
+                return; // STOP drawing the map and player while in battle
+            }
+            // --------------------------
 
             map.draw(graphics2d);
             player.draw(graphics2d);
@@ -174,5 +193,5 @@ public class GamePanel extends JPanel implements Runnable {
         music.play();
         music.loop();
     }
-
 }
+

@@ -1,11 +1,14 @@
 package main;
 
 import Utilities.States.TileType;
+import Utilities.States.GameState; // ADDED THIS IMPORT
 import entity.Entity;
 import entity.EntityState;
+import entity.Player;
 
 public class CollisionChecker {
     GamePanel gp;
+    java.util.Random random = new java.util.Random();
 
     public CollisionChecker(GamePanel gp) {
         this.gp = gp;
@@ -16,7 +19,6 @@ public class CollisionChecker {
     }
 
     public void checkTile(Entity entity) {
-
         int entityLeftWorldX = entity.worldX + entity.solidArea.x;
         int entityRightWorldX = entity.worldX + entity.solidArea.x + entity.solidArea.width;
         int entityTopWorldY = entity.worldY + entity.solidArea.y;
@@ -30,31 +32,26 @@ public class CollisionChecker {
         int tileNum1, tileNum2;
 
         switch (entity.direction) {
-
             case UP:
                 entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize;
                 tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityLeftCol];
                 tileNum2 = gp.map.mapTileNum.get(entityTopRow)[entityRightCol];
                 break;
-
             case DOWN:
                 entityBottomRow = (entityBottomWorldY + entity.speed) / gp.tileSize;
                 tileNum1 = gp.map.mapTileNum.get(entityBottomRow)[entityLeftCol];
                 tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityRightCol];
                 break;
-
             case LEFT:
                 entityLeftCol = (entityLeftWorldX - entity.speed) / gp.tileSize;
                 tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityLeftCol];
                 tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityLeftCol];
                 break;
-
             case RIGHT:
                 entityRightCol = (entityRightWorldX + entity.speed) / gp.tileSize;
                 tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityRightCol];
                 tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityRightCol];
                 break;
-
             default:
                 return;
         }
@@ -66,10 +63,21 @@ public class CollisionChecker {
             entity.state = EntityState.IDLE;
         } else if (isWalkable(tileType1) && isWalkable(tileType2)) {
             entity.state = EntityState.MOVING;
-        } else if (tileType1 == TileType.TO_NEXT_MAP || tileType2 == TileType.TO_NEXT_MAP) {
-            entity.state = EntityState.TO_NEXT_MAP;
-        } else if (tileType1 == TileType.TO_PREVIOUS_MAP || tileType2 == TileType.TO_PREVIOUS_MAP) {
-            entity.state = EntityState.TO_PREVIOUS_MAP;
+            if (entity instanceof Player) {
+                checkRandomEncounter(10);
+            }
+        } else if (tileType1 == TileType.DANGER_ZONE || tileType2 == TileType.DANGER_ZONE) {
+            entity.state = EntityState.MOVING;
+            if (entity instanceof Player) {
+                checkRandomEncounter(1000);
+            }
+        }
+    }
+
+    private void checkRandomEncounter(int chance) {
+        if (random.nextInt(1000) < chance) {
+            gp.gameState = GameState.BATTLE;
+            gp.player.state = EntityState.IDLE;
         }
     }
 }

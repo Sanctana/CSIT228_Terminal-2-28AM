@@ -335,4 +335,9 @@ public class Panel extends JPanel {
         item3Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[2].getName() + "</b></font><br>" +
                 "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[2] + "x</font></center></html>");
     }
+    // Inside your battle/Panel.java file
+    public void draw(Graphics2D g2) {
+        this.paintComponent(g2);
+    }
 }
+
