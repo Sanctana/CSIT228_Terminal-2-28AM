@@ -9,8 +9,8 @@ public class Detective extends Character {
     private boolean[] chamber = new boolean[6];
     private double damageMultiplier = 0.5;
 
-    public Detective() {
-        super(100, 0.90, "John Lloyd - The Detective");
+    public Detective(main.GamePanel gp) {
+        super(100, 0.90, "John Lloyd - The Detective",gp);
 
         // Math overridden in useSkill
         skills.add(new Skill(0, 0, "Shoot"));
@@ -59,7 +59,7 @@ public class Detective extends Character {
     public void useAction(int actionIndex, Panel panel) {
         if (actionIndex == 0) { // Action 1: Shoot self
             if (chamber[index]) {
-                this.heartBeat -= 40;
+                this.heartRate -= 40;
                 this.damageMultiplier = 0.5;
                 resetRevolver();
             } else {

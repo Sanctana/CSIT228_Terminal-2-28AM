@@ -37,6 +37,11 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        if (gp.gameState == GameState.GAMEOVER) {
+            handleGameOverInput(code);
+            return;
+        }
+
         // PLAY STATE
         switch (code) {
         case KeyEvent.VK_W -> upPressed = true;
@@ -61,8 +66,17 @@ public class KeyHandler implements KeyListener {
         }
     }
 
+    private void handleGameOverInput(int code) {
+        if (code == KeyEvent.VK_ENTER) {
+            gp.player.heartRate = 70;
+            gp.gameState = GameState.PLAY;
+            java.awt.Point spawnPoint = gp.map.loadMap();
+            gp.player.setLocation(spawnPoint.y, spawnPoint.x);
+        }
+    }
+
     private void handleInventoryInput(int code) {
-        int options = gp.player == null ? 0 : gp.player.getInventory().size();
+        int options = gp.player == null ? 0 : gp.player.getInventory().length;
 
         if (code == KeyEvent.VK_I || code == KeyEvent.VK_ESCAPE) {
             gp.gameState = GameState.PLAY;
@@ -124,6 +138,13 @@ public class KeyHandler implements KeyListener {
             if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
                 gp.player = new Player(gp, this, selectedCharacter);
                 gp.gameState = GameState.FIRST_LOAD;
+            }
+        }
+
+        if (gp.gameState == GameState.GAMEOVER) {
+            if (code == KeyEvent.VK_ENTER) {
+                gp.player.heartRate = 70;
+                gp.gameState = GameState.PLAY;
             }
         }
     }

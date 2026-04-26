@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import battle.Character;
 
 import javax.swing.ImageIcon;
 
@@ -14,32 +15,32 @@ import Utilities.States.Direction;
 import main.GamePanel;
 import main.KeyHandler;
 
-public class Player extends Entity {
-    public int heartRate = 70; // current BPM
-    public int minHeartRate = 40;
-    public int maxHeartRate = 180;
+public class Player extends battle.Character {
     public final int screenX;
     public final int screenY;
     public CharacterType characterType;
 
     KeyHandler keyH;
 
-    private ArrayList<Item> inventory = new ArrayList<>(
-            Arrays.asList(new Inventory.Defibrillator(), new Inventory.IVFluids(), new Inventory.Scalpel()));
-
     public Player(GamePanel gp, KeyHandler keyH, CharacterType characterType) {
-        super(gp);
+        super(70, 0.1, "TestChar", gp);
         this.keyH = keyH;
         this.characterType = characterType;
 
         screenX = gp.screenWidth / 2 - (gp.tileSize / 2);
         screenY = gp.screenHeight / 2 - (gp.tileSize / 2);
 
-        solidArea = new Rectangle(15, 40, 20, 1);
+        this.solidArea = new Rectangle(15, 40, 20, 1);
+
+        this.inventory[0] = new Inventory.Scalpel();
+        this.inventory[1] = new Inventory.Defibrillator();
+        this.inventory[2] = new Inventory.IVFluids();
 
         setDefaultValues();
         getPlayerImage();
     }
+
+
 
     public void setDefaultValues() {
         speed = 4;
@@ -174,17 +175,6 @@ public class Player extends Entity {
         if (!gp.previousPlayerPositions.isEmpty()) {
             Point previousPosition = gp.previousPlayerPositions.pop();
             setLocation(previousPosition.y, previousPosition.x);
-        }
-    }
-
-    public ArrayList<Item> getInventory() {
-        return inventory;
-    }
-
-    public void useItem(int index) {
-        if (index >= 0 && index < inventory.size()) {
-            inventory.get(index).use(this);
-            inventory.remove(index); // Remove the item from inventory after use
         }
     }
 }

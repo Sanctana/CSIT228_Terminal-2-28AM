@@ -3,8 +3,8 @@ package battle;
 public class Artist extends Character {
     private int currentMode = 1;
 
-    public Artist() {
-        super(100, 0.0, "Tria - The Artist");
+    public Artist(main.GamePanel gp) {
+        super(100, 0.0, "Tria - The Artist",gp);
 
         // Initial Skills (Recreation Mode)
         skills.add(new Skill(20, 40, "Forgotten Memories"));

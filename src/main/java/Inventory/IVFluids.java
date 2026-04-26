@@ -9,7 +9,7 @@ public class IVFluids extends Item {
     }
 
     @Override
-    public void use(Player player) {
-        player.heartRate += 40;
+    public void use(battle.Character character) {
+        character.heartRate += 40;
     }
 }

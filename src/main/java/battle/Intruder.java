@@ -3,8 +3,8 @@ package battle;
 public class Intruder extends Character {
     private int abstractionMeter = 50;
 
-    public Intruder() {
-        super(70, 0.0, "Trixy - The Intruder");
+    public Intruder(main.GamePanel gp) {
+        super(70, 0.0, "Trixy - The Intruder",gp);
 
         skills.add(new Skill(10, 30, "Crowbar Strike"));
         skills.add(new Skill(30, 50, "Ambush"));

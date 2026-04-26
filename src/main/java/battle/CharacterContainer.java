@@ -3,12 +3,12 @@ import java.util.*;
 public class CharacterContainer {
     ArrayList<Character> characterList = new ArrayList<>();
 
-    public CharacterContainer(){
-        characterList.add(new Officer());
-        characterList.add(new DebtCollector());
-        characterList.add(new Detective());
-        characterList.add(new Intruder());
-        characterList.add(new Artist());
+    public CharacterContainer(main.GamePanel gp){
+        characterList.add(new Officer(gp));
+        characterList.add(new DebtCollector(gp));
+        characterList.add(new Detective(gp));
+        characterList.add(new Intruder(gp));
+        characterList.add(new Artist(gp));
 
     }
     public Character getCharacter(int index){

@@ -15,6 +15,7 @@ public class Panel extends JPanel {
 
     private JButton suppressBtn, protectBtn, recoverBtn, skill1Btn, skill2Btn, skill3Btn, backBtn;
     private JButton action1Btn, action2Btn, action3Btn;
+    private JButton item1Btn, item2Btn, item3Btn;
 
     private Character player;
     private Enemy enemy;
@@ -48,10 +49,15 @@ public class Panel extends JPanel {
         action2Btn = createActionBtn(player.actions.get(1).getName(), "", new Color(160, 150, 60));
         action3Btn = createActionBtn(player.actions.get(2).getName(), "", new Color(160, 150, 60));
 
+        item1Btn = createActionBtn(player.getInventory()[0].getName(), player.getItemAmounts()[0] + "x", new Color(40, 100, 100));
+        item2Btn = createActionBtn(player.getInventory()[1].getName(), player.getItemAmounts()[1] + "x", new Color(40, 100, 100));
+        item3Btn = createActionBtn(player.getInventory()[2].getName(), player.getItemAmounts()[2] + "x", new Color(40, 100, 100));
+
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
         toggleSkills(false);
         toggleProtectActions(false);
+        toggleItems(false);
 
         suppressBtn.addActionListener(e -> {
             if (isProcessing) return;
@@ -65,11 +71,22 @@ public class Panel extends JPanel {
             toggleProtectActions(true);
         });
 
+        recoverBtn.addActionListener(e -> {
+            if (isProcessing) return;
+            toggleMenu(false);
+            toggleItems(true);
+        });
+
         backBtn.addActionListener(e -> {
             toggleSkills(false);
             toggleProtectActions(false);
+            toggleItems(false);
             toggleMenu(true);
         });
+
+        item1Btn.addActionListener(e -> useBattleItem(0));
+        item2Btn.addActionListener(e -> useBattleItem(1));
+        item3Btn.addActionListener(e -> useBattleItem(2));
 
         skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(0)); });
         skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(1)); });
@@ -79,22 +96,44 @@ public class Panel extends JPanel {
         action2Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(1, this); finalizeAction(); } });
         action3Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(2, this); finalizeAction(); } });
 
-        recoverBtn.addActionListener(e -> {
-            if (isProcessing) return;
+
+        add(suppressBtn);
+        add(protectBtn);
+        add(recoverBtn);
+
+        add(skill1Btn);
+        add(skill2Btn);
+        add(skill3Btn);
+
+        add(action1Btn);
+        add(action2Btn);
+        add(action3Btn);
+
+        add(item1Btn);
+        add(item2Btn);
+        add(item3Btn);
+
+        add(backBtn);
+    }
+
+    private void useBattleItem(int index) {
+        if (isProcessing) return;
+
+        if (player.getItemAmounts()[index] > 0) {
             isProcessing = true;
-            int heal = (int) (Math.random() * 11) + 15;
-            player.recover(heal);
+            player.useItem(index);
+
+            refreshItemButtonText();
+            toggleItems(false);
+            toggleMenu(true);
             repaint();
 
             if (!checkDeath("Cardiac Arrest")) {
                 startEnemyTimer();
             }
-        });
-
-        add(suppressBtn); add(protectBtn); add(recoverBtn);
-        add(skill1Btn); add(skill2Btn); add(skill3Btn);
-        add(action1Btn); add(action2Btn); add(action3Btn);
-        add(backBtn);
+        } else {
+            JOptionPane.showMessageDialog(this, "You are out of " + player.getInventory()[index].getName() + "!");
+        }
     }
 
     private void finalizeAction() {
@@ -176,6 +215,12 @@ public class Panel extends JPanel {
         player.setHeartBeat(70);
         enemyHP = maxEnemyHP;
         isProcessing = false;
+        toggleSkills(false);
+        toggleProtectActions(false);
+        toggleItems(false);
+        toggleMenu(true);
+
+        refreshItemButtonText();
         repaint();
     }
 
@@ -236,10 +281,12 @@ public class Panel extends JPanel {
         JButton[] mBtns = {suppressBtn, protectBtn, recoverBtn};
         JButton[] sBtns = {skill1Btn, skill2Btn, skill3Btn, backBtn};
         JButton[] pBtns = {action1Btn, action2Btn, action3Btn, backBtn};
+        JButton[] iBtns = {item1Btn, item2Btn, item3Btn, backBtn};
 
         for (int i = 0; i < 3; i++) if(mBtns[i]!=null) mBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
         for (int i = 0; i < 4; i++) if(sBtns[i]!=null) sBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
         for (int i = 0; i < 4; i++) if(pBtns[i]!=null) pBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
+        for (int i = 0; i < 4; i++) if(iBtns[i]!=null) iBtns[i].setBounds(startX + (i*(btnW+btnGap)), y+45, btnW, 80);
     }
 
     private JButton createActionBtn(String title, String sub, Color theme) {
@@ -256,6 +303,10 @@ public class Panel extends JPanel {
 
     private void toggleSkills(boolean b) {
         skill1Btn.setVisible(b); skill2Btn.setVisible(b); skill3Btn.setVisible(b); backBtn.setVisible(b);
+    }
+
+    private void toggleItems(boolean b) {
+        item1Btn.setVisible(b); item2Btn.setVisible(b); item3Btn.setVisible(b); backBtn.setVisible(b);
     }
 
     private void toggleProtectActions(boolean b) {
@@ -275,5 +326,13 @@ public class Panel extends JPanel {
                 "<font color='white' size='2'>" + player.skills.get(1).getFloorDMG() + "-" +
                 player.skills.get(1).getCeilDMG() + "DMG</font></center></html>");
         repaint();
+    }
+    public void refreshItemButtonText() {
+        item1Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[0].getName() + "</b></font><br>" +
+                "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[0] + "x</font></center></html>");
+        item2Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[1].getName() + "</b></font><br>" +
+                "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[1] + "x</font></center></html>");
+        item3Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[2].getName() + "</b></font><br>" +
+                "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[2] + "x</font></center></html>");
     }
 }

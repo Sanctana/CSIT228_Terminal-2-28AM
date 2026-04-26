@@ -41,6 +41,10 @@ public class UI {
             drawPlayerUI();
             drawInventoryScreen(gp.player);
         }
+            case GAMEOVER -> {
+                drawPlayerUI();
+                drawGameOverScreen();
+            }
         // Optionally, you can add a loading screen here
         case FIRST_LOAD -> {
         }
@@ -52,7 +56,8 @@ public class UI {
             return;
         }
 
-        ArrayList<Item> inventory = player.getInventory();
+        Item[] inventory = player.getInventory();
+        int[] amounts = player.getItemAmounts();
 
         int frameX = gp.tileSize;
         int frameY = gp.tileSize;
@@ -71,32 +76,26 @@ public class UI {
         int rowHeight = 56;
 
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 52F));
-        if (inventory.isEmpty()) {
-            g2.setColor(new Color(210, 210, 210));
-            g2.drawString("No items", listStartX, listStartY);
-        } else {
-            int selectedIndex = Math.max(0, Math.min(commandNum, inventory.size() - 1));
+        int selectedIndex = Math.max(0, Math.min(commandNum, inventory.length - 1));
 
-            for (int i = 0; i < inventory.size(); i++) {
-                int rowY = listStartY + (i * rowHeight);
+        for (int i = 0; i < inventory.length; i++) {
+            int rowY = listStartY + (i * rowHeight);
 
-                if (i == selectedIndex) {
-                    g2.setColor(new Color(255, 70, 70));
-                    g2.drawString(">", listStartX - 36, rowY);
-                    g2.setColor(Color.white);
-                } else {
-                    g2.setColor(new Color(220, 220, 220));
-                }
-
-                g2.drawString(inventory.get(i).getName(), listStartX, rowY);
+            if (i == selectedIndex) {
+                g2.setColor(new Color(255, 70, 70));
+                g2.drawString(">", listStartX - 36, rowY);
+                g2.setColor(Color.white);
+            } else {
+                g2.setColor(new Color(170, 170, 170));
             }
-
-            int subtitleY = frameY + frameHeight - gp.tileSize - 54;
-            g2.setColor(new Color(190, 190, 190));
-            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
-            drawWrappedText(inventory.get(selectedIndex).getDescription(), listStartX, subtitleY,
-                    frameWidth - (gp.tileSize * 2), 34);
+            String itemText = inventory[i].getName() + " " + amounts[i] + "x";
+            g2.drawString(itemText, listStartX, rowY);
         }
+        int subtitleY = frameY + frameHeight - gp.tileSize - 54;
+        g2.setColor(new Color(190, 190, 190));
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
+        drawWrappedText(inventory[selectedIndex].getDescription(), listStartX, subtitleY,
+                frameWidth - (gp.tileSize * 2), 34);
 
         int instructionY = frameY + frameHeight - (gp.tileSize / 2);
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 40F));
@@ -316,18 +315,16 @@ public class UI {
         int hrX = margin;
         int hrY = 90;
 
-        // Color logic
         if (gp.player.heartRate < 60) {
-            g2.setColor(Color.cyan); // calm / low
+            g2.setColor(Color.cyan);
         } else if (gp.player.heartRate < 100) {
-            g2.setColor(new Color(0, 200, 120)); // normal
+            g2.setColor(new Color(0, 200, 120));
         } else if (gp.player.heartRate < 140) {
-            g2.setColor(new Color(255, 140, 0)); // stressed
+            g2.setColor(new Color(255, 140, 0));
         } else {
-            g2.setColor(new Color(200, 40, 40)); // danger
+            g2.setColor(new Color(200, 40, 40));
         }
 
-        // Draw Text
         g2.drawString(hrText, hrX + flicker, hrY + flicker);
 
         // ===== DANGER OVERLAY (ENHANCED) =====
@@ -362,5 +359,24 @@ public class UI {
         int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         int x = gp.screenWidth / 2 - length / 2;
         return x;
+    }
+
+    public void drawGameOverScreen() {
+        g2.setColor(new Color(0, 0, 0, 150)); // Dark overlay
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        String text = "YOU DIED";
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 110F));
+
+        g2.setColor(Color.black);
+        g2.drawString(text, getXforCenteredText(text) + 4, gp.screenHeight / 2 + 4);
+
+        g2.setColor(new Color(200, 0, 0));
+        g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 32F));
+        g2.setColor(Color.white);
+        text = "Press Enter to Restart";
+        g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2 + gp.tileSize);
     }
 }

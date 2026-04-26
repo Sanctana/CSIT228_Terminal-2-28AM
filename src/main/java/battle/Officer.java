@@ -1,8 +1,8 @@
 package battle;
 
 public class Officer extends Character{
-    public Officer() {
-        super(70, .25, "Andrew - The Officer");
+    public Officer(main.GamePanel gp) {
+        super(70, .25, "Andrew - The Officer",gp);
         skills.add(new Skill(10,30,"Warning Shot"));
         skills.add(new Skill(20,75,"Barrage of Bullets"));
         skills.add(new Skill(999,1000,"One Shot"));

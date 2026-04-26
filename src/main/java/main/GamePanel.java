@@ -106,8 +106,10 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         if (gameState == GameState.PLAY) {
             player.update();
+            if (player.heartRate <= 40 || player.heartRate >= 180) {
+                gameState = GameState.GAMEOVER;
+            }
 
-            // Check if the player is transitioning to another map
             if (player.state == EntityState.TO_NEXT_MAP) {
                 player.storeCurrentPosition();
 

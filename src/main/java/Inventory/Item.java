@@ -1,23 +1,22 @@
 package Inventory;
 
-import entity.Player;
+import battle.Character;
 
 public abstract class Item {
-    private String name;
-    private String description;
+    protected String name;
+    protected String description;
 
     public Item(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
+    public abstract void use(Character character);
+
     public String getName() {
         return name;
     }
-
     public String getDescription() {
         return description;
     }
-
-    public abstract void use(Player player);
 }

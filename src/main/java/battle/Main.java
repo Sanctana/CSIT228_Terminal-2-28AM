@@ -1,11 +1,12 @@
 package battle;
 import javax.swing.*;
-
+import main.GamePanel;
 public class Main {
     public static void main(String[] args){
+        GamePanel gp = new GamePanel();
         EnemyContainer enemyContainer = new EnemyContainer();
 
-        CharacterContainer characterContainer = new CharacterContainer();
+        CharacterContainer characterContainer = new CharacterContainer(gp);
 
         JFrame frame = new JFrame("Terminal228 Battle Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
