@@ -44,9 +44,9 @@ public class Panel extends JPanel {
         skill2Btn = createActionBtn(player.skills.get(1).getSkillName(), player.skills.get(1).getFloorDMG() + "-" + player.skills.get(1).getCeilDMG() + "DMG", new Color(160, 150, 60));
         skill3Btn = createActionBtn(player.skills.get(2).getSkillName(), player.skills.get(2).getFloorDMG() + "-" + player.skills.get(2).getCeilDMG() + "DMG", new Color(60, 150, 80));
 
-        action1Btn = createActionBtn("ACTION 1", "", new Color(160, 150, 60));
-        action2Btn = createActionBtn("ACTION 2", "", new Color(160, 150, 60));
-        action3Btn = createActionBtn("ACTION 3", "", new Color(160, 150, 60));
+        action1Btn = createActionBtn(player.actions.get(0).getName(), "", new Color(160, 150, 60));
+        action2Btn = createActionBtn(player.actions.get(1).getName(), "", new Color(160, 150, 60));
+        action3Btn = createActionBtn(player.actions.get(2).getName(), "", new Color(160, 150, 60));
 
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
@@ -71,9 +71,48 @@ public class Panel extends JPanel {
             toggleMenu(true);
         });
 
-        skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skills.get(0).getDamage()); });
-        skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skills.get(1).getDamage()); });
-        skill3Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.skills.get(2).getDamage()); });
+        skill1Btn.addActionListener(e -> {
+            if(!isProcessing) applyPlayerAction(player.skills.get(0).getDamage());
+        });
+        skill2Btn.addActionListener(e -> {
+            if(!isProcessing) applyPlayerAction(player.skills.get(1).getDamage());
+        });
+        skill3Btn.addActionListener(e -> {
+            if(!isProcessing) applyPlayerAction(player.skills.get(2).getDamage());
+        });
+        action1Btn.addActionListener(e ->{
+            if(!isProcessing){
+                isProcessing = true;
+
+                player.setResistance(player.actions.get(0).action());
+                toggleProtectActions(false);
+                toggleMenu(true);
+                startEnemyTimer();
+
+            }
+        });
+        action2Btn.addActionListener(e ->{
+            if(!isProcessing){
+                isProcessing = true;
+
+                player.setResistance(player.actions.get(1).action());
+                toggleProtectActions(false);
+                toggleMenu(true);
+                startEnemyTimer();
+
+            }
+        });
+        action3Btn.addActionListener(e ->{
+            if(!isProcessing){
+                isProcessing = true;
+
+                player.setResistance(player.actions.get(2).action());
+                toggleProtectActions(false);
+                toggleMenu(true);
+                startEnemyTimer();
+
+            }
+        });
 
         recoverBtn.addActionListener(e -> {
             if (isProcessing) return;
@@ -134,10 +173,12 @@ public class Panel extends JPanel {
         damageTimer.setRepeats(false);
         damageTimer.start();
 
-        Timer resetTimer = new Timer(1200, e -> {
+        Timer resetTimer = new Timer(2000, e -> {
             isEnemyAttacking = false;
             enemyXOffset = 0;
             isProcessing = false;
+
+            player.resetResistance();
             if (enemyAnim != null) {
                 enemyAnim.flush();
             }
@@ -150,7 +191,7 @@ public class Panel extends JPanel {
     private boolean checkDeath(String cause) {
         if (!player.getIsAlive()) {
             int choice = JOptionPane.showConfirmDialog(this,
-                    "The heart has stopped. " + cause + "\nTry again?",
+                    "The patient has died. " + cause + "\nTry again?",
                     "FLATLINE", JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) resetBattle();
             else System.exit(0);

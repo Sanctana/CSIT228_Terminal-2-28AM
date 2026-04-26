@@ -1,12 +1,12 @@
 package Maps;
 
+import Utilities.States.TileType;
 import main.GamePanel;
 import tile.Map;
-import tile.TileType;
 
 public class FirstFloorMap extends Map {
     public FirstFloorMap(GamePanel gp) {
-        super(gp, "1stFloorMap.txt");
+        super(gp, "1stFloorMap.txt", "1ST FLOOR");
 
         setup("blackTiles", TileType.TO_PREVIOUS_MAP); // 37
     }

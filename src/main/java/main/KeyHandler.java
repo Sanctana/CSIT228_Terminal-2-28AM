@@ -6,6 +6,9 @@ import entity.Player;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import Utilities.States.TitleScreenState;
+import Utilities.States.GameState;
+
 public class KeyHandler implements KeyListener {
     GamePanel gp;
     public boolean upPressed, downPressed, leftPressed, rightPressed;
@@ -65,26 +68,26 @@ public class KeyHandler implements KeyListener {
 
         if (gp.ui.titleScreenState == TitleScreenState.MAIN_MENU) {
             switch (gp.ui.commandNum) {
-                case 0 -> gp.ui.titleScreenState = TitleScreenState.CHARACTER_SELECT;
-                case 1 -> {
-                    /* add later "LOAD GAME" */ }
-                case 2 -> System.exit(0);
+            case 0 -> gp.ui.titleScreenState = TitleScreenState.CHARACTER_SELECT;
+            case 1 -> {
+                /* add later "LOAD GAME" */ }
+            case 2 -> System.exit(0);
             }
         } else { // titleScreenState == TitleScreenState.CHARACTER_SELECT
             CharacterType selectedCharacter = null;
 
             switch (gp.ui.commandNum) {
-                case 0 -> selectedCharacter = CharacterType.DETECTIVE;
-                case 1 -> selectedCharacter = CharacterType.OFFICER;
-                case 2 -> selectedCharacter = CharacterType.INTRUDER;
-                case 3 -> selectedCharacter = CharacterType.ARTIST;
-                case 4 -> selectedCharacter = CharacterType.COLLECTOR;
-                case 5 -> gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
+            case 0 -> selectedCharacter = CharacterType.DETECTIVE;
+            case 1 -> selectedCharacter = CharacterType.OFFICER;
+            case 2 -> selectedCharacter = CharacterType.INTRUDER;
+            case 3 -> selectedCharacter = CharacterType.ARTIST;
+            case 4 -> selectedCharacter = CharacterType.COLLECTOR;
+            case 5 -> gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
             }
 
             if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
                 gp.player = new Player(gp, this, selectedCharacter);
-                gp.gameState = GameState.TRANSITION;
+                gp.gameState = GameState.FIRST_LOAD;
             }
         }
     }
@@ -92,10 +95,10 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_W -> upPressed = false;
-            case KeyEvent.VK_S -> downPressed = false;
-            case KeyEvent.VK_A -> leftPressed = false;
-            case KeyEvent.VK_D -> rightPressed = false;
+        case KeyEvent.VK_W -> upPressed = false;
+        case KeyEvent.VK_S -> downPressed = false;
+        case KeyEvent.VK_A -> leftPressed = false;
+        case KeyEvent.VK_D -> rightPressed = false;
         }
     }
 }

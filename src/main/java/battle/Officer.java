@@ -6,5 +6,9 @@ public class Officer extends Character{
         skills.add(new Skill(10,30,"Warning Shot"));
         skills.add(new Skill(20,75,"Barrage of Bullets"));
         skills.add(new Skill(5,15,"Pistol Whip"));
+
+        actions.add(new Action(.20,.40,"Block"));
+        actions.add(new Action(.40,.60,"Stronger Block"));
+        actions.add(new Action(.99,1,"Immunity"));
     }
 }

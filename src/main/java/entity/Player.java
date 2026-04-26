@@ -2,14 +2,15 @@ package entity;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.ImageIcon;
 
+import Utilities.States.Direction;
 import main.GamePanel;
 import main.KeyHandler;
 
 public class Player extends Entity {
-    GamePanel gp;
     KeyHandler keyH;
 
     public int heartRate = 70; // current BPM
@@ -20,7 +21,7 @@ public class Player extends Entity {
     public CharacterType characterType;
 
     public Player(GamePanel gp, KeyHandler keyH, CharacterType characterType) {
-        this.gp = gp;
+        super(gp);
         this.keyH = keyH;
         this.characterType = characterType;
 
@@ -113,10 +114,10 @@ public class Player extends Entity {
 
             if (state == EntityState.MOVING) {
                 switch (direction) {
-                    case UP -> worldY -= speed;
-                    case DOWN -> worldY += speed;
-                    case LEFT -> worldX -= speed;
-                    case RIGHT -> worldX += speed;
+                case UP -> worldY -= speed;
+                case DOWN -> worldY += speed;
+                case LEFT -> worldX -= speed;
+                case RIGHT -> worldX += speed;
                 }
             }
         } else {
@@ -130,20 +131,43 @@ public class Player extends Entity {
 
         if (state == EntityState.MOVING) {
             switch (direction) {
-                case UP -> image = up;
-                case DOWN -> image = down;
-                case LEFT -> image = left;
-                case RIGHT -> image = right;
+            case UP -> image = up;
+            case DOWN -> image = down;
+            case LEFT -> image = left;
+            case RIGHT -> image = right;
             }
         } else if (state == EntityState.IDLE) {
             switch (direction) {
-                case UP -> image = idleUp;
-                case DOWN -> image = idleDown;
-                case LEFT -> image = idleLeft;
-                case RIGHT -> image = idleRight;
+            case UP -> image = idleUp;
+            case DOWN -> image = idleDown;
+            case LEFT -> image = idleLeft;
+            case RIGHT -> image = idleRight;
             }
         }
 
         g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+    }
+
+    public void storeCurrentPosition() {
+        // Align to tile grid
+        int x = worldX / gp.tileSize;
+        int y = worldY / gp.tileSize;
+
+        // Store the current position before transitioning
+        switch (direction) {
+        case UP -> y++;
+        case DOWN -> y--;
+        case LEFT -> x++;
+        case RIGHT -> x--;
+        }
+
+        gp.previousPlayerPositions.push(new Point(x, y));
+    }
+
+    public void restorePreviousPosition() {
+        if (!gp.previousPlayerPositions.isEmpty()) {
+            Point previousPosition = gp.previousPlayerPositions.pop();
+            setLocation(previousPosition.y, previousPosition.x);
+        }
     }
 }

@@ -2,11 +2,10 @@ package tile;
 
 import main.GamePanel;
 import entity.EntityState;
+import Utilities.UtilityTool;
+import Utilities.States.TileType;
 
 import javax.imageio.ImageIO;
-
-import Utilities.UtilityTool;
-
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,11 +22,13 @@ public abstract class Map {
     public volatile int maxWorldCol;
     public volatile int maxWorldRow;
 
-    String mapFile;
+    private String mapFile;
+    private String mapName;
 
-    public Map(GamePanel gp, String mapFile) {
+    public Map(GamePanel gp, String mapFile, String mapName) {
         this.gp = gp;
         this.mapFile = mapFile;
+        this.mapName = mapName;
 
         tile = new ArrayList<Tile>();
         mapTileNum = new ArrayList<int[]>();
@@ -71,17 +72,36 @@ public abstract class Map {
         setup("0023", TileType.COLLISION_TILE); // 29
         setup("0024", TileType.COLLISION_TILE); // 30
 
-        setup("UpperBed", TileType.WALKABLE); // 31
-        setup("lowerBed", TileType.WALKABLE); // 32
+        setup("UpperBedVerticalWall", TileType.COLLISION_TILE); // 31
+        setup("UpperBedBottom", TileType.COLLISION_TILE); // 32
 
         setup("upperBedV2", TileType.WALKABLE); // 33
         setup("lowerBedV2", TileType.WALKABLE); // 34
 
-        setup("blackTiles", TileType.SPAWN_POINT); // 35
+        setup("SpawnPoint", TileType.SPAWN_POINT); // 35
         setup("blackTiles", TileType.TO_NEXT_MAP); // 36
         setup("blackTilesFlower", TileType.COLLISION_TILE); // 37
         setup("LeftDoorHor", TileType.COLLISION_TILE); // 38
         setup("RightDoorHor", TileType.COLLISION_TILE); // 39
+        setup("CarpetTileTopLeft", TileType.COLLISION_TILE); // 40
+        setup("CarpetTileTopRight", TileType.COLLISION_TILE); // 41
+        setup("CarpetTileBottomLeft", TileType.COLLISION_TILE); // 42
+        setup("CarpetTileBottomRight", TileType.COLLISION_TILE); // 43
+        setup("CabinetTopVerticalWall", TileType.COLLISION_TILE); // 44
+        setup("CabinetBottom", TileType.COLLISION_TILE); // 45
+        setup("LeftArrow", TileType.COLLISION_TILE); // 46
+        setup("chartAnatomy1", TileType.COLLISION_TILE); // 47
+        setup("chartAnatomy2", TileType.COLLISION_TILE); // 48
+
+        setup("tileBlood1", TileType.WALKABLE); //49
+        setup("tileBlood2", TileType.WALKABLE); //50
+        setup("tileBlood3", TileType.WALKABLE); // 51
+
+        setup("tableMedicine1", TileType.WALKABLE); // 52
+        setup("tableMedicine2", TileType.COLLISION_TILE); // 52
+
+        setup("flowerV1a", TileType.WALKABLE); // 54
+        setup("flowerV1b", TileType.COLLISION_TILE); // 55
     }
 
     public void setup(String imageName, TileType tileType) {
@@ -98,8 +118,7 @@ public abstract class Map {
     /**
      * Loads the map from a text file with dynamically determined dimensions
      * 
-     * @return Point representing the column and row of the
-     *         player's spawn point
+     * @return Point representing the column and row of the player's spawn point
      */
     public Point loadMap() {
         Pattern pattern = Pattern.compile("\s+");
@@ -162,10 +181,14 @@ public abstract class Map {
 
     public Map transitionToMap(EntityState state) {
         return switch (state) {
-            case TO_NEXT_MAP -> getNextMap();
-            case TO_PREVIOUS_MAP -> getPreviousMap();
-            default -> this;
+        case TO_NEXT_MAP -> getNextMap();
+        case TO_PREVIOUS_MAP -> getPreviousMap();
+        default -> this;
         };
+    }
+
+    public String getMapName() {
+        return mapName;
     }
 
     public abstract Map getNextMap();

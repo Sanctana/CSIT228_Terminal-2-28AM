@@ -2,6 +2,8 @@ package tile;
 
 import java.awt.image.BufferedImage;
 
+import Utilities.States.TileType;
+
 public class Tile {
     // TILE
     public BufferedImage image;
