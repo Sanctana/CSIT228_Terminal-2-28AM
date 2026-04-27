@@ -159,6 +159,13 @@ public abstract class Map {
         setup("upperCornerV5", TileType.COLLISION_TILE); //97
         setup("upperCornerV6", TileType.COLLISION_TILE); //98
         setup("0021BlackV6", TileType.COLLISION_TILE); //99
+
+        setup("outsideBedV1", TileType.COLLISION_TILE); //100
+        setup("outsideBedV2", TileType.WALKABLE); //101
+        setup("outsideBedV3", TileType.WALKABLE); //102
+        setup("outsideBedV4", TileType.COLLISION_TILE); //103
+        setup("outsideComputerV1", TileType.COLLISION_TILE); //104
+        setup("outsideComputerV2", TileType.WALKABLE); //105
     }
 
     public void setup(String imageName, TileType tileType) {
