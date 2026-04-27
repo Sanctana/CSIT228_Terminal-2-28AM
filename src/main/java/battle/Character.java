@@ -5,7 +5,7 @@ import java.util.Random;
 import entity.Entity;
 import main.GamePanel;
 
-public abstract class Character extends Entity{
+public abstract class Character extends Entity {
     protected int maxHeartBeat = 200;
     protected Random random = new Random();
 
@@ -21,18 +21,16 @@ public abstract class Character extends Entity{
         this.inventory[2] = new Inventory.IVFluids();
     }
 
-
     public void setResistance(double action) {
         this.resistance = action;
     }
+
     public void resetResistance() {
         this.resistance = initialResistance;
     }
 
     public void takeDamage(int damage) {
-        int reduction = (int) (damage * resistance);
-        int finalDamage = damage - reduction;
-        setHeartBeat(getHeartBeat() - finalDamage);
+        setHeartBeat(getHeartBeat() - (damage - (int) (damage * resistance)));
     }
 
     public void recover(int heal) {
@@ -58,9 +56,11 @@ public abstract class Character extends Entity{
     public Item[] getInventory() {
         return inventory;
     }
+
     public int[] getItemAmounts() {
         return itemAmounts;
     }
+
     public int useSkill(int index) {
         if (index >= 0 && index < skills.size()) {
             return skills.get(index).getDamage();
@@ -83,6 +83,5 @@ public abstract class Character extends Entity{
             this.setResistance(actions.get(index).action());
         }
     }
-
 
 }

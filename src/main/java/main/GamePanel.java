@@ -154,7 +154,7 @@ public class GamePanel extends JPanel implements Runnable {
             player.update();
             handleBattleTileTrigger();
             if (player.heartRate <= 40 || player.heartRate >= 180) {
-                gameState = GameState.GAMEOVER;
+                gameState = GameState.GAME_OVER;
             }
 
             if (player.state == EntityState.TO_NEXT_MAP) {
@@ -247,7 +247,7 @@ public class GamePanel extends JPanel implements Runnable {
         requestFocusInWindow();
 
         if (lostBattle) {
-            gameState = GameState.GAMEOVER;
+            gameState = GameState.GAME_OVER;
             startRespawnTransition(TRANSITION_ACTION_GAME_OVER);
             respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
             respawnFadeAlpha = 255;
@@ -260,7 +260,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void requestRespawn() {
-        if (gameState == GameState.GAMEOVER && respawnTransitionPhase == RESPAWN_TRANSITION_NONE) {
+        if (gameState == GameState.GAME_OVER && respawnTransitionPhase == RESPAWN_TRANSITION_NONE) {
             respawnRequested = true;
         }
     }
@@ -345,7 +345,7 @@ public class GamePanel extends JPanel implements Runnable {
                 } else if (transitionAction == TRANSITION_ACTION_BATTLE_RETURN) {
                     gameState = GameState.PLAY;
                 } else if (transitionAction == TRANSITION_ACTION_GAME_OVER) {
-                    gameState = GameState.GAMEOVER;
+                    gameState = GameState.GAME_OVER;
                 }
                 respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
             }

@@ -1,11 +1,9 @@
 package main;
 
-import entity.CharacterType;
-import entity.Player;
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import entity.CharacterType;
 import Utilities.States.TitleScreenState;
 import Utilities.States.GameState;
 
@@ -36,7 +34,7 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
-        if (gp.gameState == GameState.GAMEOVER) {
+        if (gp.gameState == GameState.GAME_OVER) {
             handleGameOverInput(code);
             return;
         }
@@ -139,6 +137,7 @@ public class KeyHandler implements KeyListener {
             if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
                 gp.requestNewGame(selectedCharacter);
             }
+            gp.ui.commandNum = 0; // Reset selection for next time
         }
 
     }

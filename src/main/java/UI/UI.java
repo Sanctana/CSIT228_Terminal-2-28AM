@@ -45,10 +45,10 @@ public class UI {
             drawPlayerUI();
             drawInventoryScreen(gp.player);
         }
-            case GAMEOVER -> {
-                drawPlayerUI();
-                drawGameOverScreen();
-            }
+        case GAME_OVER -> {
+            drawPlayerUI();
+            drawGameOverScreen();
+        }
         // Optionally, you can add a loading screen here
         case FIRST_LOAD -> {
         }
@@ -88,7 +88,7 @@ public class UI {
         g2.drawString(enemyText, getXforCenteredText(enemyText), gp.screenHeight / 2 + 35);
     }
 
-    public void drawInventoryScreen(Player player) { 
+    public void drawInventoryScreen(Player player) {
         if (player == null) {
             return;
         }
