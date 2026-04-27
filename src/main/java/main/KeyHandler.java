@@ -72,10 +72,7 @@ public class KeyHandler implements KeyListener {
 
     private void handleGameOverInput(int code) {
         if (code == KeyEvent.VK_ENTER) {
-            gp.player.heartRate = 70;
-            gp.gameState = GameState.PLAY;
-            java.awt.Point spawnPoint = gp.map.loadMap();
-            gp.player.setLocation(spawnPoint.y, spawnPoint.x);
+            gp.requestRespawn();
         }
     }
 
@@ -140,17 +137,17 @@ public class KeyHandler implements KeyListener {
             }
 
             if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
-                gp.player = new Player(gp, this, selectedCharacter);
-                gp.gameState = GameState.FIRST_LOAD;
+                gp.requestNewGame(selectedCharacter);
             }
         }
 
-        if (gp.gameState == GameState.GAMEOVER) {
-            if (code == KeyEvent.VK_ENTER) {
-                gp.player.heartRate = 70;
-                gp.gameState = GameState.PLAY;
-            }
-        }
+    }
+
+    public void resetMovementInput() {
+        upPressed = false;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
     }
 
     @Override

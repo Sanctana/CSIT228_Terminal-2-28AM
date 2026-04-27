@@ -13,6 +13,7 @@ import battle.BattleLauncher;
 import battle.Character;
 import battle.Enemy;
 import environment.EnvironmentManager;
+import entity.CharacterType;
 import entity.Player;
 import entity.EntityState;
 import tile.Map;
@@ -53,6 +54,22 @@ public class GamePanel extends JPanel implements Runnable {
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
     private long statusMessageUntil = 0L;
+    private volatile boolean respawnRequested = false;
+    private volatile boolean newGameRequested = false;
+    private CharacterType pendingCharacterType;
+    private int respawnTransitionPhase = 0;
+    private int respawnFadeAlpha = 0;
+    private int transitionAction = 0;
+
+    private static final int RESPAWN_TRANSITION_NONE = 0;
+    private static final int RESPAWN_TRANSITION_FADE_OUT = 1;
+    private static final int RESPAWN_TRANSITION_FADE_IN = 2;
+    private static final int RESPAWN_FADE_STEP = 18;
+    private static final int TRANSITION_ACTION_NONE = 0;
+    private static final int TRANSITION_ACTION_RESPAWN = 1;
+    private static final int TRANSITION_ACTION_NEW_GAME = 2;
+    private static final int TRANSITION_ACTION_BATTLE_RETURN = 3;
+    private static final int TRANSITION_ACTION_GAME_OVER = 4;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
     KeyHandler keyH = new KeyHandler(this);
@@ -117,6 +134,21 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
+        if (respawnRequested) {
+            respawnRequested = false;
+            startRespawnTransition(TRANSITION_ACTION_RESPAWN);
+        }
+
+        if (newGameRequested) {
+            newGameRequested = false;
+            startRespawnTransition(TRANSITION_ACTION_NEW_GAME);
+        }
+
+        if (respawnTransitionPhase != RESPAWN_TRANSITION_NONE) {
+            updateRespawnTransition();
+            return;
+        }
+
         if (gameState == GameState.PLAY) {
             player.update();
             handleBattleTileTrigger();
@@ -146,12 +178,7 @@ public class GamePanel extends JPanel implements Runnable {
                 startBattle();
             }
         } else if (gameState == GameState.FIRST_LOAD) {
-            // First load of the map, so we need to set the player's position to the spawn
-            // point
-            Point spawnPoint = map.loadMap();
-            player.setLocation(spawnPoint.y, spawnPoint.x);
-
-            gameState = GameState.PLAY;
+            completeFirstLoad();
         }
     }
 
@@ -218,11 +245,152 @@ public class GamePanel extends JPanel implements Runnable {
         repaint();
         requestFocusInWindow();
 
-        gameState = lostBattle ? GameState.GAMEOVER : GameState.PLAY;
+        if (lostBattle) {
+            gameState = GameState.GAMEOVER;
+            startRespawnTransition(TRANSITION_ACTION_GAME_OVER);
+            respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
+            respawnFadeAlpha = 255;
+        } else {
+            gameState = GameState.PLAY;
+            startRespawnTransition(TRANSITION_ACTION_BATTLE_RETURN);
+            respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
+            respawnFadeAlpha = 255;
+        }
+    }
+
+    public void requestRespawn() {
+        if (gameState == GameState.GAMEOVER && respawnTransitionPhase == RESPAWN_TRANSITION_NONE) {
+            respawnRequested = true;
+        }
+    }
+
+    public void requestNewGame(CharacterType characterType) {
+        if (respawnTransitionPhase != RESPAWN_TRANSITION_NONE) {
+            return;
+        }
+
+        pendingCharacterType = characterType;
+        newGameRequested = true;
+    }
+
+    private void respawnPlayer() {
+        if (player == null) {
+            return;
+        }
+
+        if (activeBattlePanel != null) {
+            remove(activeBattlePanel);
+            activeBattlePanel = null;
+        }
+
+        pendingEnemy = null;
+        encounterMessage = "";
+        battleTileReady = false;
+        previousPlayerPositions.clear();
+
+        player.heartRate = 70;
+        player.state = EntityState.IDLE;
+        player.setDefaultValues();
+        keyH.resetMovementInput();
+
+        Point spawnPoint = map.loadMap();
+        if (spawnPoint == null) {
+            gameState = GameState.TITLE;
+            revalidate();
+            repaint();
+            requestFocusInWindow();
+            return;
+        }
+
+        player.setLocation(spawnPoint.y, spawnPoint.x);
+
+        revalidate();
+        repaint();
+        requestFocusInWindow();
+
+        gameState = GameState.PLAY;
+    }
+
+    private void completeFirstLoad() {
+        if (player == null) {
+            return;
+        }
+
+        Point spawnPoint = map.loadMap();
+        if (spawnPoint == null) {
+            gameState = GameState.TITLE;
+            return;
+        }
+
+        player.setLocation(spawnPoint.y, spawnPoint.x);
+        player.state = EntityState.IDLE;
+        gameState = GameState.PLAY;
+    }
+
+    private void startRespawnTransition(int action) {
+        transitionAction = action;
+        respawnTransitionPhase = RESPAWN_TRANSITION_FADE_OUT;
+        respawnFadeAlpha = (action == TRANSITION_ACTION_RESPAWN) ? 150 : 0;
+    }
+
+    private void updateRespawnTransition() {
+        if (respawnTransitionPhase == RESPAWN_TRANSITION_FADE_OUT) {
+            respawnFadeAlpha = Math.min(255, respawnFadeAlpha + RESPAWN_FADE_STEP);
+            if (respawnFadeAlpha >= 255) {
+                if (transitionAction == TRANSITION_ACTION_RESPAWN) {
+                    respawnPlayer();
+                } else if (transitionAction == TRANSITION_ACTION_NEW_GAME) {
+                    beginNewGameTransition();
+                } else if (transitionAction == TRANSITION_ACTION_BATTLE_RETURN) {
+                    gameState = GameState.PLAY;
+                } else if (transitionAction == TRANSITION_ACTION_GAME_OVER) {
+                    gameState = GameState.GAMEOVER;
+                }
+                respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
+            }
+            return;
+        }
+
+        if (respawnTransitionPhase == RESPAWN_TRANSITION_FADE_IN) {
+            respawnFadeAlpha = Math.max(0, respawnFadeAlpha - RESPAWN_FADE_STEP);
+            if (respawnFadeAlpha <= 0) {
+                respawnTransitionPhase = RESPAWN_TRANSITION_NONE;
+                transitionAction = TRANSITION_ACTION_NONE;
+            }
+        }
+    }
+
+    private void beginNewGameTransition() {
+        if (pendingCharacterType == null) {
+            respawnTransitionPhase = RESPAWN_TRANSITION_NONE;
+            transitionAction = TRANSITION_ACTION_NONE;
+            gameState = GameState.TITLE;
+            return;
+        }
+
+        map = new ThirdFloorMap(this);
+        previousPlayerPositions.clear();
+        pendingEnemy = null;
+        encounterMessage = "";
+        battleTileReady = false;
+        keyH.resetMovementInput();
+
+        player = new Player(this, keyH, pendingCharacterType);
+        pendingCharacterType = null;
+        completeFirstLoad();
     }
 
     public String getEncounterMessage() {
         return encounterMessage;
+    }
+
+    public float getEncounterTransitionProgress() {
+        if (gameState != GameState.ENEMY_ENCOUNTER) {
+            return 0F;
+        }
+
+        long elapsed = System.currentTimeMillis() - encounterStartTime;
+        return Math.min(1F, elapsed / 1200F);
     }
 
     public boolean isOneShotModeEnabled() {
@@ -268,6 +436,7 @@ public class GamePanel extends JPanel implements Runnable {
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
                 ui.draw();
+                drawRespawnTransition(graphics2d);
                 return;
             }
 
@@ -275,7 +444,17 @@ public class GamePanel extends JPanel implements Runnable {
             player.draw(graphics2d);
             eManager.draw(graphics2d);
             ui.draw();
+            drawRespawnTransition(graphics2d);
         }
+    }
+
+    private void drawRespawnTransition(Graphics2D g2) {
+        if (respawnTransitionPhase == RESPAWN_TRANSITION_NONE) {
+            return;
+        }
+
+        g2.setColor(new Color(0, 0, 0, respawnFadeAlpha));
+        g2.fillRect(0, 0, screenWidth, screenHeight);
     }
 
     public void playMusic(int i) {

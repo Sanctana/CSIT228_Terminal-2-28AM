@@ -13,6 +13,10 @@ public class Panel extends JPanel {
     private int enemyXOffset = 0;
 
     private boolean isProcessing = false;
+    private boolean victoryTransitionActive = false;
+    private int victoryFadeAlpha = 0;
+    private boolean defeatTransitionActive = false;
+    private int defeatFadeAlpha = 0;
 
     private JButton suppressBtn, protectBtn, recoverBtn, skill1Btn, skill2Btn, skill3Btn, backBtn;
     private JButton action1Btn, action2Btn, action3Btn;
@@ -161,10 +165,40 @@ public class Panel extends JPanel {
 
         if (enemyHP <= 0) {
             JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
-            resultListener.onBattleWon(player);
+            startVictoryTransition();
         } else {
             startEnemyTimer();
         }
+    }
+
+    private void startVictoryTransition() {
+        victoryTransitionActive = true;
+        Timer timer = new Timer(30, null);
+        timer.addActionListener(e -> {
+            victoryFadeAlpha = Math.min(255, victoryFadeAlpha + 20);
+            repaint();
+
+            if (victoryFadeAlpha >= 255) {
+                timer.stop();
+                resultListener.onBattleWon(player);
+            }
+        });
+        timer.start();
+    }
+
+    private void startDefeatTransition() {
+        defeatTransitionActive = true;
+        Timer timer = new Timer(30, null);
+        timer.addActionListener(e -> {
+            defeatFadeAlpha = Math.min(255, defeatFadeAlpha + 20);
+            repaint();
+
+            if (defeatFadeAlpha >= 255) {
+                timer.stop();
+                resultListener.onBattleLost(player);
+            }
+        });
+        timer.start();
     }
 
     private void startEnemyTimer() {
@@ -210,7 +244,7 @@ public class Panel extends JPanel {
             JOptionPane.showMessageDialog(this,
                     "The patient has died. " + cause,
                     "FLATLINE", JOptionPane.WARNING_MESSAGE);
-            resultListener.onBattleLost(player);
+            startDefeatTransition();
             return true;
         }
         return false;
@@ -226,6 +260,8 @@ public class Panel extends JPanel {
         drawTopBar(g2, w, 25);
         drawHUD(g2, w, h - 140, 25, 15);
         updateButtons(w, h - 140, 25);
+        drawVictoryTransition(g2, w, h);
+        drawDefeatTransition(g2, w, h);
     }
 
     private void drawWorld(Graphics2D g, int w, int h) {
@@ -322,6 +358,24 @@ public class Panel extends JPanel {
 
         btn.setForeground(Color.WHITE);
         return btn;
+    }
+
+    private void drawVictoryTransition(Graphics2D g2, int w, int h) {
+        if (!victoryTransitionActive) {
+            return;
+        }
+
+        g2.setColor(new Color(0, 0, 0, victoryFadeAlpha));
+        g2.fillRect(0, 0, w, h);
+    }
+
+    private void drawDefeatTransition(Graphics2D g2, int w, int h) {
+        if (!defeatTransitionActive) {
+            return;
+        }
+
+        g2.setColor(new Color(0, 0, 0, defeatFadeAlpha));
+        g2.fillRect(0, 0, w, h);
     }
 
     private void toggleSkills(boolean b) {
