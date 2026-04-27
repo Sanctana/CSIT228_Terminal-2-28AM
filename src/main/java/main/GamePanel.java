@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import Maps.ThirdFloorMap;
 import UI.UI;
 import Utilities.States.GameState;
-import Utilities.States.TileType;
 import battle.BattleLauncher;
 import battle.Character;
 import battle.Enemy;
@@ -17,6 +16,10 @@ import entity.CharacterType;
 import entity.Player;
 import entity.EntityState;
 import tile.Map;
+
+enum Transitions {
+    NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP
+}
 
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 8;
@@ -46,7 +49,6 @@ public class GamePanel extends JPanel implements Runnable {
     public GameState gameState;
     public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
                                                                  // transitions
-    private boolean battleTileReady = true;
     private JPanel activeBattlePanel;
     private Enemy pendingEnemy;
     private long encounterStartTime;
@@ -54,23 +56,13 @@ public class GamePanel extends JPanel implements Runnable {
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
     private long statusMessageUntil = 0L;
-    private volatile boolean respawnRequested = false;
-    private volatile boolean newGameRequested = false;
-    private CharacterType pendingCharacterType;
-    private int respawnTransitionPhase = 0;
-    private int respawnFadeAlpha = 0;
-    private int transitionAction = 0;
-    private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
-    private static final int RESPAWN_TRANSITION_NONE = 0;
-    private static final int RESPAWN_TRANSITION_FADE_OUT = 1;
-    private static final int RESPAWN_TRANSITION_FADE_IN = 2;
-    private static final int RESPAWN_FADE_STEP = 18;
-    private static final int TRANSITION_ACTION_NONE = 0;
-    private static final int TRANSITION_ACTION_RESPAWN = 1;
-    private static final int TRANSITION_ACTION_NEW_GAME = 2;
-    private static final int TRANSITION_ACTION_BATTLE_RETURN = 3;
-    private static final int TRANSITION_ACTION_GAME_OVER = 4;
+    private int respawnFadeAlpha = 0;
+    private int RESPAWN_FADE_STEP = 18;
+
+    private Transitions transitionPhase = Transitions.NONE;
+
+    private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
     EnvironmentManager eManager = new EnvironmentManager(this);
     KeyHandler keyH = new KeyHandler(this);
@@ -135,69 +127,34 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        if (respawnRequested) {
-            respawnRequested = false;
-            startRespawnTransition(TRANSITION_ACTION_RESPAWN);
-        }
-
-        if (newGameRequested) {
-            newGameRequested = false;
-            startRespawnTransition(TRANSITION_ACTION_NEW_GAME);
-        }
-
-        if (respawnTransitionPhase != RESPAWN_TRANSITION_NONE) {
-            updateRespawnTransition();
+        if (transitionPhase != Transitions.NONE) {
+            doTransition();
             return;
         }
 
         if (gameState == GameState.PLAY) {
             player.update();
-            handleBattleTileTrigger();
             if (player.heartRate <= 40 || player.heartRate >= 180) {
                 gameState = GameState.GAME_OVER;
-            }
-
-            if (player.state == EntityState.TO_NEXT_MAP) {
-                player.storeCurrentPosition();
-
-                map = map.transitionToMap(player.state);
-
-                Point spawnPoint = map.loadMap();
-                player.setLocation(spawnPoint.y, spawnPoint.x);
-
-                player.state = EntityState.IDLE;
-            } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
-                map = map.transitionToMap(player.state);
-                map.loadMap();
-
-                player.restorePreviousPosition(); // Restore the player's previous position after transitioning back
-
-                player.state = EntityState.IDLE;
+            } else if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
+                startRespawnTransition(Transitions.CHANGE_MAP);
             }
         } else if (gameState == GameState.ENEMY_ENCOUNTER) {
             if (System.currentTimeMillis() - encounterStartTime >= ENCOUNTER_TRANSITION_DURATION_MS) {
                 startBattle();
             }
         } else if (gameState == GameState.FIRST_LOAD) {
+            startRespawnTransition(Transitions.NEW_GAME);
             completeFirstLoad();
         }
     }
 
-    private void handleBattleTileTrigger() {
-        TileType currentTileType = cChecker.getTileTypeUnderEntity(player);
-
-        if (currentTileType == TileType.BATTLE_TRIGGER) {
-            if (battleTileReady) {
-                battleTileReady = false;
-                triggerBattle();
-            }
+    public void triggerBattle() {
+        if (System.currentTimeMillis() - encounterStartTime < 5_000) { // 5 seconds of invulnerability after triggering
+                                                                       // a battle
             return;
         }
 
-        battleTileReady = true;
-    }
-
-    private void triggerBattle() {
         pendingEnemy = BattleLauncher.createRandomEnemy();
         encounterMessage = pendingEnemy.getClass().getSimpleName() + " appeared";
         encounterStartTime = System.currentTimeMillis();
@@ -210,17 +167,18 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
-        activeBattlePanel = BattleLauncher.createBattlePanel(this, pendingEnemy, new BattleLauncher.BattleResultListener() {
-            @Override
-            public void onBattleWon(Character battlePlayer) {
-                endBattle(battlePlayer, false);
-            }
+        activeBattlePanel = BattleLauncher.createBattlePanel(this, pendingEnemy,
+                new BattleLauncher.BattleResultListener() {
+                    @Override
+                    public void onBattleWon(Character battlePlayer) {
+                        endBattle(battlePlayer, false);
+                    }
 
-            @Override
-            public void onBattleLost(Character battlePlayer) {
-                endBattle(battlePlayer, true);
-            }
-        });
+                    @Override
+                    public void onBattleLost(Character battlePlayer) {
+                        endBattle(battlePlayer, true);
+                    }
+                });
         activeBattlePanel.setBounds(0, 0, screenWidth, screenHeight);
         add(activeBattlePanel);
         setComponentZOrder(activeBattlePanel, 0);
@@ -248,30 +206,27 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (lostBattle) {
             gameState = GameState.GAME_OVER;
-            startRespawnTransition(TRANSITION_ACTION_GAME_OVER);
-            respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
-            respawnFadeAlpha = 255;
+            startRespawnTransition(Transitions.GAME_OVER);
         } else {
             gameState = GameState.PLAY;
-            startRespawnTransition(TRANSITION_ACTION_BATTLE_RETURN);
-            respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
-            respawnFadeAlpha = 255;
+            startRespawnTransition(Transitions.BATTLE_RETURN);
         }
+        respawnFadeAlpha = 255;
     }
 
     public void requestRespawn() {
-        if (gameState == GameState.GAME_OVER && respawnTransitionPhase == RESPAWN_TRANSITION_NONE) {
-            respawnRequested = true;
+        if (gameState == GameState.GAME_OVER && transitionPhase == Transitions.NONE) {
+            startRespawnTransition(Transitions.RESPAWN);
         }
     }
 
     public void requestNewGame(CharacterType characterType) {
-        if (respawnTransitionPhase != RESPAWN_TRANSITION_NONE) {
+        if (transitionPhase != Transitions.NONE) {
             return;
         }
 
-        pendingCharacterType = characterType;
-        newGameRequested = true;
+        player = new Player(this, keyH, characterType);
+        startRespawnTransition(Transitions.NEW_GAME);
     }
 
     private void respawnPlayer() {
@@ -286,7 +241,6 @@ public class GamePanel extends JPanel implements Runnable {
 
         pendingEnemy = null;
         encounterMessage = "";
-        battleTileReady = false;
         previousPlayerPositions.clear();
 
         player.heartRate = 70;
@@ -313,10 +267,6 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void completeFirstLoad() {
-        if (player == null) {
-            return;
-        }
-
         Point spawnPoint = map.loadMap();
         if (spawnPoint == null) {
             gameState = GameState.TITLE;
@@ -328,56 +278,64 @@ public class GamePanel extends JPanel implements Runnable {
         gameState = GameState.PLAY;
     }
 
-    private void startRespawnTransition(int action) {
-        transitionAction = action;
-        respawnTransitionPhase = RESPAWN_TRANSITION_FADE_OUT;
-        respawnFadeAlpha = (action == TRANSITION_ACTION_RESPAWN) ? 150 : 0;
+    private void startRespawnTransition(Transitions action) {
+        transitionPhase = action;
+        respawnFadeAlpha = (action == Transitions.RESPAWN) ? 150 : 0;
     }
 
-    private void updateRespawnTransition() {
-        if (respawnTransitionPhase == RESPAWN_TRANSITION_FADE_OUT) {
-            respawnFadeAlpha = Math.min(255, respawnFadeAlpha + RESPAWN_FADE_STEP);
-            if (respawnFadeAlpha >= 255) {
-                if (transitionAction == TRANSITION_ACTION_RESPAWN) {
-                    respawnPlayer();
-                } else if (transitionAction == TRANSITION_ACTION_NEW_GAME) {
-                    beginNewGameTransition();
-                } else if (transitionAction == TRANSITION_ACTION_BATTLE_RETURN) {
-                    gameState = GameState.PLAY;
-                } else if (transitionAction == TRANSITION_ACTION_GAME_OVER) {
-                    gameState = GameState.GAME_OVER;
-                }
-                respawnTransitionPhase = RESPAWN_TRANSITION_FADE_IN;
-            }
-            return;
-        }
+    private void doTransition() {
+        respawnFadeAlpha = Math.max(0, Math.min(255, respawnFadeAlpha + RESPAWN_FADE_STEP));
 
-        if (respawnTransitionPhase == RESPAWN_TRANSITION_FADE_IN) {
-            respawnFadeAlpha = Math.max(0, respawnFadeAlpha - RESPAWN_FADE_STEP);
+        if (RESPAWN_FADE_STEP > 0) {
+            if (respawnFadeAlpha >= 255) {
+                switch (transitionPhase) {
+                case RESPAWN -> respawnPlayer();
+                case NEW_GAME -> beginNewGameTransition();
+                case BATTLE_RETURN -> {
+                    encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
+                                                                     // retriggering
+                    gameState = GameState.PLAY;
+                }
+                case GAME_OVER -> gameState = GameState.GAME_OVER;
+                case CHANGE_MAP -> {
+                    if (player.state == EntityState.TO_NEXT_MAP) {
+                        player.storeCurrentPosition();
+
+                        map = map.transitionToMap(player.state);
+
+                        Point spawnPoint = map.loadMap();
+                        player.setLocation(spawnPoint.y, spawnPoint.x);
+                    } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
+                        map = map.transitionToMap(player.state);
+                        map.loadMap();
+
+                        player.restorePreviousPosition(); // Restore the player's previous position after transitioning
+                                                          // back
+
+                    }
+                    player.state = EntityState.IDLE;
+                }
+                case NONE -> {
+                    // No action needed
+                }
+                }
+
+                RESPAWN_FADE_STEP = -RESPAWN_FADE_STEP; // Reverse direction for fade-in
+            }
+        } else if (RESPAWN_FADE_STEP < 0) {
             if (respawnFadeAlpha <= 0) {
-                respawnTransitionPhase = RESPAWN_TRANSITION_NONE;
-                transitionAction = TRANSITION_ACTION_NONE;
+                transitionPhase = Transitions.NONE;
+                RESPAWN_FADE_STEP = -RESPAWN_FADE_STEP; // Reset for next time
             }
         }
     }
 
     private void beginNewGameTransition() {
-        if (pendingCharacterType == null) {
-            respawnTransitionPhase = RESPAWN_TRANSITION_NONE;
-            transitionAction = TRANSITION_ACTION_NONE;
-            gameState = GameState.TITLE;
-            return;
-        }
-
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
         encounterMessage = "";
-        battleTileReady = false;
         keyH.resetMovementInput();
-
-        player = new Player(this, keyH, pendingCharacterType);
-        pendingCharacterType = null;
         completeFirstLoad();
     }
 
@@ -437,7 +395,7 @@ public class GamePanel extends JPanel implements Runnable {
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
                 ui.draw();
-                drawRespawnTransition(graphics2d);
+                drawRespawnTransition();
                 return;
             }
 
@@ -445,17 +403,17 @@ public class GamePanel extends JPanel implements Runnable {
             player.draw(graphics2d);
             eManager.draw(graphics2d);
             ui.draw();
-            drawRespawnTransition(graphics2d);
+            drawRespawnTransition();
         }
     }
 
-    private void drawRespawnTransition(Graphics2D g2) {
-        if (respawnTransitionPhase == RESPAWN_TRANSITION_NONE) {
+    private void drawRespawnTransition() {
+        if (transitionPhase == Transitions.NONE) {
             return;
         }
 
-        g2.setColor(new Color(0, 0, 0, respawnFadeAlpha));
-        g2.fillRect(0, 0, screenWidth, screenHeight);
+        graphics2d.setColor(new Color(0, 0, 0, respawnFadeAlpha));
+        graphics2d.fillRect(0, 0, screenWidth, screenHeight);
     }
 
     public void playMusic(int i) {

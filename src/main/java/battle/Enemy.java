@@ -7,7 +7,6 @@ public abstract class Enemy {
     protected int health;
     protected boolean isIncreasingDamage;
     protected ArrayList<EnemySkill> skills = new ArrayList<>();
-    protected int index;
     private int damageOutput;
     protected Random rand = new Random();
 
@@ -15,15 +14,13 @@ public abstract class Enemy {
         if (skills.isEmpty())
             return 0; // No skills, no damage
 
-        index = rand.nextInt(skills.size()); // pick random skill
-
-        EnemySkill chosenSkill = skills.get(index);
+        EnemySkill chosenSkill = skills.get(rand.nextInt(skills.size()));// pick random skill
 
         int minDmg = chosenSkill.getFloorDMG();
         int maxDmg = chosenSkill.getCeilDMG();
 
         damageOutput = rand.nextInt(maxDmg - minDmg + 1) + minDmg;
-        if(chosenSkill.getIsIncreasingDamage()){
+        if (chosenSkill.getIsIncreasingDamage()) {
             damageOutput *= -1;
         }
         return damageOutput;
@@ -46,5 +43,6 @@ public abstract class Enemy {
     }
 
     public abstract String getIdleURL();
+
     public abstract String getAttackURL();
 }

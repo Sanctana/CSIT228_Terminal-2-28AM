@@ -15,11 +15,11 @@ public class Detective extends Character {
         // Math overridden in useSkill
         skills.add(new Skill(0, 0, "Shoot"));
         skills.add(new Skill(0, 0, "Judgement"));
-        skills.add(new Skill(5, 15, "Pistol Whip")); //assume nga naay skill 3
+        skills.add(new Skill(5, 15, "Pistol Whip"));
 
         actions.add(new Action(0, 0, "Shoot self"));
         actions.add(new Action(0, 0, "Peek"));
-        actions.add(new Action(0, 0, "Spin")); //assume nga naay action 3
+        actions.add(new Action(0, 0, "Spin"));
 
         resetRevolver();
     }

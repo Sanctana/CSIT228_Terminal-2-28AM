@@ -1,14 +1,10 @@
 package battle;
 
-import entity.CharacterType;
 import main.GamePanel;
 import javax.swing.JPanel;
 import java.util.Arrays;
 
 public final class BattleLauncher {
-
-    private BattleLauncher() {
-    }
 
     public static Enemy createRandomEnemy() {
         return new EnemyContainer().getRandomEnemy();

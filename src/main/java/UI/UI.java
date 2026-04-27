@@ -39,7 +39,7 @@ public class UI {
             drawPlayerUI();
             drawEnemyEncounter();
         }
-        case BATTLE -> {
+        case FIRST_LOAD, BATTLE -> {
         }
         case INVENTORY -> {
             drawPlayerUI();
@@ -48,9 +48,6 @@ public class UI {
         case GAME_OVER -> {
             drawPlayerUI();
             drawGameOverScreen();
-        }
-        // Optionally, you can add a loading screen here
-        case FIRST_LOAD -> {
         }
         }
     }

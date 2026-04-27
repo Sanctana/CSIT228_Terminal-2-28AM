@@ -12,9 +12,10 @@ public class CollisionChecker {
     }
 
     private boolean isWalkable(TileType tileType) {
-        return tileType == TileType.WALKABLE
-                || tileType == TileType.SPAWN_POINT
-                || tileType == TileType.BATTLE_TRIGGER;
+        return switch (tileType) {
+        case WALKABLE, SPAWN_POINT, BATTLE_TRIGGER -> true;
+        default -> false;
+        };
     }
 
     public TileType getTileTypeUnderEntity(Entity entity) {
@@ -42,36 +43,40 @@ public class CollisionChecker {
         int tileNum1, tileNum2;
 
         switch (entity.direction) {
-            case UP:
-                entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize;
-                tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityLeftCol];
-                tileNum2 = gp.map.mapTileNum.get(entityTopRow)[entityRightCol];
-                break;
-            case DOWN:
-                entityBottomRow = (entityBottomWorldY + entity.speed) / gp.tileSize;
-                tileNum1 = gp.map.mapTileNum.get(entityBottomRow)[entityLeftCol];
-                tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityRightCol];
-                break;
-            case LEFT:
-                entityLeftCol = (entityLeftWorldX - entity.speed) / gp.tileSize;
-                tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityLeftCol];
-                tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityLeftCol];
-                break;
-            case RIGHT:
-                entityRightCol = (entityRightWorldX + entity.speed) / gp.tileSize;
-                tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityRightCol];
-                tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityRightCol];
-                break;
-            default:
-                return;
+        case UP:
+            entityTopRow = (entityTopWorldY - entity.speed) / gp.tileSize;
+            tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityLeftCol];
+            tileNum2 = gp.map.mapTileNum.get(entityTopRow)[entityRightCol];
+            break;
+        case DOWN:
+            entityBottomRow = (entityBottomWorldY + entity.speed) / gp.tileSize;
+            tileNum1 = gp.map.mapTileNum.get(entityBottomRow)[entityLeftCol];
+            tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityRightCol];
+            break;
+        case LEFT:
+            entityLeftCol = (entityLeftWorldX - entity.speed) / gp.tileSize;
+            tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityLeftCol];
+            tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityLeftCol];
+            break;
+        case RIGHT:
+            entityRightCol = (entityRightWorldX + entity.speed) / gp.tileSize;
+            tileNum1 = gp.map.mapTileNum.get(entityTopRow)[entityRightCol];
+            tileNum2 = gp.map.mapTileNum.get(entityBottomRow)[entityRightCol];
+            break;
+        default:
+            return;
         }
 
         TileType tileType1 = gp.map.tile.get(tileNum1).getTileType();
         TileType tileType2 = gp.map.tile.get(tileNum2).getTileType();
 
+        if (tileType1 == TileType.BATTLE_TRIGGER || tileType2 == TileType.BATTLE_TRIGGER) {
+            gp.triggerBattle();
+        }
+
         if (isWalkable(tileType1) && isWalkable(tileType2)) {
             entity.state = EntityState.MOVING;
-        } else if (tileType1 == TileType.TO_NEXT_MAP || tileType2 == TileType.TO_NEXT_MAP) {
+        }else if (tileType1 == TileType.TO_NEXT_MAP || tileType2 == TileType.TO_NEXT_MAP) {
             entity.state = EntityState.TO_NEXT_MAP;
         } else if (tileType1 == TileType.TO_PREVIOUS_MAP || tileType2 == TileType.TO_PREVIOUS_MAP) {
             entity.state = EntityState.TO_PREVIOUS_MAP;

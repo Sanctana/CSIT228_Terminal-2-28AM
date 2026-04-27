@@ -10,8 +10,9 @@ import javax.swing.ImageIcon;
 import Utilities.States.Direction;
 import main.GamePanel;
 import main.KeyHandler;
+import battle.Character;
 
-public class Player extends battle.Character {
+public class Player extends Character {
     public final int screenX;
     public final int screenY;
     public CharacterType characterType;
@@ -35,8 +36,6 @@ public class Player extends battle.Character {
         setDefaultValues();
         getPlayerImage();
     }
-
-
 
     public void setDefaultValues() {
         speed = 4;

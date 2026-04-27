@@ -1,6 +1,5 @@
 package Inventory;
 import java.util.Random;
-import entity.Player;
 
 public class Defibrillator extends Item {
     Random random = new Random();

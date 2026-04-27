@@ -27,17 +27,23 @@ public abstract class Entity {
     public ArrayList<Skill> skills = new ArrayList<>();
     public ArrayList<Action> actions = new ArrayList<>();
     public Item[] inventory = new Item[3];
-    public int[] itemAmounts = {3, 9, 3};
+    public int[] itemAmounts = { 3, 9, 3 };
 
     public Entity(GamePanel gp) {
         this.gp = gp;
     }
 
-    public int getHeartBeat() { return heartRate; }
+    public int getHeartBeat() {
+        return heartRate;
+    }
+
     public void setHeartBeat(int bpm) {
         this.heartRate = bpm;
     }
-    public boolean getIsAlive() { return heartRate >= 40 && heartRate <= 180; }
+
+    public boolean getIsAlive() {
+        return heartRate >= 40 && heartRate <= 180;
+    }
 
     public void takeDamage(int damage) {
         int finalDamage = (int) (damage - (damage * resistance));
