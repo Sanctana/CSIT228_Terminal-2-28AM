@@ -69,10 +69,12 @@ public class CollisionChecker {
         TileType tileType1 = gp.map.tile.get(tileNum1).getTileType();
         TileType tileType2 = gp.map.tile.get(tileNum2).getTileType();
 
-        if (tileType1 == TileType.COLLISION_TILE || tileType2 == TileType.COLLISION_TILE) {
-            entity.state = EntityState.IDLE;
-        } else if (isWalkable(tileType1) && isWalkable(tileType2)) {
+        if (isWalkable(tileType1) && isWalkable(tileType2)) {
             entity.state = EntityState.MOVING;
+        } else if (tileType1 == TileType.TO_NEXT_MAP || tileType2 == TileType.TO_NEXT_MAP) {
+            entity.state = EntityState.TO_NEXT_MAP;
+        } else if (tileType1 == TileType.TO_PREVIOUS_MAP || tileType2 == TileType.TO_PREVIOUS_MAP) {
+            entity.state = EntityState.TO_PREVIOUS_MAP;
         } else {
             entity.state = EntityState.IDLE;
         }
