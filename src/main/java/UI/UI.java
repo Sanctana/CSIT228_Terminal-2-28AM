@@ -1,8 +1,6 @@
 package UI;
 
 import java.awt.*;
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 
 import Inventory.Item;
 import main.GamePanel;
@@ -59,48 +57,35 @@ public class UI {
 
     private void drawEnemyEncounter() {
         float progress = gp.getEncounterTransitionProgress();
-        int playerCenterX = gp.player.screenX + (gp.tileSize / 2);
-        int playerCenterY = gp.player.screenY + (gp.tileSize / 2);
 
-        g2.setColor(new Color(0, 0, 0, Math.min(225, 95 + Math.round(progress * 130))));
+        float darknessProgress = Math.min(1F, progress / 0.85F);
+        int overlayAlpha = Math.min(255, 30 + Math.round(darknessProgress * 225));
+        g2.setColor(new Color(0, 0, 0, overlayAlpha));
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
-        float circlePhase = Math.min(1F, progress / 0.55F);
-        double easedCircle = 1D - Math.pow(1D - circlePhase, 3D);
-        double startRadius = Math.max(gp.screenWidth, gp.screenHeight) * 0.95D;
-        double endRadius = gp.tileSize * 0.9D;
-        double radius = lerp(startRadius, endRadius, easedCircle);
-
-        Area darkness = new Area(new Rectangle(0, 0, gp.screenWidth, gp.screenHeight));
-        darkness.subtract(new Area(new Ellipse2D.Double(
-                playerCenterX - radius,
-                playerCenterY - radius,
-                radius * 2,
-                radius * 2)));
-        g2.setColor(new Color(0, 0, 0, Math.min(255, 170 + Math.round(progress * 85))));
-        g2.fill(darkness);
-
-        if (progress < 0.42F) {
+        if (progress < 0.2F) {
             return;
         }
 
-        float textProgress = Math.min(1F, (progress - 0.42F) / 0.33F);
-        int titleAlpha = Math.min(255, Math.round(255 * textProgress));
-        int subtitleAlpha = Math.min(255, Math.round(215 * textProgress));
+        float fadeInProgress = Math.min(1F, (progress - 0.2F) / 0.18F);
+        float fadeOutProgress = progress <= 0.62F ? 0F : Math.min(1F, (progress - 0.62F) / 0.23F);
+        float textVisibility = fadeInProgress * (1F - fadeOutProgress);
+        int titleAlpha = Math.min(255, Math.round(255 * textVisibility));
+        int subtitleAlpha = Math.min(215, Math.round(215 * textVisibility));
+
+        if (titleAlpha <= 0 && subtitleAlpha <= 0) {
+            return;
+        }
 
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 54F));
         g2.setColor(new Color(255, 255, 255, titleAlpha));
-        String title = "Enemy found";
+        String title = "Enemy Found";
         g2.drawString(title, getXforCenteredText(title), gp.screenHeight / 2 - 20);
 
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 32F));
         g2.setColor(new Color(220, 220, 220, subtitleAlpha));
         String enemyText = gp.getEncounterMessage();
         g2.drawString(enemyText, getXforCenteredText(enemyText), gp.screenHeight / 2 + 35);
-    }
-
-    private double lerp(double start, double end, double progress) {
-        return start + ((end - start) * progress);
     }
 
     public void drawInventoryScreen(Player player) { 

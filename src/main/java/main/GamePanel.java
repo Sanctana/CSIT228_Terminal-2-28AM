@@ -60,6 +60,7 @@ public class GamePanel extends JPanel implements Runnable {
     private int respawnTransitionPhase = 0;
     private int respawnFadeAlpha = 0;
     private int transitionAction = 0;
+    private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
     private static final int RESPAWN_TRANSITION_NONE = 0;
     private static final int RESPAWN_TRANSITION_FADE_OUT = 1;
@@ -174,7 +175,7 @@ public class GamePanel extends JPanel implements Runnable {
                 player.state = EntityState.IDLE;
             }
         } else if (gameState == GameState.ENEMY_ENCOUNTER) {
-            if (System.currentTimeMillis() - encounterStartTime >= 1200L) {
+            if (System.currentTimeMillis() - encounterStartTime >= ENCOUNTER_TRANSITION_DURATION_MS) {
                 startBattle();
             }
         } else if (gameState == GameState.FIRST_LOAD) {
@@ -390,7 +391,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         long elapsed = System.currentTimeMillis() - encounterStartTime;
-        return Math.min(1F, elapsed / 1200F);
+        return Math.min(1F, elapsed / (float) ENCOUNTER_TRANSITION_DURATION_MS);
     }
 
     public boolean isOneShotModeEnabled() {
