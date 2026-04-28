@@ -49,8 +49,4 @@ public class Lighting {
             g2.drawImage(darknessFilter, 0, 0, null);
         }
     }
-
-    public void toggle() {
-        enabled = !enabled;
-    }
 }

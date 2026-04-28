@@ -29,20 +29,18 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxScreenRow = 12;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
-    public final int screenWidth = tileSize * maxScreenCol;
-    public final int screenHeight = tileSize * maxScreenRow;
+    public int screenWidth = tileSize * maxScreenCol;
+    public int screenHeight = tileSize * maxScreenRow;
 
-    private SoundManager music = new SoundManager();
+    private final SoundManager music = new SoundManager();
 
     // FULL SCREEN
-    private int screenWidth2 = screenWidth;
-    private int screenHeight2 = screenHeight;
     private BufferedImage tempScreen;
     private Graphics2D graphics2d;
     private final Object renderLock = new Object();
 
     public Map map;
-    private Thread gameThread;
+    private final Thread gameThread;
     public CollisionChecker cChecker;
     public UI ui;
     public Player player;
@@ -95,8 +93,8 @@ public class GamePanel extends JPanel implements Runnable {
     public void setFullScreen() {
         GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Main.window);
 
-        screenWidth2 = Main.window.getWidth();
-        screenHeight2 = Main.window.getHeight();
+        screenWidth = Main.window.getWidth();
+        screenHeight = Main.window.getHeight();
     }
 
     public void startGameThread() {
@@ -285,9 +283,11 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void doTransition() {
         respawnFadeAlpha = Math.max(0, Math.min(255, respawnFadeAlpha + RESPAWN_FADE_STEP));
+        if (respawnFadeAlpha < 255 && respawnFadeAlpha > 0) {
+            return;
+        }
 
         if (RESPAWN_FADE_STEP > 0) {
-            if (respawnFadeAlpha >= 255) {
                 switch (transitionPhase) {
                 case RESPAWN -> respawnPlayer();
                 case NEW_GAME -> beginNewGameTransition();
@@ -319,15 +319,10 @@ public class GamePanel extends JPanel implements Runnable {
                     // No action needed
                 }
                 }
-
-                RESPAWN_FADE_STEP = -RESPAWN_FADE_STEP; // Reverse direction for fade-in
-            }
-        } else if (RESPAWN_FADE_STEP < 0) {
-            if (respawnFadeAlpha <= 0) {
+        } else {
                 transitionPhase = Transitions.NONE;
-                RESPAWN_FADE_STEP = -RESPAWN_FADE_STEP; // Reset for next time
             }
-        }
+        RESPAWN_FADE_STEP = -RESPAWN_FADE_STEP; // Reset for next time
     }
 
     private void beginNewGameTransition() {
@@ -378,7 +373,7 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         synchronized (renderLock) {
             if (tempScreen != null) {
-                g.drawImage(tempScreen, 0, 0, screenWidth2, screenHeight2, null);
+                g.drawImage(tempScreen, 0, 0, screenWidth, screenHeight, null);
             }
         }
     }
