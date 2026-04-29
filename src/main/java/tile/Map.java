@@ -1,26 +1,30 @@
 package tile;
 
-import main.GamePanel;
-import entity.EntityState;
-import Utilities.UtilityTool;
-import Utilities.States.TileType;
-
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.Comparator;
+import java.util.Arrays;
+import java.awt.Point;
+import java.awt.Graphics2D;
+
+import main.GamePanel;
+import entity.EntityState;
+import Utilities.UtilityTool;
+import Utilities.States.TileType;
 
 public abstract class Map {
     public GamePanel gp;
-    public ArrayList<Tile> tile;
+    public Tile[] tile;
     public ArrayList<int[]> mapTileNum;
 
     public volatile int maxWorldCol;
@@ -34,10 +38,9 @@ public abstract class Map {
         this.mapFile = mapFile;
         this.mapName = mapName;
 
-        tile = new ArrayList<Tile>();
         mapTileNum = new ArrayList<int[]>();
 
-        try{
+        try {
             getTileImages();
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,29 +51,29 @@ public abstract class Map {
     public void getTileImages() throws IOException {
         List<Path> tilePaths;
         try (Stream<Path> paths = Files.list(Paths.get("src/main/resources/tiles"))) {
-            tilePaths = paths.sorted(Comparator.comparing(Path::getFileName))
-                    .toList();
+            tilePaths = paths.sorted(Comparator.comparing(Path::getFileName)).toList();
         }
 
-        tile = new ArrayList<>(Collections.nCopies(tilePaths.size(), null));
+        tile = new Tile[tilePaths.size()];
 
-        for (Path path: tilePaths) {
+        for (Path path : tilePaths) {
             String[] splits = path.getFileName().toString().split("_");
 
-            try{
+            try {
                 int index = Integer.parseInt(splits[0]);
                 String tileTypeFromSplit = splits[2];
                 int tileType = Integer.parseInt(tileTypeFromSplit.substring(0, tileTypeFromSplit.lastIndexOf('.')));
 
-                tile.set(index, new Tile(
-                        UtilityTool.scaleImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/" + path.getFileName()))),
-                                gp.tileSize, gp.tileSize),
-                        TileType.values()[tileType]));
+                tile[index] = new Tile(UtilityTool.scaleImage(
+                        ImageIO.read(
+                                Objects.requireNonNull(getClass().getResourceAsStream("/tiles/" + path.getFileName()))),
+                        gp.tileSize, gp.tileSize), TileType.values()[tileType]);
             } catch (IOException | NumberFormatException e) {
                 System.out.println(e.getMessage());
             }
         }
     }
+
     /**
      * Loads the map from a text file with dynamically determined dimensions
      * 
@@ -131,16 +134,16 @@ public abstract class Map {
                 int screenX = worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
-                g2.drawImage(tile.get(tileIndex).image, screenX, screenY, null);
+                g2.drawImage(tile[tileIndex].image, screenX, screenY, null);
             }
         }
     }
 
     public Map transitionToMap(EntityState state) {
         return switch (state) {
-            case TO_NEXT_MAP -> getNextMap();
-            case TO_PREVIOUS_MAP -> getPreviousMap();
-            default -> this;
+        case TO_NEXT_MAP -> getNextMap();
+        case TO_PREVIOUS_MAP -> getPreviousMap();
+        default -> this;
         };
     }
 

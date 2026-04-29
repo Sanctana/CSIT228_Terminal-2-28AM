@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-
 import javax.swing.ImageIcon;
 
 import Utilities.States.Direction;

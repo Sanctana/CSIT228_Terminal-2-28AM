@@ -26,7 +26,7 @@ public class CollisionChecker {
         int row = centerY / gp.tileSize;
         int tileNum = gp.map.mapTileNum.get(row)[col];
 
-        return gp.map.tile.get(tileNum).getTileType();
+        return gp.map.tile[tileNum].getTileType();
     }
 
     public void checkTile(Entity entity) {
@@ -67,8 +67,8 @@ public class CollisionChecker {
             return;
         }
 
-        TileType tileType1 = gp.map.tile.get(tileNum1).getTileType();
-        TileType tileType2 = gp.map.tile.get(tileNum2).getTileType();
+        TileType tileType1 = gp.map.tile[tileNum1].getTileType();
+        TileType tileType2 = gp.map.tile[tileNum2].getTileType();
 
         if (tileType1 == TileType.BATTLE_TRIGGER || tileType2 == TileType.BATTLE_TRIGGER) {
             gp.triggerBattle();

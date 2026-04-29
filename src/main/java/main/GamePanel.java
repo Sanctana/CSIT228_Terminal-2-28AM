@@ -53,7 +53,6 @@ public class GamePanel extends JPanel implements Runnable {
     private String encounterMessage = "";
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
-    private long statusMessageUntil = 0L;
 
     private int respawnFadeAlpha = 0;
     private int RESPAWN_FADE_STEP = 18;
@@ -160,11 +159,6 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void startBattle() {
-        if (pendingEnemy == null) {
-            gameState = GameState.PLAY;
-            return;
-        }
-
         activeBattlePanel = BattleLauncher.createBattlePanel(this, pendingEnemy,
                 new BattleLauncher.BattleResultListener() {
                     @Override
@@ -195,7 +189,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         pendingEnemy = null;
-        encounterMessage = "";
         player.state = EntityState.IDLE;
 
         revalidate();
@@ -203,10 +196,8 @@ public class GamePanel extends JPanel implements Runnable {
         requestFocusInWindow();
 
         if (lostBattle) {
-            gameState = GameState.GAME_OVER;
             startRespawnTransition(Transitions.GAME_OVER);
         } else {
-            gameState = GameState.PLAY;
             startRespawnTransition(Transitions.BATTLE_RETURN);
         }
         respawnFadeAlpha = 255;
@@ -238,7 +229,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         pendingEnemy = null;
-        encounterMessage = "";
         previousPlayerPositions.clear();
 
         player.heartRate = 70;
@@ -288,40 +278,40 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         if (RESPAWN_FADE_STEP > 0) {
-                switch (transitionPhase) {
-                case RESPAWN -> respawnPlayer();
-                case NEW_GAME -> beginNewGameTransition();
-                case BATTLE_RETURN -> {
-                    encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
-                                                                     // retriggering
-                    gameState = GameState.PLAY;
-                }
-                case GAME_OVER -> gameState = GameState.GAME_OVER;
-                case CHANGE_MAP -> {
-                    if (player.state == EntityState.TO_NEXT_MAP) {
-                        player.storeCurrentPosition();
-
-                        map = map.transitionToMap(player.state);
-
-                        Point spawnPoint = map.loadMap();
-                        player.setLocation(spawnPoint.y, spawnPoint.x);
-                    } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
-                        map = map.transitionToMap(player.state);
-                        map.loadMap();
-
-                        player.restorePreviousPosition(); // Restore the player's previous position after transitioning
-                                                          // back
-
-                    }
-                    player.state = EntityState.IDLE;
-                }
-                case NONE -> {
-                    // No action needed
-                }
-                }
-        } else {
-                transitionPhase = Transitions.NONE;
+            switch (transitionPhase) {
+            case RESPAWN -> respawnPlayer();
+            case NEW_GAME -> beginNewGameTransition();
+            case BATTLE_RETURN -> {
+                encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
+                                                                 // retriggering
+                gameState = GameState.PLAY;
             }
+            case GAME_OVER -> gameState = GameState.GAME_OVER;
+            case CHANGE_MAP -> {
+                if (player.state == EntityState.TO_NEXT_MAP) {
+                    player.storeCurrentPosition();
+
+                    map = map.transitionToMap(player.state);
+
+                    Point spawnPoint = map.loadMap();
+                    player.setLocation(spawnPoint.y, spawnPoint.x);
+                } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
+                    map = map.transitionToMap(player.state);
+                    map.loadMap();
+
+                    player.restorePreviousPosition(); // Restore the player's previous position after transitioning
+                                                      // back
+
+                }
+                player.state = EntityState.IDLE;
+            }
+            case NONE -> {
+                // No action needed
+            }
+            }
+        } else {
+            transitionPhase = Transitions.NONE;
+        }
         RESPAWN_FADE_STEP = -RESPAWN_FADE_STEP; // Reset for next time
     }
 
@@ -329,7 +319,6 @@ public class GamePanel extends JPanel implements Runnable {
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
-        encounterMessage = "";
         keyH.resetMovementInput();
         completeFirstLoad();
     }
@@ -358,13 +347,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void showStatusMessage(String message) {
         statusMessage = message;
-        statusMessageUntil = System.currentTimeMillis() + 1800L;
     }
 
     public String getStatusMessage() {
-        if (System.currentTimeMillis() > statusMessageUntil) {
-            return "";
-        }
         return statusMessage;
     }
 
