@@ -1,9 +1,11 @@
 package battle;
-import java.util.*;
+
+import java.util.ArrayList;
+
 public class CharacterContainer {
     ArrayList<Character> characterList = new ArrayList<>();
 
-    public CharacterContainer(main.GamePanel gp){
+    public CharacterContainer(main.GamePanel gp) {
         characterList.add(new Officer(gp));
         characterList.add(new DebtCollector(gp));
         characterList.add(new Detective(gp));
@@ -11,10 +13,11 @@ public class CharacterContainer {
         characterList.add(new Artist(gp));
 
     }
-    public Character getCharacter(int index){
-        try{
+
+    public Character getCharacter(int index) {
+        try {
             return characterList.get(index);
-        }catch(ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Invalid Character!");
             return null;
         }

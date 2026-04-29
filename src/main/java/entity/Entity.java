@@ -1,6 +1,7 @@
 package entity;
 
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import Inventory.Item;

@@ -1,6 +1,6 @@
 package battle;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import java.util.Arrays;
 
 public class Detective extends Character {

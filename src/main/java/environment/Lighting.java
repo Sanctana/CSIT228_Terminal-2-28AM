@@ -2,7 +2,10 @@ package environment;
 
 import main.GamePanel;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.awt.RadialGradientPaint;
+import java.awt.AlphaComposite;
 import java.awt.image.BufferedImage;
 
 public class Lighting {

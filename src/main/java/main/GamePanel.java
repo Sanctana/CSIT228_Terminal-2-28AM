@@ -1,7 +1,12 @@
 package main;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
+import java.awt.Point;
 import java.util.Stack;
 import javax.swing.JPanel;
 

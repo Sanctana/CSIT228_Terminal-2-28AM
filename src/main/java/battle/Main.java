@@ -1,8 +1,10 @@
 package battle;
-import javax.swing.*;
+
+import javax.swing.JFrame;
 import main.GamePanel;
+
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         GamePanel gp = new GamePanel();
         EnemyContainer enemyContainer = new EnemyContainer();
 
@@ -12,7 +14,6 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 500);
         frame.setResizable(false);
-
 
         frame.setContentPane(new Panel(gp, characterContainer.getCharacter(1), enemyContainer.getRandomEnemy(),
                 new BattleLauncher.BattleResultListener() {

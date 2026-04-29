@@ -1,6 +1,9 @@
 package UI;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.awt.Font;
 
 import Inventory.Item;
 import main.GamePanel;

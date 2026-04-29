@@ -1,7 +1,17 @@
 package battle;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing.Timer;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.Objects;
 
 public class Panel extends JPanel {
@@ -36,10 +46,12 @@ public class Panel extends JPanel {
 
         setLayout(null);
 
-        background = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/HospitalHallway1.png"))).getImage();
+        background = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/HospitalHallway1.png")))
+                .getImage();
         portrait = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/andrew.png"))).getImage();
         enemyAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getIdleURL()))).getImage();
-        enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getAttackURL()))).getImage();
+        enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getAttackURL())))
+                .getImage();
 
         initButtons();
     }
@@ -49,17 +61,26 @@ public class Panel extends JPanel {
         protectBtn = createActionBtn("ACTION", "Select an action", new Color(160, 150, 60));
         recoverBtn = createActionBtn("ITEM", "Use an item", new Color(60, 150, 80));
 
-        skill1Btn = createActionBtn(player.skills.get(0).getSkillName(), player.skills.get(0).getFloorDMG() + "-" + player.skills.get(0).getCeilDMG() + "DMG", new Color(60, 80, 150));
-        skill2Btn = createActionBtn(player.skills.get(1).getSkillName(), player.skills.get(1).getFloorDMG() + "-" + player.skills.get(1).getCeilDMG() + "DMG", new Color(160, 150, 60));
-        skill3Btn = createActionBtn(player.skills.get(2).getSkillName(), player.skills.get(2).getFloorDMG() + "-" + player.skills.get(2).getCeilDMG() + "DMG", new Color(60, 150, 80));
+        skill1Btn = createActionBtn(player.skills.get(0).getSkillName(),
+                player.skills.get(0).getFloorDMG() + "-" + player.skills.get(0).getCeilDMG() + "DMG",
+                new Color(60, 80, 150));
+        skill2Btn = createActionBtn(player.skills.get(1).getSkillName(),
+                player.skills.get(1).getFloorDMG() + "-" + player.skills.get(1).getCeilDMG() + "DMG",
+                new Color(160, 150, 60));
+        skill3Btn = createActionBtn(player.skills.get(2).getSkillName(),
+                player.skills.get(2).getFloorDMG() + "-" + player.skills.get(2).getCeilDMG() + "DMG",
+                new Color(60, 150, 80));
 
         action1Btn = createActionBtn(player.actions.get(0).getName(), "", new Color(160, 150, 60));
         action2Btn = createActionBtn(player.actions.get(1).getName(), "", new Color(160, 150, 60));
         action3Btn = createActionBtn(player.actions.get(2).getName(), "", new Color(160, 150, 60));
 
-        item1Btn = createActionBtn(player.getInventory()[0].getName(), player.getItemAmounts()[0] + "x", new Color(40, 100, 100));
-        item2Btn = createActionBtn(player.getInventory()[1].getName(), player.getItemAmounts()[1] + "x", new Color(40, 100, 100));
-        item3Btn = createActionBtn(player.getInventory()[2].getName(), player.getItemAmounts()[2] + "x", new Color(40, 100, 100));
+        item1Btn = createActionBtn(player.getInventory()[0].getName(), player.getItemAmounts()[0] + "x",
+                new Color(40, 100, 100));
+        item2Btn = createActionBtn(player.getInventory()[1].getName(), player.getItemAmounts()[1] + "x",
+                new Color(40, 100, 100));
+        item3Btn = createActionBtn(player.getInventory()[2].getName(), player.getItemAmounts()[2] + "x",
+                new Color(40, 100, 100));
 
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
 
@@ -68,19 +89,22 @@ public class Panel extends JPanel {
         toggleItems(false);
 
         suppressBtn.addActionListener(e -> {
-            if (isProcessing) return;
+            if (isProcessing)
+                return;
             toggleMenu(false);
             toggleSkills(true);
         });
 
         protectBtn.addActionListener(e -> {
-            if (isProcessing) return;
+            if (isProcessing)
+                return;
             toggleMenu(false);
             toggleProtectActions(true);
         });
 
         recoverBtn.addActionListener(e -> {
-            if (isProcessing) return;
+            if (isProcessing)
+                return;
             toggleMenu(false);
             toggleItems(true);
         });
@@ -96,14 +120,40 @@ public class Panel extends JPanel {
         item2Btn.addActionListener(e -> useBattleItem(1));
         item3Btn.addActionListener(e -> useBattleItem(2));
 
-        skill1Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(0)); });
-        skill2Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(1)); });
-        skill3Btn.addActionListener(e -> { if(!isProcessing) applyPlayerAction(player.useSkill(2)); });
+        skill1Btn.addActionListener(e -> {
+            if (!isProcessing)
+                applyPlayerAction(player.useSkill(0));
+        });
+        skill2Btn.addActionListener(e -> {
+            if (!isProcessing)
+                applyPlayerAction(player.useSkill(1));
+        });
+        skill3Btn.addActionListener(e -> {
+            if (!isProcessing)
+                applyPlayerAction(player.useSkill(2));
+        });
 
-        action1Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(0, this); finalizeAction(); } });
-        action2Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(1, this); finalizeAction(); } });
-        action3Btn.addActionListener(e -> { if(!isProcessing) { isProcessing = true; player.useAction(2, this); finalizeAction(); } });
-
+        action1Btn.addActionListener(e -> {
+            if (!isProcessing) {
+                isProcessing = true;
+                player.useAction(0, this);
+                finalizeAction();
+            }
+        });
+        action2Btn.addActionListener(e -> {
+            if (!isProcessing) {
+                isProcessing = true;
+                player.useAction(1, this);
+                finalizeAction();
+            }
+        });
+        action3Btn.addActionListener(e -> {
+            if (!isProcessing) {
+                isProcessing = true;
+                player.useAction(2, this);
+                finalizeAction();
+            }
+        });
 
         add(suppressBtn);
         add(protectBtn);
@@ -125,7 +175,8 @@ public class Panel extends JPanel {
     }
 
     private void useBattleItem(int index) {
-        if (isProcessing) return;
+        if (isProcessing)
+            return;
 
         if (player.getItemAmounts()[index] > 0) {
             isProcessing = true;
@@ -241,9 +292,8 @@ public class Panel extends JPanel {
 
     private boolean checkDeath(String cause) {
         if (!player.getIsAlive()) {
-            JOptionPane.showMessageDialog(this,
-                    "The patient has died. " + cause,
-                    "FLATLINE", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "The patient has died. " + cause, "FLATLINE",
+                    JOptionPane.WARNING_MESSAGE);
             startDefeatTransition();
             return true;
         }
@@ -265,37 +315,50 @@ public class Panel extends JPanel {
     }
 
     private void drawWorld(Graphics2D g, int w, int h) {
-        if (background != null) g.drawImage(background, 0, 0, w, h, null);
+        if (background != null)
+            g.drawImage(background, 0, 0, w, h, null);
         int ex = (w / 2) - 125, ey = (h / 2) - 140;
-        if (isEnemyAttacking) g.drawImage(enemyAttackAnim, ex + enemyXOffset + 60, ey, 250, 250, this);
-        else g.drawImage(enemyAnim, ex, ey, 250, 250, this);
+        if (isEnemyAttacking)
+            g.drawImage(enemyAttackAnim, ex + enemyXOffset + 60, ey, 250, 250, this);
+        else
+            g.drawImage(enemyAnim, ex, ey, 250, 250, this);
         int barW = 220, barH = 18, bx = (w / 2) - 110, by = ey - 30;
-        g.setColor(new Color(60, 0, 0)); g.fillRect(bx, by, barW, barH);
+        g.setColor(new Color(60, 0, 0));
+        g.fillRect(bx, by, barW, barH);
         g.setColor(new Color(255, 60, 60));
         g.fillRect(bx, by, (int) (barW * (enemyHP / (double) maxEnemyHP)), barH);
-        g.setColor(Color.WHITE); g.drawRect(bx, by, barW, barH);
+        g.setColor(Color.WHITE);
+        g.drawRect(bx, by, barW, barH);
     }
 
     private void drawTopBar(Graphics2D g, int w, int pad) {
-        g.setColor(new Color(0, 0, 0, 220)); g.fillRect(0, 0, w, 45);
-        g.setColor(Color.WHITE); g.setFont(new Font("Monospaced", Font.BOLD, 20));
-        g.drawString("THIRD FLOOR", pad, 30); g.drawString("2:22 AM", w - pad - 100, 30);
+        g.setColor(new Color(0, 0, 0, 220));
+        g.fillRect(0, 0, w, 45);
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Monospaced", Font.BOLD, 20));
+        g.drawString("THIRD FLOOR", pad, 30);
+        g.drawString("2:22 AM", w - pad - 100, 30);
     }
 
     private void drawHUD(Graphics2D g, int w, int y, int pad, int gap) {
-        g.setColor(new Color(5, 8, 12)); g.fillRect(0, y, w, 140);
-        g.setColor(new Color(45, 50, 55)); g.drawLine(0, y, w, y);
-        if (portrait != null) g.drawImage(portrait, pad, y + 15, 100, 110, null);
+        g.setColor(new Color(5, 8, 12));
+        g.fillRect(0, y, w, 140);
+        g.setColor(new Color(45, 50, 55));
+        g.drawLine(0, y, w, y);
+        if (portrait != null)
+            g.drawImage(portrait, pad, y + 15, 100, 110, null);
         drawHeartMonitor(g, pad + 100 + gap, y + 45);
     }
 
     private void drawHeartMonitor(Graphics2D g, int x, int y) {
-        g.setColor(new Color(15, 18, 25)); g.fillRoundRect(x, y, 175, 80, 5, 5);
-        g.setColor(Color.WHITE); g.setFont(new Font("Monospaced", Font.BOLD, 14));
+        g.setColor(new Color(15, 18, 25));
+        g.fillRoundRect(x, y, 175, 80, 5, 5);
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Monospaced", Font.BOLD, 14));
         g.drawString("PATIENT: " + player.getName(), x, y - 13);
         g.setColor(new Color(100, 255, 200));
-        int[] px = { x+10, x+45, x+55, x+65, x+75, x+85, x+115, x+130, x+145, x+165 };
-        int[] py = { y+30, y+30, y+10, y+55, y+30, y+30, y+30, y+5, y+65, y+30 };
+        int[] px = { x + 10, x + 45, x + 55, x + 65, x + 75, x + 85, x + 115, x + 130, x + 145, x + 165 };
+        int[] py = { y + 30, y + 30, y + 10, y + 55, y + 30, y + 30, y + 30, y + 5, y + 65, y + 30 };
         g.drawPolyline(px, py, px.length);
         int bpm = player.getHeartBeat();
         if (bpm < 60) {
@@ -313,10 +376,10 @@ public class Panel extends JPanel {
 
     private void updateButtons(int w, int y, int pad) {
         int btnW = 100, btnGap = 10;
-        JButton[] mBtns = {suppressBtn, protectBtn, recoverBtn};
-        JButton[] sBtns = {skill1Btn, skill2Btn, skill3Btn, backBtn};
-        JButton[] pBtns = {action1Btn, action2Btn, action3Btn, backBtn};
-        JButton[] iBtns = {item1Btn, item2Btn, item3Btn, backBtn};
+        JButton[] mBtns = { suppressBtn, protectBtn, recoverBtn };
+        JButton[] sBtns = { skill1Btn, skill2Btn, skill3Btn, backBtn };
+        JButton[] pBtns = { action1Btn, action2Btn, action3Btn, backBtn };
+        JButton[] iBtns = { item1Btn, item2Btn, item3Btn, backBtn };
 
         layoutVisibleButtons(mBtns, w, y, pad, btnW, btnGap);
         layoutVisibleButtons(sBtns, w, y, pad, btnW, btnGap);
@@ -349,8 +412,8 @@ public class Panel extends JPanel {
     }
 
     private JButton createActionBtn(String title, String sub, Color theme) {
-        String label = "<html><center><font color='white' size='4'><b>" + title + "</b></font><br>" +
-                "<font color='#bbbbbb' size='2'>" + sub + "</font></center></html>";
+        String label = "<html><center><font color='white' size='4'><b>" + title + "</b></font><br>"
+                + "<font color='#bbbbbb' size='2'>" + sub + "</font></center></html>";
         JButton btn = new JButton(label);
         btn.setBackground(new Color(10, 12, 18));
         btn.setFocusPainted(false);
@@ -379,37 +442,52 @@ public class Panel extends JPanel {
     }
 
     private void toggleSkills(boolean b) {
-        skill1Btn.setVisible(b); skill2Btn.setVisible(b); skill3Btn.setVisible(b); backBtn.setVisible(b);
+        skill1Btn.setVisible(b);
+        skill2Btn.setVisible(b);
+        skill3Btn.setVisible(b);
+        backBtn.setVisible(b);
     }
 
     private void toggleItems(boolean b) {
-        item1Btn.setVisible(b); item2Btn.setVisible(b); item3Btn.setVisible(b); backBtn.setVisible(b);
+        item1Btn.setVisible(b);
+        item2Btn.setVisible(b);
+        item3Btn.setVisible(b);
+        backBtn.setVisible(b);
     }
 
     private void toggleProtectActions(boolean b) {
-        action1Btn.setVisible(b); action2Btn.setVisible(b); action3Btn.setVisible(b); backBtn.setVisible(b);
+        action1Btn.setVisible(b);
+        action2Btn.setVisible(b);
+        action3Btn.setVisible(b);
+        backBtn.setVisible(b);
     }
 
     private void toggleMenu(boolean b) {
-        suppressBtn.setVisible(b); protectBtn.setVisible(b); recoverBtn.setVisible(b);
+        suppressBtn.setVisible(b);
+        protectBtn.setVisible(b);
+        recoverBtn.setVisible(b);
     }
 
     public void refreshButtonText() {
-        skill1Btn.setText("<html><center><font color='white'><b>" + player.skills.get(0).getSkillName() + "</b></font><br>" +
-                "<font color='white' size='2'>" + player.skills.get(0).getFloorDMG() + "-" +
-                player.skills.get(0).getCeilDMG() + "DMG</font></center></html>");
+        skill1Btn.setText("<html><center><font color='white'><b>" + player.skills.get(0).getSkillName()
+                + "</b></font><br>" + "<font color='white' size='2'>" + player.skills.get(0).getFloorDMG() + "-"
+                + player.skills.get(0).getCeilDMG() + "DMG</font></center></html>");
 
-        skill2Btn.setText("<html><center><font color='white'><b>" + player.skills.get(1).getSkillName() + "</b></font><br>" +
-                "<font color='white' size='2'>" + player.skills.get(1).getFloorDMG() + "-" +
-                player.skills.get(1).getCeilDMG() + "DMG</font></center></html>");
+        skill2Btn.setText("<html><center><font color='white'><b>" + player.skills.get(1).getSkillName()
+                + "</b></font><br>" + "<font color='white' size='2'>" + player.skills.get(1).getFloorDMG() + "-"
+                + player.skills.get(1).getCeilDMG() + "DMG</font></center></html>");
         repaint();
     }
+
     public void refreshItemButtonText() {
-        item1Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[0].getName() + "</b></font><br>" +
-                "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[0] + "x</font></center></html>");
-        item2Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[1].getName() + "</b></font><br>" +
-                "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[1] + "x</font></center></html>");
-        item3Btn.setText("<html><center><font color='white'><b>" + player.getInventory()[2].getName() + "</b></font><br>" +
-                "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[2] + "x</font></center></html>");
+        item1Btn.setText(
+                "<html><center><font color='white'><b>" + player.getInventory()[0].getName() + "</b></font><br>"
+                        + "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[0] + "x</font></center></html>");
+        item2Btn.setText(
+                "<html><center><font color='white'><b>" + player.getInventory()[1].getName() + "</b></font><br>"
+                        + "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[1] + "x</font></center></html>");
+        item3Btn.setText(
+                "<html><center><font color='white'><b>" + player.getInventory()[2].getName() + "</b></font><br>"
+                        + "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[2] + "x</font></center></html>");
     }
 }
