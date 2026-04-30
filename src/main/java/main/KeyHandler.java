@@ -143,10 +143,7 @@ public class KeyHandler implements KeyListener {
     }
 
     public void resetMovementInput() {
-        upPressed = false;
-        downPressed = false;
-        leftPressed = false;
-        rightPressed = false;
+        upPressed = downPressed = leftPressed = rightPressed = false;
     }
 
     @Override

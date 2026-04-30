@@ -40,13 +40,12 @@ public class GamePanel extends JPanel implements Runnable {
     public int screenHeight = tileSize * maxScreenRow;
 
     private final SoundManager music = new SoundManager();
+    private final Thread gameThread;
 
     private BufferedImage tempScreen;
     private Graphics2D graphics2d;
-    private final Object renderLock = new Object();
 
     public Map map;
-    private final Thread gameThread;
     public CollisionChecker cChecker;
     public UI ui;
     public Character player;
@@ -96,10 +95,10 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setFullScreen() {
-        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Main.window);
+        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Game.window);
 
-        screenWidth = Main.window.getWidth();
-        screenHeight = Main.window.getHeight();
+        screenWidth = Game.window.getWidth();
+        screenHeight = Game.window.getHeight();
     }
 
     public void startGameThread() {
@@ -197,11 +196,7 @@ public class GamePanel extends JPanel implements Runnable {
         repaint();
         requestFocusInWindow();
 
-        if (lostBattle) {
-            startRespawnTransition(Transitions.GAME_OVER);
-        } else {
-            startRespawnTransition(Transitions.BATTLE_RETURN);
-        }
+        transitionPhase = lostBattle ? Transitions.GAME_OVER : Transitions.BATTLE_RETURN;
         respawnFadeAlpha = 255;
     }
 
@@ -359,7 +354,7 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        synchronized (renderLock) {
+        synchronized (this) {
             if (tempScreen != null) {
                 g.drawImage(tempScreen, 0, 0, screenWidth, screenHeight, null);
             }
@@ -367,7 +362,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void drawToTempScreen() {
-        synchronized (renderLock) {
+        synchronized (this) {
             // clear / background
             graphics2d.setColor(getBackground());
             graphics2d.fillRect(0, 0, screenWidth, screenHeight);
@@ -383,8 +378,7 @@ public class GamePanel extends JPanel implements Runnable {
             } else if (gameState != GameState.BATTLE) {
                 AffineTransform originalTransform = graphics2d.getTransform();
                 graphics2d.scale(WORLD_ZOOM, WORLD_ZOOM);
-                graphics2d.translate(
-                        (screenWidth / 2.0) * (1.0 / WORLD_ZOOM - 1.0),
+                graphics2d.translate((screenWidth / 2.0) * (1.0 / WORLD_ZOOM - 1.0),
                         (screenHeight / 2.0) * (1.0 / WORLD_ZOOM - 1.0));
 
                 map.draw(graphics2d);

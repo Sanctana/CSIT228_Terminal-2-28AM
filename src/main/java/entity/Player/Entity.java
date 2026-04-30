@@ -47,16 +47,11 @@ public abstract class Entity {
     }
 
     public void takeDamage(int damage) {
-        int finalDamage = (int) (damage - (damage * resistance));
-        this.heartRate -= finalDamage;
+        this.heartRate -= (int) (damage - (damage * resistance));
     }
 
     public void setLocation(int row, int col) {
         worldX = col * gp.tileSize;
         worldY = row * gp.tileSize;
-    }
-
-    public void setInventory(Item[] inventory) {
-        this.inventory = inventory;
     }
 }

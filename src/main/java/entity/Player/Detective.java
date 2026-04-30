@@ -44,7 +44,6 @@ public class Detective extends Character {
         Arrays.fill(chamber, false);
         chamber[(int) (Math.random() * maxBullets)] = true;
         index = 0;
-        System.out.println("Revolver Spun!");
     }
 
     @Override

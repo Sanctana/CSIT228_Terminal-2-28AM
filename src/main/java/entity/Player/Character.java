@@ -52,24 +52,8 @@ public abstract class Character extends Entity {
         this.resistance = initialResistance;
     }
 
-    public void takeDamage(int damage) {
-        setHeartBeat(getHeartBeat() - (damage - (int) (damage * resistance)));
-    }
-
     public void recover(int heal) {
         setHeartBeat(getHeartBeat() + heal);
-    }
-
-    public int getHeartBeat() {
-        return heartRate;
-    }
-
-    public void setHeartBeat(int hb) {
-        this.heartRate = hb;
-    }
-
-    public boolean getIsAlive() {
-        return heartRate >= 40 && heartRate <= 180;
     }
 
     public String getName() {
@@ -179,10 +163,5 @@ public abstract class Character extends Entity {
             Point previousPosition = gp.previousPlayerPositions.pop();
             setLocation(previousPosition.y, previousPosition.x);
         }
-    }
-
-    public void setLocation(int row, int col) {
-        worldY = gp.tileSize * row;
-        worldX = gp.tileSize * col;
     }
 }

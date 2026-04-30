@@ -31,7 +31,7 @@ application {
 tasks.register<JavaExec>("runApp") {
     group = "application"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("main.Main")
+    mainClass.set("main.Game")
     standardInput = System.`in`
 }
 
