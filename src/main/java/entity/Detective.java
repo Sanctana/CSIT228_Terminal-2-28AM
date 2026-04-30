@@ -1,7 +1,13 @@
-package battle;
+package entity;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import java.util.Arrays;
+
+import battle.Action;
+import battle.Panel;
+import battle.Skill;
+import main.GamePanel;
 
 public class Detective extends Character {
     private int maxBullets = 6;
@@ -9,8 +15,8 @@ public class Detective extends Character {
     private boolean[] chamber = new boolean[6];
     private double damageMultiplier = 0.5;
 
-    public Detective(main.GamePanel gp) {
-        super(100, 0.90, "John Lloyd - The Detective",gp);
+    public Detective(GamePanel gp) {
+        super(100, 0.90, "John Lloyd - The Detective", gp);
 
         // Math overridden in useSkill
         skills.add(new Skill(0, 0, "Shoot"));
@@ -22,6 +28,16 @@ public class Detective extends Character {
         actions.add(new Action(0, 0, "Spin"));
 
         resetRevolver();
+        idleUp = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective_Idle.png")).getImage();
+        idleDown = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective_Idle.png")).getImage();
+        idleLeft = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective_Idle.png")).getImage();
+        idleRight = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective_Idle.png")).getImage();
+
+        up = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective.gif")).getImage();
+        down = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective.gif")).getImage();
+        left = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective.gif")).getImage();
+        right = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective.gif")).getImage();
+
     }
 
     public void resetRevolver() {
@@ -35,7 +51,7 @@ public class Detective extends Character {
     public int useSkill(int skillIndex) {
         if (skillIndex == 0) { // Skill 1: Shoot
 
-            int finalDmg = (int)(20 * damageMultiplier);
+            int finalDmg = (int) (20 * damageMultiplier);
 
             this.damageMultiplier = 0.5;
             resetRevolver();
@@ -65,15 +81,14 @@ public class Detective extends Character {
             } else {
                 this.damageMultiplier += 1.0;
                 index++;
-                if (index >= maxBullets) resetRevolver();
+                if (index >= maxBullets)
+                    resetRevolver();
             }
-        }
-        else if (actionIndex == 1) { // Action 2: Peek
+        } else if (actionIndex == 1) { // Action 2: Peek
             boolean isLive = chamber[index];
             String status = isLive ? "LIVE ROUND" : "EMPTY";
             JOptionPane.showMessageDialog(null, "The current chamber is: " + status);
-        }
-        else if (actionIndex == 2) { // Action 3: Spin
+        } else if (actionIndex == 2) { // Action 3: Spin
             resetRevolver();
         }
     }

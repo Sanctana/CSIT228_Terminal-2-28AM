@@ -1,6 +1,6 @@
 package Inventory;
 
-import battle.Character;
+import entity.Character;
 
 public abstract class Item {
     protected String name;

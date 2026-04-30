@@ -14,6 +14,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.Objects;
 
+import battle.BattleLauncher.BattleResultListener;
+import entity.Character;
+import main.GamePanel;
+
 public class Panel extends JPanel {
     private final main.GamePanel gp;
 
@@ -34,9 +38,9 @@ public class Panel extends JPanel {
 
     private Character player;
     private Enemy enemy;
-    private final BattleLauncher.BattleResultListener resultListener;
+    private final BattleResultListener resultListener;
 
-    public Panel(main.GamePanel gp, Character player, Enemy enemy, BattleLauncher.BattleResultListener resultListener) {
+    public Panel(GamePanel gp, Character player, Enemy enemy, BattleResultListener resultListener) {
         this.gp = gp;
         this.player = player;
         this.enemy = enemy;

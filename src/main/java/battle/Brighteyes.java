@@ -1,10 +1,10 @@
 package battle;
 
-public class Brighteyes extends Enemy{
+public class Brighteyes extends Enemy {
     public Brighteyes() {
         this.health = 200;
-        this.skills.add(new EnemySkill(5, 15,true));
-        this.skills.add(new EnemySkill(10, 20,true));
+        this.skills.add(new EnemySkill(5, 15, true));
+        this.skills.add(new EnemySkill(10, 20, true));
     }
 
     @Override

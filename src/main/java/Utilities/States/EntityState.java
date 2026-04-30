@@ -1,4 +1,4 @@
-package entity;
+package Utilities.States;
 
 public enum EntityState {
     IDLE,

@@ -8,6 +8,7 @@ import Inventory.Item;
 import battle.Action;
 import battle.Skill;
 import Utilities.States.Direction;
+import Utilities.States.EntityState;
 import main.GamePanel;
 
 public abstract class Entity {

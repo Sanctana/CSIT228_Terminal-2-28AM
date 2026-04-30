@@ -18,8 +18,8 @@ import java.awt.Point;
 import java.awt.Graphics2D;
 
 import main.GamePanel;
-import entity.EntityState;
 import Utilities.UtilityTool;
+import Utilities.States.EntityState;
 import Utilities.States.TileType;
 
 public abstract class Map {

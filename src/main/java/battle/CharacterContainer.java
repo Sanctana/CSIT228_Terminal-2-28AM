@@ -2,6 +2,13 @@ package battle;
 
 import java.util.ArrayList;
 
+import entity.Artist;
+import entity.Character;
+import entity.DebtCollector;
+import entity.Detective;
+import entity.Intruder;
+import entity.Officer;
+
 public class CharacterContainer {
     ArrayList<Character> characterList = new ArrayList<>();
 

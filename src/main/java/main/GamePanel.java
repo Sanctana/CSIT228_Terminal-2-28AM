@@ -12,14 +12,14 @@ import javax.swing.JPanel;
 
 import Maps.ThirdFloorMap;
 import UI.UI;
+import Utilities.UtilityTool;
+import Utilities.States.EntityState;
 import Utilities.States.GameState;
 import battle.BattleLauncher;
-import battle.Character;
 import battle.Enemy;
 import environment.EnvironmentManager;
+import entity.Character;
 import entity.CharacterType;
-import entity.Player;
-import entity.EntityState;
 import tile.Map;
 
 enum Transitions {
@@ -48,7 +48,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final Thread gameThread;
     public CollisionChecker cChecker;
     public UI ui;
-    public Player player;
+    public Character player;
     public GameState gameState;
     public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
                                                                  // transitions
@@ -66,8 +66,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
-    EnvironmentManager eManager = new EnvironmentManager(this);
-    KeyHandler keyH = new KeyHandler(this);
+    private EnvironmentManager eManager = new EnvironmentManager(this);
+    private final KeyHandler keyH = new KeyHandler(this);
 
     public GamePanel() {
         this.setLayout(null);
@@ -168,12 +168,12 @@ public class GamePanel extends JPanel implements Runnable {
                 new BattleLauncher.BattleResultListener() {
                     @Override
                     public void onBattleWon(Character battlePlayer) {
-                        endBattle(battlePlayer, false);
+                        endBattle(false);
                     }
 
                     @Override
                     public void onBattleLost(Character battlePlayer) {
-                        endBattle(battlePlayer, true);
+                        endBattle(true);
                     }
                 });
         activeBattlePanel.setBounds(0, 0, screenWidth, screenHeight);
@@ -184,17 +184,13 @@ public class GamePanel extends JPanel implements Runnable {
         gameState = GameState.BATTLE;
     }
 
-    private void endBattle(Character battlePlayer, boolean lostBattle) {
-        player.heartRate = battlePlayer.getHeartBeat();
-        player.setInventory(battlePlayer.getInventory());
-
+    private void endBattle(boolean lostBattle) {
         if (activeBattlePanel != null) {
             remove(activeBattlePanel);
             activeBattlePanel = null;
         }
 
         pendingEnemy = null;
-        player.state = EntityState.IDLE;
 
         revalidate();
         repaint();
@@ -219,7 +215,7 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
-        player = new Player(this, keyH, characterType);
+        player = UtilityTool.characterFactory(characterType, this);
         startRespawnTransition(Transitions.NEW_GAME);
     }
 
@@ -236,8 +232,9 @@ public class GamePanel extends JPanel implements Runnable {
         pendingEnemy = null;
         previousPlayerPositions.clear();
 
+        // Please check if this is really 70 since some Character sets it to 100 upon
+        // creation
         player.heartRate = 70;
-        player.state = EntityState.IDLE;
         player.setDefaultValues();
         keyH.resetMovementInput();
 
@@ -382,13 +379,13 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.draw();
                 drawRespawnTransition();
                 return;
+            } else if (gameState != GameState.BATTLE) {
+                map.draw(graphics2d);
+                player.draw(graphics2d);
+                eManager.draw(graphics2d);
+                ui.draw();
+                drawRespawnTransition();
             }
-
-            map.draw(graphics2d);
-            player.draw(graphics2d);
-            eManager.draw(graphics2d);
-            ui.draw();
-            drawRespawnTransition();
         }
     }
 
@@ -407,4 +404,7 @@ public class GamePanel extends JPanel implements Runnable {
         music.loop();
     }
 
+    public KeyHandler getKeyHandler() {
+        return keyH;
+    }
 }

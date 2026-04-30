@@ -3,6 +3,15 @@ package Utilities;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import entity.CharacterType;
+import entity.DebtCollector;
+import entity.Detective;
+import entity.Intruder;
+import entity.Officer;
+import main.GamePanel;
+import entity.Artist;
+import entity.Character;
+
 public class UtilityTool {
 
     public static BufferedImage scaleImage(BufferedImage original, int width, int height) {
@@ -12,5 +21,15 @@ public class UtilityTool {
         g2.dispose();
 
         return scaledImage;
+    }
+
+    public static Character characterFactory(CharacterType type, GamePanel gp) {
+        return switch (type) {
+        case DETECTIVE -> new Detective(gp);
+        case COLLECTOR -> new DebtCollector(gp);
+        case OFFICER -> new Officer(gp);
+        case INTRUDER -> new Intruder(gp);
+        case ARTIST -> new Artist(gp);
+        };
     }
 }

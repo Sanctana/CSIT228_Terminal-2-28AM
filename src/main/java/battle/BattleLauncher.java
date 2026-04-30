@@ -3,6 +3,8 @@ package battle;
 import main.GamePanel;
 import javax.swing.JPanel;
 
+import entity.Character;
+
 public final class BattleLauncher {
 
     public static Enemy createRandomEnemy() {
@@ -10,20 +12,7 @@ public final class BattleLauncher {
     }
 
     public static JPanel createBattlePanel(GamePanel gp, Enemy enemy, BattleResultListener resultListener) {
-        Character player = createCharacterForBattle(gp);
-        player.setHeartBeat(gp.player.heartRate);
-        player.setInventory(gp.player.getInventory());
-        return new Panel(gp, player, enemy, resultListener);
-    }
-
-    private static Character createCharacterForBattle(GamePanel gp) {
-        return switch (gp.player.characterType) {
-            case OFFICER -> new Officer(gp);
-            case DETECTIVE -> new Detective(gp);
-            case INTRUDER -> new Intruder(gp);
-            case ARTIST -> new Artist(gp);
-            case COLLECTOR -> new DebtCollector(gp);
-        };
+        return new Panel(gp, gp.player, enemy, resultListener);
     }
 
     public interface BattleResultListener {

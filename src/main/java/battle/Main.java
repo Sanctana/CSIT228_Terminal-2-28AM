@@ -1,6 +1,8 @@
 package battle;
 
 import javax.swing.JFrame;
+
+import entity.Character;
 import main.GamePanel;
 
 public class Main {

@@ -8,7 +8,7 @@ import java.awt.Font;
 import Inventory.Item;
 import main.GamePanel;
 import Utilities.States.TitleScreenState;
-import entity.Player;
+import entity.Character;
 
 public class UI {
     private GamePanel gp;
@@ -88,7 +88,7 @@ public class UI {
         g2.drawString(enemyText, getXforCenteredText(enemyText), gp.screenHeight / 2 + 35);
     }
 
-    public void drawInventoryScreen(Player player) {
+    public void drawInventoryScreen(Character player) {
         if (player == null) {
             return;
         }
@@ -268,19 +268,6 @@ public class UI {
         }
     }
 
-    public String getCharacterTitle() {
-        if (gp.player == null)
-            return "";
-
-        return switch (gp.player.characterType) {
-        case DETECTIVE -> "JOHN LOYD: THE DETECTIVE";
-        case OFFICER -> "ANDREW: THE OFFICER";
-        case INTRUDER -> "TRIXY: THE INTRUDER";
-        case ARTIST -> "TRIA: THE ARTIST";
-        case COLLECTOR -> "YOHANN: THE COLLECTOR";
-        };
-    }
-
     public void drawPlayerUI() {
         g2.setColor(new Color(0, 0, 0, 120));
         g2.fillRoundRect(15, 20, 360, 100, 20, 20);
@@ -289,7 +276,7 @@ public class UI {
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
         g2.setColor(Color.white);
 
-        String characterText = getCharacterTitle();
+        String characterText = gp.player.getName().toUpperCase();
 
         int margin = 30;
         int x = margin;
