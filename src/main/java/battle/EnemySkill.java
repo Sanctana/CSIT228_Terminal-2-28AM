@@ -4,6 +4,7 @@ public class EnemySkill {
     private int floorDMG;
     private int ceilDMG;
     private boolean isIncreasingDamage;
+
     public EnemySkill(int floorDMG, int ceilDMG, boolean isIncreasingDamage) {
         this.floorDMG = floorDMG;
         this.ceilDMG = ceilDMG;
@@ -18,7 +19,7 @@ public class EnemySkill {
         return ceilDMG;
     }
 
-    public boolean getIsIncreasingDamage(){
+    public boolean getIsIncreasingDamage() {
         return isIncreasingDamage;
     }
 }

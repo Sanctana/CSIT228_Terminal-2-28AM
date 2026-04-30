@@ -6,7 +6,6 @@ module terminal228am {
     exports environment;
     exports main;
     exports Maps;
-    exports tile;
     exports Utilities.States;
     exports UI;
     exports Inventory;

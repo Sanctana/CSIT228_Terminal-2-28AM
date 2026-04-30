@@ -5,11 +5,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.Point;
 import java.util.Stack;
 import javax.swing.JPanel;
 
+import Maps.Map;
 import Maps.ThirdFloorMap;
 import UI.UI;
 import Utilities.UtilityTool;
@@ -20,7 +22,6 @@ import battle.Enemy;
 import environment.EnvironmentManager;
 import entity.Character;
 import entity.CharacterType;
-import tile.Map;
 
 enum Transitions {
     NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP
@@ -32,6 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int FPS = 60;
     private final int maxScreenCol = 20;
     private final int maxScreenRow = 12;
+    private static final double WORLD_ZOOM = 1.0;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
     public int screenWidth = tileSize * maxScreenCol;
@@ -39,7 +41,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     private final SoundManager music = new SoundManager();
 
-    // FULL SCREEN
     private BufferedImage tempScreen;
     private Graphics2D graphics2d;
     private final Object renderLock = new Object();
@@ -380,9 +381,17 @@ public class GamePanel extends JPanel implements Runnable {
                 drawRespawnTransition();
                 return;
             } else if (gameState != GameState.BATTLE) {
+                AffineTransform originalTransform = graphics2d.getTransform();
+                graphics2d.scale(WORLD_ZOOM, WORLD_ZOOM);
+                graphics2d.translate(
+                        (screenWidth / 2.0) * (1.0 / WORLD_ZOOM - 1.0),
+                        (screenHeight / 2.0) * (1.0 / WORLD_ZOOM - 1.0));
+
                 map.draw(graphics2d);
                 player.draw(graphics2d);
                 eManager.draw(graphics2d);
+
+                graphics2d.setTransform(originalTransform);
                 ui.draw();
                 drawRespawnTransition();
             }
@@ -406,5 +415,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     public KeyHandler getKeyHandler() {
         return keyH;
+    }
+
+    public double getWorldZoom() {
+        return WORLD_ZOOM;
     }
 }
