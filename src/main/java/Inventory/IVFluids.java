@@ -1,6 +1,6 @@
 package Inventory;
 
-import entity.Character;
+import entity.Player.Character;
 
 public class IVFluids extends Item {
 

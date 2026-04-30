@@ -1,12 +1,8 @@
 package Inventory;
 
-import java.util.Random;
-
-import entity.Character;
+import entity.Player.Character;
 
 public class Defibrillator extends Item {
-    Random random = new Random();
-
     public Defibrillator(int quantity) {
         super("Defibrillator", "Stabilizes player's heart rate between 60 and 80 bpm.", quantity);
     }
@@ -14,7 +10,7 @@ public class Defibrillator extends Item {
     @Override
     public void use(Character character) {
         if (use()) {
-            character.setHeartBeat(random.nextInt(70, 81));
+            character.setHeartBeat((int) (Math.random() * (80 - 70 + 1)) + 70);
         }
     }
 }

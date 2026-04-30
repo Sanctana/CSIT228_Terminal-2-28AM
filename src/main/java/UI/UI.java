@@ -8,7 +8,7 @@ import java.awt.Font;
 import Inventory.Item;
 import main.GamePanel;
 import Utilities.States.TitleScreenState;
-import entity.Character;
+import entity.Player.Character;
 
 public class UI {
     private GamePanel gp;

@@ -15,7 +15,7 @@ import java.awt.RenderingHints;
 import java.util.Objects;
 
 import battle.BattleLauncher.BattleResultListener;
-import entity.Character;
+import entity.Player.Character;
 import main.GamePanel;
 
 public class Panel extends JPanel {

@@ -1,12 +1,9 @@
 package battle;
 
-import java.util.Random;
-
 public class Skill {
     private int floorDMG;
     private int ceilDMG;
     private String skillName;
-    Random random = new Random();
 
     public Skill(int floorDMG, int ceilDMG, String skillName) {
         this.floorDMG = floorDMG;
@@ -15,7 +12,7 @@ public class Skill {
     }
 
     public int getDamage() {
-        return random.nextInt(floorDMG, ceilDMG + 1);
+        return (int) (Math.random() * (ceilDMG - floorDMG + 1)) + floorDMG;
     }
 
     public String getSkillName() {

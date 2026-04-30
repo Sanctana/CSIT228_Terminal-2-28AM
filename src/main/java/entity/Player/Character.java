@@ -1,6 +1,5 @@
-package entity;
+package entity.Player;
 
-import java.util.Random;
 import main.KeyHandler;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -21,7 +20,6 @@ public abstract class Character extends Entity {
     public final int screenY;
 
     protected int maxHeartBeat = 200;
-    protected Random random = new Random();
     protected KeyHandler keyH;
 
     public Character(int heartBeat, double resistance, String name, GamePanel gp) {

@@ -19,9 +19,9 @@ import Utilities.States.EntityState;
 import Utilities.States.GameState;
 import battle.BattleLauncher;
 import battle.Enemy;
+import entity.Player.Character;
+import entity.Player.CharacterType;
 import environment.EnvironmentManager;
-import entity.Character;
-import entity.CharacterType;
 
 enum Transitions {
     NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP

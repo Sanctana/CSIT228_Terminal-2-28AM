@@ -3,12 +3,13 @@ package battle;
 import main.GamePanel;
 import javax.swing.JPanel;
 
-import entity.Character;
+import Utilities.UtilityTool;
+import entity.Player.Character;
 
 public final class BattleLauncher {
 
     public static Enemy createRandomEnemy() {
-        return new EnemyContainer().getRandomEnemy();
+        return UtilityTool.getRandomEnemy();
     }
 
     public static JPanel createBattlePanel(GamePanel gp, Enemy enemy, BattleResultListener resultListener) {
@@ -17,6 +18,7 @@ public final class BattleLauncher {
 
     public interface BattleResultListener {
         void onBattleWon(Character player);
+
         void onBattleLost(Character player);
     }
 }

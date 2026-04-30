@@ -1,4 +1,4 @@
-package entity;
+package entity.Player;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -42,7 +42,7 @@ public class Detective extends Character {
 
     public void resetRevolver() {
         Arrays.fill(chamber, false);
-        chamber[random.nextInt(maxBullets)] = true;
+        chamber[(int) (Math.random() * maxBullets)] = true;
         index = 0;
         System.out.println("Revolver Spun!");
     }
@@ -62,7 +62,7 @@ public class Detective extends Character {
             int remaining = maxBullets - index;
             double successChance = 1.0 / remaining;
 
-            if (random.nextDouble() < successChance) {
+            if (Math.random() < successChance) {
                 return 200;
             }
             return 0;

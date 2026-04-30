@@ -2,7 +2,7 @@ package main;
 
 import Utilities.States.EntityState;
 import Utilities.States.TileType;
-import entity.Entity;
+import entity.Player.Entity;
 
 public class CollisionChecker {
     GamePanel gp;

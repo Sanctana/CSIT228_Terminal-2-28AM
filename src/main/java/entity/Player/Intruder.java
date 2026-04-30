@@ -1,4 +1,4 @@
-package entity;
+package entity.Player;
 
 import javax.swing.ImageIcon;
 
@@ -35,7 +35,7 @@ public class Intruder extends Character {
 
     @Override
     public void takeDamage(int damage) {
-        if (random.nextInt(100) < abstractionMeter) {
+        if (Math.random() * 100 < abstractionMeter) {
             return;
         }
         super.takeDamage(damage);
@@ -53,19 +53,16 @@ public class Intruder extends Character {
 
     @Override
     public void useAction(int index, Panel panel) {
-        if (index == 0) { // Action 1: Hold your breath
-            int gain = random.nextInt(11) + 10;
-            abstractionMeter = Math.min(100, abstractionMeter + gain);
-        } else if (index == 1) { // Action 2: Silent Steps
-            int gain = random.nextInt(8) + 3;
-            abstractionMeter = Math.min(100, abstractionMeter + gain);
-        } else if (index == 2) { // Action 3: Blend in the dark
-            int gain = random.nextInt(21) + 40;
-            abstractionMeter = Math.min(100, abstractionMeter + gain);
-        }
-    }
+        int gain = 0;
 
-    public int getAbstractionMeter() {
-        return abstractionMeter;
+        if (index == 0) { // Action 1: Hold your breath
+            gain = (int) (Math.random() * 11 + 10);
+        } else if (index == 1) { // Action 2: Silent Steps
+            gain = (int) (Math.random() * 8 + 3);
+        } else if (index == 2) { // Action 3: Blend in the dark
+            gain = (int) (Math.random() * 21 + 40);
+        }
+
+        abstractionMeter = Math.min(100, abstractionMeter + gain);
     }
 }

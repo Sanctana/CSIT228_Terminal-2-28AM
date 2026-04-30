@@ -3,14 +3,19 @@ package Utilities;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import entity.CharacterType;
-import entity.DebtCollector;
-import entity.Detective;
-import entity.Intruder;
-import entity.Officer;
+import battle.Enemy;
+import entity.Enemy.Brighteyes;
+import entity.Enemy.EnemyType;
+import entity.Enemy.Scalper;
+import entity.Enemy.Stillborn;
+import entity.Player.Artist;
+import entity.Player.Character;
+import entity.Player.CharacterType;
+import entity.Player.DebtCollector;
+import entity.Player.Detective;
+import entity.Player.Intruder;
+import entity.Player.Officer;
 import main.GamePanel;
-import entity.Artist;
-import entity.Character;
 
 public class UtilityTool {
 
@@ -31,5 +36,18 @@ public class UtilityTool {
         case INTRUDER -> new Intruder(gp);
         case ARTIST -> new Artist(gp);
         };
+    }
+
+    public static Enemy enemyFactory(EnemyType type) {
+        return switch (type) {
+        case STILLBORN -> new Stillborn();
+        case BRIGHTEYES -> new Brighteyes();
+        case SCALPER -> new Scalper();
+        };
+    }
+
+    public static Enemy getRandomEnemy() {
+        EnemyType[] enemyTypes = EnemyType.values();
+        return enemyFactory(enemyTypes[(int) (Math.random() * enemyTypes.length)]);
     }
 }
