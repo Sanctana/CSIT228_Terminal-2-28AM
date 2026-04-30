@@ -28,10 +28,6 @@ public class Player extends Character {
 
         this.solidArea = new Rectangle(15, 40, 20, 1);
 
-        this.inventory[0] = new Inventory.Scalpel();
-        this.inventory[1] = new Inventory.Defibrillator();
-        this.inventory[2] = new Inventory.IVFluids();
-
         setDefaultValues();
         getPlayerImage();
     }

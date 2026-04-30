@@ -75,11 +75,11 @@ public class Panel extends JPanel {
         action2Btn = createActionBtn(player.actions.get(1).getName(), "", new Color(160, 150, 60));
         action3Btn = createActionBtn(player.actions.get(2).getName(), "", new Color(160, 150, 60));
 
-        item1Btn = createActionBtn(player.getInventory()[0].getName(), player.getItemAmounts()[0] + "x",
+        item1Btn = createActionBtn(player.getItem(0).getName(), player.getItem(0).getQuantity() + "x",
                 new Color(40, 100, 100));
-        item2Btn = createActionBtn(player.getInventory()[1].getName(), player.getItemAmounts()[1] + "x",
+        item2Btn = createActionBtn(player.getItem(1).getName(), player.getItem(1).getQuantity() + "x",
                 new Color(40, 100, 100));
-        item3Btn = createActionBtn(player.getInventory()[2].getName(), player.getItemAmounts()[2] + "x",
+        item3Btn = createActionBtn(player.getItem(2).getName(), player.getItem(2).getQuantity() + "x",
                 new Color(40, 100, 100));
 
         backBtn = createActionBtn("BACK", "Return", Color.DARK_GRAY);
@@ -178,7 +178,7 @@ public class Panel extends JPanel {
         if (isProcessing)
             return;
 
-        if (player.getItemAmounts()[index] > 0) {
+        if (player.getItem(index).isUsable()) {
             isProcessing = true;
             player.useItem(index);
 
@@ -191,7 +191,7 @@ public class Panel extends JPanel {
                 startEnemyTimer();
             }
         } else {
-            JOptionPane.showMessageDialog(this, "You are out of " + player.getInventory()[index].getName() + "!");
+            JOptionPane.showMessageDialog(this, "You are out of " + player.getItem(index).getName() + "!");
         }
     }
 
@@ -480,14 +480,11 @@ public class Panel extends JPanel {
     }
 
     public void refreshItemButtonText() {
-        item1Btn.setText(
-                "<html><center><font color='white'><b>" + player.getInventory()[0].getName() + "</b></font><br>"
-                        + "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[0] + "x</font></center></html>");
-        item2Btn.setText(
-                "<html><center><font color='white'><b>" + player.getInventory()[1].getName() + "</b></font><br>"
-                        + "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[1] + "x</font></center></html>");
-        item3Btn.setText(
-                "<html><center><font color='white'><b>" + player.getInventory()[2].getName() + "</b></font><br>"
-                        + "<font color='#bbbbbb' size='2'>" + player.getItemAmounts()[2] + "x</font></center></html>");
+        item1Btn.setText("<html><center><font color='white'><b>" + player.getItem(0).getName() + "</b></font><br>"
+                + "<font color='#bbbbbb' size='2'>" + player.getItem(0).getQuantity() + "x</font></center></html>");
+        item2Btn.setText("<html><center><font color='white'><b>" + player.getItem(1).getName() + "</b></font><br>"
+                + "<font color='#bbbbbb' size='2'>" + player.getItem(1).getQuantity() + "x</font></center></html>");
+        item3Btn.setText("<html><center><font color='white'><b>" + player.getItem(2).getName() + "</b></font><br>"
+                + "<font color='#bbbbbb' size='2'>" + player.getItem(2).getQuantity() + "x</font></center></html>");
     }
 }

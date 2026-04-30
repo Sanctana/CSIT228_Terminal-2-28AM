@@ -1,6 +1,10 @@
 package battle;
 
+import Inventory.Defibrillator;
+import Inventory.IVFluids;
 import Inventory.Item;
+import Inventory.Scalpel;
+
 import java.util.Random;
 import entity.Entity;
 import main.GamePanel;
@@ -16,9 +20,11 @@ public abstract class Character extends Entity {
         this.name = name;
         this.initialResistance = resistance;
 
-        this.inventory[0] = new Inventory.Scalpel();
-        this.inventory[1] = new Inventory.Defibrillator();
-        this.inventory[2] = new Inventory.IVFluids();
+        this.inventory = new Item[3];
+
+        this.inventory[0] = new Scalpel(3);
+        this.inventory[1] = new Defibrillator(9);
+        this.inventory[2] = new IVFluids(3);
     }
 
     public void setResistance(double action) {
@@ -57,8 +63,11 @@ public abstract class Character extends Entity {
         return inventory;
     }
 
-    public int[] getItemAmounts() {
-        return itemAmounts;
+    public Item getItem(int index) {
+        if (index >= 0 && index < inventory.length) {
+            return inventory[index];
+        }
+        return null;
     }
 
     public int useSkill(int index) {
@@ -69,13 +78,7 @@ public abstract class Character extends Entity {
     }
 
     public void useItem(int index) {
-        if (index >= 0 && index < inventory.length && itemAmounts[index] > 0) {
-            Item item = inventory[index];
-            if (item != null) {
-                item.use(this);
-                itemAmounts[index]--;
-            }
-        }
+        inventory[index].use(this);
     }
 
     public void useAction(int index, Panel panel) {
@@ -83,5 +86,4 @@ public abstract class Character extends Entity {
             this.setResistance(actions.get(index).action());
         }
     }
-
 }

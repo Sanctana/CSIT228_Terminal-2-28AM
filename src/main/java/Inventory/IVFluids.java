@@ -1,13 +1,17 @@
 package Inventory;
 
+import battle.Character;
+
 public class IVFluids extends Item {
 
-    public IVFluids() {
-        super("IV Fluids", "Adds 40 heartbeat to the player.");
+    public IVFluids(int quantity) {
+        super("IV Fluids", "Adds 40 heartbeat to the player.", quantity);
     }
 
     @Override
-    public void use(battle.Character character) {
-        character.setHeartBeat(character.getHeartBeat() + 100);
+    public void use(Character character) {
+        if (use()) {
+            character.setHeartBeat(character.getHeartBeat() + 100);
+        }
     }
 }

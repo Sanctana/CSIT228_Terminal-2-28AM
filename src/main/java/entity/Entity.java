@@ -27,8 +27,7 @@ public abstract class Entity {
     public double initialResistance = 0.1;
     public ArrayList<Skill> skills = new ArrayList<>();
     public ArrayList<Action> actions = new ArrayList<>();
-    public Item[] inventory = new Item[3];
-    public int[] itemAmounts = { 3, 9, 3 };
+    protected Item[] inventory;
 
     public Entity(GamePanel gp) {
         this.gp = gp;
@@ -54,5 +53,9 @@ public abstract class Entity {
     public void setLocation(int row, int col) {
         worldX = col * gp.tileSize;
         worldY = row * gp.tileSize;
+    }
+
+    public void setInventory(Item[] inventory) {
+        this.inventory = inventory;
     }
 }

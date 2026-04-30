@@ -94,8 +94,6 @@ public class UI {
         }
 
         Item[] inventory = player.getInventory();
-        int[] amounts = player.getItemAmounts();
-
         int frameX = gp.tileSize;
         int frameY = gp.tileSize;
         int frameWidth = gp.screenWidth - (gp.tileSize * 2);
@@ -125,7 +123,7 @@ public class UI {
             } else {
                 g2.setColor(new Color(170, 170, 170));
             }
-            String itemText = inventory[i].getName() + " " + amounts[i] + "x";
+            String itemText = inventory[i].getName() + " " + inventory[i].getQuantity() + "x";
             g2.drawString(itemText, listStartX, rowY);
         }
         int subtitleY = frameY + frameHeight - gp.tileSize - 54;

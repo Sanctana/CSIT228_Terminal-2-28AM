@@ -186,7 +186,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void endBattle(Character battlePlayer, boolean lostBattle) {
         player.heartRate = battlePlayer.getHeartBeat();
-        player.itemAmounts = battlePlayer.getItemAmounts().clone();
+        player.setInventory(battlePlayer.getInventory());
 
         if (activeBattlePanel != null) {
             remove(activeBattlePanel);
