@@ -5,22 +5,23 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.Point;
 import java.util.Stack;
 import javax.swing.JPanel;
 
+import Maps.Map;
 import Maps.ThirdFloorMap;
 import UI.UI;
+import Utilities.UtilityTool;
+import Utilities.States.EntityState;
 import Utilities.States.GameState;
 import battle.BattleLauncher;
-import battle.Character;
 import battle.Enemy;
+import entity.Player.Character;
+import entity.Player.CharacterType;
 import environment.EnvironmentManager;
-import entity.CharacterType;
-import entity.Player;
-import entity.EntityState;
-import tile.Map;
 
 enum Transitions {
     NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP
@@ -32,23 +33,22 @@ public class GamePanel extends JPanel implements Runnable {
     private final int FPS = 60;
     private final int maxScreenCol = 20;
     private final int maxScreenRow = 12;
+    private static final double WORLD_ZOOM = 1.0;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
     public int screenWidth = tileSize * maxScreenCol;
     public int screenHeight = tileSize * maxScreenRow;
 
     private final SoundManager music = new SoundManager();
+    private final Thread gameThread;
 
-    // FULL SCREEN
     private BufferedImage tempScreen;
     private Graphics2D graphics2d;
-    private final Object renderLock = new Object();
 
     public Map map;
-    private final Thread gameThread;
     public CollisionChecker cChecker;
     public UI ui;
-    public Player player;
+    public Character player;
     public GameState gameState;
     public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
                                                                  // transitions
@@ -66,8 +66,8 @@ public class GamePanel extends JPanel implements Runnable {
 
     private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
-    EnvironmentManager eManager = new EnvironmentManager(this);
-    KeyHandler keyH = new KeyHandler(this);
+    private EnvironmentManager eManager = new EnvironmentManager(this);
+    private final KeyHandler keyH = new KeyHandler(this);
 
     public GamePanel() {
         this.setLayout(null);
@@ -95,10 +95,10 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setFullScreen() {
-        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Main.window);
+        GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(Game.window);
 
-        screenWidth = Main.window.getWidth();
-        screenHeight = Main.window.getHeight();
+        screenWidth = Game.window.getWidth();
+        screenHeight = Game.window.getHeight();
     }
 
     public void startGameThread() {
@@ -168,12 +168,12 @@ public class GamePanel extends JPanel implements Runnable {
                 new BattleLauncher.BattleResultListener() {
                     @Override
                     public void onBattleWon(Character battlePlayer) {
-                        endBattle(battlePlayer, false);
+                        endBattle(false);
                     }
 
                     @Override
                     public void onBattleLost(Character battlePlayer) {
-                        endBattle(battlePlayer, true);
+                        endBattle(true);
                     }
                 });
         activeBattlePanel.setBounds(0, 0, screenWidth, screenHeight);
@@ -184,27 +184,19 @@ public class GamePanel extends JPanel implements Runnable {
         gameState = GameState.BATTLE;
     }
 
-    private void endBattle(Character battlePlayer, boolean lostBattle) {
-        player.heartRate = battlePlayer.getHeartBeat();
-        player.itemAmounts = battlePlayer.getItemAmounts().clone();
-
+    private void endBattle(boolean lostBattle) {
         if (activeBattlePanel != null) {
             remove(activeBattlePanel);
             activeBattlePanel = null;
         }
 
         pendingEnemy = null;
-        player.state = EntityState.IDLE;
 
         revalidate();
         repaint();
         requestFocusInWindow();
 
-        if (lostBattle) {
-            startRespawnTransition(Transitions.GAME_OVER);
-        } else {
-            startRespawnTransition(Transitions.BATTLE_RETURN);
-        }
+        transitionPhase = lostBattle ? Transitions.GAME_OVER : Transitions.BATTLE_RETURN;
         respawnFadeAlpha = 255;
     }
 
@@ -219,7 +211,7 @@ public class GamePanel extends JPanel implements Runnable {
             return;
         }
 
-        player = new Player(this, keyH, characterType);
+        player = UtilityTool.characterFactory(characterType, this);
         startRespawnTransition(Transitions.NEW_GAME);
     }
 
@@ -236,8 +228,9 @@ public class GamePanel extends JPanel implements Runnable {
         pendingEnemy = null;
         previousPlayerPositions.clear();
 
+        // Please check if this is really 70 since some Character sets it to 100 upon
+        // creation
         player.heartRate = 70;
-        player.state = EntityState.IDLE;
         player.setDefaultValues();
         keyH.resetMovementInput();
 
@@ -361,7 +354,7 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        synchronized (renderLock) {
+        synchronized (this) {
             if (tempScreen != null) {
                 g.drawImage(tempScreen, 0, 0, screenWidth, screenHeight, null);
             }
@@ -369,7 +362,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void drawToTempScreen() {
-        synchronized (renderLock) {
+        synchronized (this) {
             // clear / background
             graphics2d.setColor(getBackground());
             graphics2d.fillRect(0, 0, screenWidth, screenHeight);
@@ -382,13 +375,20 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.draw();
                 drawRespawnTransition();
                 return;
-            }
+            } else if (gameState != GameState.BATTLE) {
+                AffineTransform originalTransform = graphics2d.getTransform();
+                graphics2d.scale(WORLD_ZOOM, WORLD_ZOOM);
+                graphics2d.translate((screenWidth / 2.0) * (1.0 / WORLD_ZOOM - 1.0),
+                        (screenHeight / 2.0) * (1.0 / WORLD_ZOOM - 1.0));
 
-            map.draw(graphics2d);
-            player.draw(graphics2d);
-            eManager.draw(graphics2d);
-            ui.draw();
-            drawRespawnTransition();
+                map.draw(graphics2d);
+                player.draw(graphics2d);
+                eManager.draw(graphics2d);
+
+                graphics2d.setTransform(originalTransform);
+                ui.draw();
+                drawRespawnTransition();
+            }
         }
     }
 
@@ -407,4 +407,11 @@ public class GamePanel extends JPanel implements Runnable {
         music.loop();
     }
 
+    public KeyHandler getKeyHandler() {
+        return keyH;
+    }
+
+    public double getWorldZoom() {
+        return WORLD_ZOOM;
+    }
 }

@@ -1,4 +1,4 @@
-package entity;
+package entity.Player;
 
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -8,6 +8,7 @@ import Inventory.Item;
 import battle.Action;
 import battle.Skill;
 import Utilities.States.Direction;
+import Utilities.States.EntityState;
 import main.GamePanel;
 
 public abstract class Entity {
@@ -27,8 +28,7 @@ public abstract class Entity {
     public double initialResistance = 0.1;
     public ArrayList<Skill> skills = new ArrayList<>();
     public ArrayList<Action> actions = new ArrayList<>();
-    public Item[] inventory = new Item[3];
-    public int[] itemAmounts = { 3, 9, 3 };
+    protected Item[] inventory;
 
     public Entity(GamePanel gp) {
         this.gp = gp;
@@ -47,8 +47,7 @@ public abstract class Entity {
     }
 
     public void takeDamage(int damage) {
-        int finalDamage = (int) (damage - (damage * resistance));
-        this.heartRate -= finalDamage;
+        this.heartRate -= (int) (damage - (damage * resistance));
     }
 
     public void setLocation(int row, int col) {

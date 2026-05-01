@@ -1,25 +1,21 @@
 package battle;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public abstract class Enemy {
     protected int health;
-    protected boolean isIncreasingDamage;
     protected ArrayList<EnemySkill> skills = new ArrayList<>();
-    private int damageOutput;
-    protected Random rand = new Random();
 
     public int skill() {
         if (skills.isEmpty())
             return 0; // No skills, no damage
 
-        EnemySkill chosenSkill = skills.get(rand.nextInt(skills.size()));// pick random skill
+        EnemySkill chosenSkill = skills.get((int) (Math.random() * skills.size()));
 
         int minDmg = chosenSkill.getFloorDMG();
         int maxDmg = chosenSkill.getCeilDMG();
 
-        damageOutput = rand.nextInt(maxDmg - minDmg + 1) + minDmg;
+        int damageOutput = (int) (Math.random() * (maxDmg - minDmg + 1)) + minDmg;
         if (chosenSkill.getIsIncreasingDamage()) {
             damageOutput *= -1;
         }

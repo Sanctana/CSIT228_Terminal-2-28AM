@@ -1,4 +1,4 @@
-package tile;
+package Maps;
 
 import javax.imageio.ImageIO;
 import java.io.BufferedReader;
@@ -18,8 +18,8 @@ import java.awt.Point;
 import java.awt.Graphics2D;
 
 import main.GamePanel;
-import entity.EntityState;
 import Utilities.UtilityTool;
+import Utilities.States.EntityState;
 import Utilities.States.TileType;
 
 public abstract class Map {
@@ -116,10 +116,14 @@ public abstract class Map {
     }
 
     public void draw(Graphics2D g2) {
-        int leftCol = Math.max(0, (gp.player.worldX - gp.player.screenX) / gp.tileSize - 1);
-        int rightCol = (gp.player.worldX + gp.player.screenX) / gp.tileSize + 1;
-        int topRow = Math.max(0, (gp.player.worldY - gp.player.screenY) / gp.tileSize - 1);
-        int bottomRow = Math.min(maxWorldRow - 1, (gp.player.worldY + gp.player.screenY) / gp.tileSize + 1);
+        double zoom = gp.getWorldZoom();
+        double visibleHalfWidth = gp.screenWidth / (2.0 * zoom);
+        double visibleHalfHeight = gp.screenHeight / (2.0 * zoom);
+
+        int leftCol = Math.max(0, (int) ((gp.player.worldX - visibleHalfWidth) / gp.tileSize) - 1);
+        int rightCol = Math.min(maxWorldCol - 1, (int) ((gp.player.worldX + visibleHalfWidth) / gp.tileSize) + 1);
+        int topRow = Math.max(0, (int) ((gp.player.worldY - visibleHalfHeight) / gp.tileSize) - 1);
+        int bottomRow = Math.min(maxWorldRow - 1, (int) ((gp.player.worldY + visibleHalfHeight) / gp.tileSize) + 1);
 
         for (int worldRow = topRow; worldRow <= bottomRow; worldRow++) {
             int[] rowTiles = mapTileNum.get(worldRow);

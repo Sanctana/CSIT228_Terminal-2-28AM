@@ -1,7 +1,6 @@
 package Maps;
 
 import main.GamePanel;
-import tile.Map;
 
 public class SecondFloorMap extends Map {
     public SecondFloorMap(GamePanel gp) {

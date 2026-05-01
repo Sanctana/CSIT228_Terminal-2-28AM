@@ -1,13 +1,17 @@
 package Inventory;
 
+import entity.Player.Character;
+
 public class Scalpel extends Item {
 
-    public Scalpel() {
-        super("Scalpel", "Reduces 40 heartbeat to the player.");
+    public Scalpel(int quantity) {
+        super("Scalpel", "Reduces 40 heartbeat to the player.", quantity);
     }
 
     @Override
-    public void use(battle.Character character) {
-        character.setHeartBeat(character.getHeartBeat() - 40);
+    public void use(Character character) {
+        if (use()) {
+            character.setHeartBeat(character.getHeartBeat() - 40);
+        }
     }
 }

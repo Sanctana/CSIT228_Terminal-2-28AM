@@ -1,10 +1,13 @@
-package battle;
+package entity.Enemy;
+
+import battle.Enemy;
+import battle.EnemySkill;
 
 public class Scalper extends Enemy {
     public Scalper() {
         this.health = 200;
-        this.skills.add(new EnemySkill(5, 15,false));
-        this.skills.add(new EnemySkill(10, 20,false));
+        this.skills.add(new EnemySkill(5, 15, false));
+        this.skills.add(new EnemySkill(10, 20, false));
     }
 
     @Override

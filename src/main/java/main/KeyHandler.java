@@ -3,8 +3,8 @@ package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import entity.CharacterType;
 import Utilities.States.TitleScreenState;
+import entity.Player.CharacterType;
 import Utilities.States.GameState;
 
 public class KeyHandler implements KeyListener {
@@ -143,10 +143,7 @@ public class KeyHandler implements KeyListener {
     }
 
     public void resetMovementInput() {
-        upPressed = false;
-        downPressed = false;
-        leftPressed = false;
-        rightPressed = false;
+        upPressed = downPressed = leftPressed = rightPressed = false;
     }
 
     @Override

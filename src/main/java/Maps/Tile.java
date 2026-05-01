@@ -1,4 +1,4 @@
-package tile;
+package Maps;
 
 import java.awt.image.BufferedImage;
 
@@ -14,19 +14,7 @@ public class Tile {
         this.tileType = tileType;
     }
 
-    public Tile setTileType(TileType tileType) {
-        this.tileType = tileType;
-        return this;
-    }
-
     public TileType getTileType() {
         return tileType;
-    }
-
-    @Override
-    public String toString() {
-        return "Tile{" +
-                "tileType=" + tileType +
-                '}';
     }
 }

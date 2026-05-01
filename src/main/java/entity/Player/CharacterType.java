@@ -1,4 +1,4 @@
-package entity;
+package entity.Player;
 
 public enum CharacterType {
 	OFFICER,

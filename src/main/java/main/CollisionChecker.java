@@ -1,8 +1,8 @@
 package main;
 
+import Utilities.States.EntityState;
 import Utilities.States.TileType;
-import entity.Entity;
-import entity.EntityState;
+import entity.Player.Entity;
 
 public class CollisionChecker {
     GamePanel gp;
@@ -76,7 +76,7 @@ public class CollisionChecker {
 
         if (isWalkable(tileType1) && isWalkable(tileType2)) {
             entity.state = EntityState.MOVING;
-        }else if (tileType1 == TileType.TO_NEXT_MAP || tileType2 == TileType.TO_NEXT_MAP) {
+        } else if (tileType1 == TileType.TO_NEXT_MAP || tileType2 == TileType.TO_NEXT_MAP) {
             entity.state = EntityState.TO_NEXT_MAP;
         } else if (tileType1 == TileType.TO_PREVIOUS_MAP || tileType2 == TileType.TO_PREVIOUS_MAP) {
             entity.state = EntityState.TO_PREVIOUS_MAP;
