@@ -33,7 +33,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int FPS = 60;
     private final int maxScreenCol = 20;
     private final int maxScreenRow = 12;
-    private static final double WORLD_ZOOM = 1.0;
+    private static final double WORLD_ZOOM = 1.5;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
     public int screenWidth = tileSize * maxScreenCol;
