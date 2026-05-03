@@ -77,13 +77,15 @@ public class UI {
             return;
         }
 
+        boolean bossEncounter = gp.isBossEncounter();
+
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 54F));
-        g2.setColor(new Color(255, 255, 255, titleAlpha));
-        String title = "Enemy Found";
+        g2.setColor(bossEncounter ? new Color(210, 20, 20, titleAlpha) : new Color(255, 255, 255, titleAlpha));
+        String title = bossEncounter ? "Boss Encounter" : "Enemy Found";
         g2.drawString(title, getXforCenteredText(title), gp.screenHeight / 2 - 20);
 
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 32F));
-        g2.setColor(new Color(220, 220, 220, subtitleAlpha));
+        g2.setColor(bossEncounter ? new Color(255, 120, 120, subtitleAlpha) : new Color(220, 220, 220, subtitleAlpha));
         String enemyText = gp.getEncounterMessage();
         g2.drawString(enemyText, getXforCenteredText(enemyText), gp.screenHeight / 2 + 35);
     }

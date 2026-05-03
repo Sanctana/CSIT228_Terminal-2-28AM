@@ -19,6 +19,8 @@ import Utilities.States.EntityState;
 import Utilities.States.GameState;
 import battle.BattleLauncher;
 import battle.Enemy;
+import entity.Boss.GuidanceP1;
+import entity.Boss.GuidanceP2;
 import entity.Player.Character;
 import entity.Player.CharacterType;
 import environment.EnvironmentManager;
@@ -56,6 +58,8 @@ public class GamePanel extends JPanel implements Runnable {
     private Enemy pendingEnemy;
     private long encounterStartTime;
     private String encounterMessage = "";
+    private boolean bossEncounter = false;
+    private boolean pendingBossMapTransition = false;
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
 
@@ -138,6 +142,8 @@ public class GamePanel extends JPanel implements Runnable {
             player.update();
             if (player.heartRate <= 40 || player.heartRate >= 180) {
                 gameState = GameState.GAME_OVER;
+            } else if (player.state == EntityState.TO_NEXT_MAP && triggerBossBeforeNextFloor()) {
+                return;
             } else if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
                 startRespawnTransition(Transitions.CHANGE_MAP);
             }
@@ -158,7 +164,28 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         pendingEnemy = BattleLauncher.createRandomEnemy();
-        encounterMessage = pendingEnemy.getClass().getSimpleName() + " appeared";
+        startEncounter(pendingEnemy, pendingEnemy.getDisplayName() + " appeared", false, false);
+    }
+
+    private boolean triggerBossBeforeNextFloor() {
+        if ("3RD FLOOR".equals(map.getMapName())) {
+            startEncounter(new GuidanceP1(), "Guidance P1 blocks the descent", true, true);
+            return true;
+        }
+
+        if ("2ND FLOOR".equals(map.getMapName())) {
+            startEncounter(new GuidanceP2(), "Guidance P2 waits beyond the door", true, true);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void startEncounter(Enemy enemy, String message, boolean isBossEncounter, boolean changeMapAfterVictory) {
+        pendingEnemy = enemy;
+        encounterMessage = message;
+        bossEncounter = isBossEncounter;
+        pendingBossMapTransition = changeMapAfterVictory;
         encounterStartTime = System.currentTimeMillis();
         gameState = GameState.ENEMY_ENCOUNTER;
     }
@@ -190,13 +217,18 @@ public class GamePanel extends JPanel implements Runnable {
             activeBattlePanel = null;
         }
 
+        boolean shouldChangeMap = pendingBossMapTransition && !lostBattle;
+
         pendingEnemy = null;
+        bossEncounter = false;
+        pendingBossMapTransition = false;
 
         revalidate();
         repaint();
         requestFocusInWindow();
 
-        transitionPhase = lostBattle ? Transitions.GAME_OVER : Transitions.BATTLE_RETURN;
+        transitionPhase = lostBattle ? Transitions.GAME_OVER
+                : shouldChangeMap ? Transitions.CHANGE_MAP : Transitions.BATTLE_RETURN;
         respawnFadeAlpha = 255;
     }
 
@@ -226,6 +258,8 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         pendingEnemy = null;
+        bossEncounter = false;
+        pendingBossMapTransition = false;
         previousPlayerPositions.clear();
 
         // Please check if this is really 70 since some Character sets it to 100 upon
@@ -302,6 +336,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                 }
                 player.state = EntityState.IDLE;
+                gameState = GameState.PLAY;
             }
             case NONE -> {
                 // No action needed
@@ -317,12 +352,18 @@ public class GamePanel extends JPanel implements Runnable {
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
+        bossEncounter = false;
+        pendingBossMapTransition = false;
         keyH.resetMovementInput();
         completeFirstLoad();
     }
 
     public String getEncounterMessage() {
         return encounterMessage;
+    }
+
+    public boolean isBossEncounter() {
+        return bossEncounter;
     }
 
     public float getEncounterTransitionProgress() {
@@ -399,6 +440,15 @@ public class GamePanel extends JPanel implements Runnable {
 
         graphics2d.setColor(new Color(0, 0, 0, respawnFadeAlpha));
         graphics2d.fillRect(0, 0, screenWidth, screenHeight);
+
+        if (transitionPhase == Transitions.CHANGE_MAP && RESPAWN_FADE_STEP < 0) {
+            int textAlpha = Math.min(255, respawnFadeAlpha + 40);
+            graphics2d.setColor(new Color(255, 255, 255, textAlpha));
+            graphics2d.setFont(graphics2d.getFont().deriveFont(java.awt.Font.BOLD, 64F));
+            String floorText = map.getMapName();
+            int textWidth = graphics2d.getFontMetrics().stringWidth(floorText);
+            graphics2d.drawString(floorText, (screenWidth - textWidth) / 2, screenHeight / 2);
+        }
     }
 
     public void playMusic(int i) {

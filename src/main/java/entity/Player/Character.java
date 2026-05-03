@@ -89,7 +89,7 @@ public abstract class Character extends Entity {
     }
 
     public void setDefaultValues() {
-        speed = 4;
+        speed = 8;
         direction = Direction.DOWN; // DEFAULT
         state = EntityState.IDLE;
     }

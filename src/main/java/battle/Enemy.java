@@ -38,6 +38,14 @@ public abstract class Enemy {
         return health > 0;
     }
 
+    public String getDisplayName() {
+        return getClass().getSimpleName();
+    }
+
+    public boolean isBoss() {
+        return false;
+    }
+
     public abstract String getIdleURL();
 
     public abstract String getAttackURL();

@@ -219,7 +219,10 @@ public class Panel extends JPanel {
         repaint();
 
         if (enemyHP <= 0) {
-            JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
+            String victoryMessage = enemy.isBoss()
+                    ? enemy.getDisplayName() + " has been defeated. The way down is open."
+                    : "The enemy has been suppressed.";
+            JOptionPane.showMessageDialog(this, victoryMessage);
             startVictoryTransition();
         } else {
             startEnemyTimer();
