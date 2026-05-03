@@ -11,22 +11,27 @@ import java.awt.Point;
 import java.util.Stack;
 import javax.swing.JPanel;
 
+import Maps.FirstFloorMap;
 import Maps.Map;
 import Maps.ThirdFloorMap;
+import Maps.SecondFloorMap;
+import Maps.FirstFloorMap;
 import UI.UI;
 import Utilities.UtilityTool;
 import Utilities.States.EntityState;
 import Utilities.States.GameState;
+import Utilities.States.TitleScreenState;
 import battle.BattleLauncher;
 import battle.Enemy;
 import entity.Boss.GuidanceP1;
 import entity.Boss.GuidanceP2;
+import entity.Boss.GuidanceP3;
 import entity.Player.Character;
 import entity.Player.CharacterType;
 import environment.EnvironmentManager;
 
 enum Transitions {
-    NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP
+    NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN
 }
 
 public class GamePanel extends JPanel implements Runnable {
@@ -60,8 +65,11 @@ public class GamePanel extends JPanel implements Runnable {
     private String encounterMessage = "";
     private boolean bossEncounter = false;
     private boolean pendingBossMapTransition = false;
+    private boolean pendingFinalBossVictory = false;
+    private boolean finalBossDefeated = false;
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
+    private long victoryEndingStartTime = 0L;
 
     private int respawnFadeAlpha = 0;
     private int RESPAWN_FADE_STEP = 18;
@@ -178,6 +186,19 @@ public class GamePanel extends JPanel implements Runnable {
             return true;
         }
 
+        if ("1ST FLOOR".equals(map.getMapName())) {
+            if (finalBossDefeated) {
+                player.state = EntityState.IDLE;
+                keyH.resetMovementInput();
+                showStatusMessage("Guidance P3 defeated");
+                return true;
+            }
+
+            startEncounter(new GuidanceP3(), "Guidance P3 waits at the final exit", true, false);
+            pendingFinalBossVictory = true;
+            return true;
+        }
+
         return false;
     }
 
@@ -186,6 +207,7 @@ public class GamePanel extends JPanel implements Runnable {
         encounterMessage = message;
         bossEncounter = isBossEncounter;
         pendingBossMapTransition = changeMapAfterVictory;
+        pendingFinalBossVictory = false;
         encounterStartTime = System.currentTimeMillis();
         gameState = GameState.ENEMY_ENCOUNTER;
     }
@@ -218,18 +240,80 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         boolean shouldChangeMap = pendingBossMapTransition && !lostBattle;
+        boolean defeatedFinalBoss = pendingFinalBossVictory && !lostBattle;
 
         pendingEnemy = null;
         bossEncounter = false;
         pendingBossMapTransition = false;
+        pendingFinalBossVictory = false;
+
+        if (defeatedFinalBoss) {
+            finalBossDefeated = true;
+            player.state = EntityState.IDLE;
+            showStatusMessage("Guidance P3 defeated");
+        }
 
         revalidate();
         repaint();
         requestFocusInWindow();
 
-        transitionPhase = lostBattle ? Transitions.GAME_OVER
-                : shouldChangeMap ? Transitions.CHANGE_MAP : Transitions.BATTLE_RETURN;
-        respawnFadeAlpha = 255;
+        if (defeatedFinalBoss) {
+            startVictoryEnding();
+        } else {
+            transitionPhase = lostBattle ? Transitions.GAME_OVER
+                    : shouldChangeMap ? Transitions.CHANGE_MAP : Transitions.BATTLE_RETURN;
+            respawnFadeAlpha = 255;
+        }
+    }
+
+    private void startVictoryEnding() {
+        transitionPhase = Transitions.NONE;
+        respawnFadeAlpha = 0;
+        keyH.resetMovementInput();
+        victoryEndingStartTime = System.currentTimeMillis();
+        gameState = GameState.VICTORY_ENDING;
+    }
+
+    public long getVictoryEndingElapsedMillis() {
+        if (gameState != GameState.VICTORY_ENDING) {
+            return 0L;
+        }
+
+        return System.currentTimeMillis() - victoryEndingStartTime;
+    }
+
+    public boolean isVictoryEndingComplete() {
+        return getVictoryEndingElapsedMillis() >= UI.VICTORY_ENDING_COMPLETE_MS;
+    }
+
+    public void requestReturnToMainMenu() {
+        if (gameState != GameState.VICTORY_ENDING || !isVictoryEndingComplete()) {
+            return;
+        }
+
+        transitionPhase = Transitions.VICTORY_RETURN;
+        respawnFadeAlpha = 0;
+        keyH.resetMovementInput();
+    }
+
+    private void completeReturnToMainMenu() {
+        player = null;
+        map = new ThirdFloorMap(this);
+        previousPlayerPositions.clear();
+        pendingEnemy = null;
+        bossEncounter = false;
+        pendingBossMapTransition = false;
+        pendingFinalBossVictory = false;
+        finalBossDefeated = false;
+        statusMessage = "";
+        victoryEndingStartTime = 0L;
+        keyH.resetMovementInput();
+        ui.titleScreenState = TitleScreenState.MAIN_MENU;
+        ui.commandNum = 0;
+        gameState = GameState.TITLE;
+        revalidate();
+        repaint();
+        requestFocusInWindow();
     }
 
     public void requestRespawn() {
@@ -260,6 +344,8 @@ public class GamePanel extends JPanel implements Runnable {
         pendingEnemy = null;
         bossEncounter = false;
         pendingBossMapTransition = false;
+        pendingFinalBossVictory = false;
+        finalBossDefeated = false;
         previousPlayerPositions.clear();
 
         // Please check if this is really 70 since some Character sets it to 100 upon
@@ -319,6 +405,7 @@ public class GamePanel extends JPanel implements Runnable {
                 gameState = GameState.PLAY;
             }
             case GAME_OVER -> gameState = GameState.GAME_OVER;
+            case VICTORY_RETURN -> completeReturnToMainMenu();
             case CHANGE_MAP -> {
                 if (player.state == EntityState.TO_NEXT_MAP) {
                     player.storeCurrentPosition();
@@ -354,6 +441,8 @@ public class GamePanel extends JPanel implements Runnable {
         pendingEnemy = null;
         bossEncounter = false;
         pendingBossMapTransition = false;
+        pendingFinalBossVictory = false;
+        finalBossDefeated = false;
         keyH.resetMovementInput();
         completeFirstLoad();
     }
@@ -413,6 +502,10 @@ public class GamePanel extends JPanel implements Runnable {
             }
             // TITLE SCREEN
             if (gameState == GameState.TITLE) {
+                ui.draw();
+                drawRespawnTransition();
+                return;
+            } else if (gameState == GameState.VICTORY_ENDING) {
                 ui.draw();
                 drawRespawnTransition();
                 return;

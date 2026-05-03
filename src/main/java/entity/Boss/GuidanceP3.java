@@ -19,4 +19,14 @@ public class GuidanceP3 extends Enemy {
     public String getAttackURL() {
         return "/Assets/EnemiesSprites/Guidance_P3_Attack.gif";
     }
+
+    @Override
+    public String getDisplayName() {
+        return "Guidance P3";
+    }
+
+    @Override
+    public boolean isBoss() {
+        return true;
+    }
 }

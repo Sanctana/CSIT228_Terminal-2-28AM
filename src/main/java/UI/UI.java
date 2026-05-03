@@ -11,6 +11,8 @@ import Utilities.States.TitleScreenState;
 import entity.Player.Character;
 
 public class UI {
+    public static final long VICTORY_ENDING_COMPLETE_MS = 56_000L;
+
     private GamePanel gp;
     private Graphics2D g2;
 
@@ -52,6 +54,149 @@ public class UI {
             drawPlayerUI();
             drawGameOverScreen();
         }
+        case VICTORY_ENDING -> drawVictoryEnding();
+        }
+    }
+
+    private void drawVictoryEnding() {
+        long elapsed = gp.getVictoryEndingElapsedMillis();
+
+        g2.setColor(Color.black);
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        drawVictoryCredits(elapsed);
+
+        if (elapsed >= VICTORY_ENDING_COMPLETE_MS) {
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+            int alpha = Math.min(255, (int) ((elapsed - VICTORY_ENDING_COMPLETE_MS) / 4));
+            g2.setColor(new Color(230, 230, 230, alpha));
+            String text = "Press Enter to play again";
+            g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2);
+        }
+    }
+
+    private void drawVictoryCredits(long elapsed) {
+        long scrollElapsed = elapsed - 800L;
+        if (scrollElapsed < 0 || elapsed >= VICTORY_ENDING_COMPLETE_MS) {
+            return;
+        }
+
+        String[] lines = {
+                "Terminal 2:28 AM",
+                "The hospital grows quiet",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                """
+                Thank you for playing this
+                game, we really appreciated the
+                support You gave us while we are
+                doing this project.
+                
+                We will always love you!
+                    
+                - Test Only
+                """,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Created by:",
+                "Team Sactana",
+                "",
+                "",
+                "Game design, programming, and graphics:",
+                "Abarquez Yohann",
+                "Trixy Flores",
+                "Loyd Hernaez",
+                "Andrew Sangasina",
+                "Trea Tangpos",
+                "",
+                "",
+                "Story and atmosphere:",
+                "Team Sactana",
+                "",
+                "",
+                "Battle system:",
+                "Team Sactana",
+                "",
+                "",
+                "Maps and level layout:",
+                "Team Sactana",
+                "",
+                "",
+                "Special thanks:",
+                "Our instructor",
+                "Our classmates",
+                """
+                Everyone who played and 
+                tested Terminal 2:28 AM
+                """,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Thank you for reaching the end.",
+                "The night is over."
+        };
+
+        float fadeIn = Math.min(1F, scrollElapsed / 2000F);
+        int baseAlpha = Math.min(255, Math.round(255 * fadeIn));
+        int y = gp.screenHeight + 90 - Math.round(scrollElapsed * 0.06F);
+
+        for (String line : lines) {
+            boolean title = "Terminal 2:28 AM".equals(line);
+            boolean subtitle = "The hospital grows quiet".equals(line);
+            boolean heading = line.endsWith(":");
+            boolean message = line.contains("Thank you for playing this");
+            boolean closing = line.startsWith("Thank you");
+
+            if (title) {
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 58F));
+                g2.setColor(new Color(190, 30, 30, baseAlpha));
+            } else if (subtitle || message) {
+                g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
+                g2.setColor(new Color(225, 225, 225, baseAlpha));
+            } else if (heading) {
+                g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+                g2.setColor(new Color(205, 55, 55, baseAlpha));
+            } else if (closing) {
+                g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 36F));
+                g2.setColor(new Color(255, 255, 255, baseAlpha));
+            } else {
+                g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
+                g2.setColor(new Color(210, 210, 210, baseAlpha));
+            }
+
+            String[] displayLines = line.split("\\R");
+            for (String rawDisplayLine : displayLines) {
+                String displayLine = rawDisplayLine.strip();
+
+                if (displayLine.isBlank()) {
+                    y += 34;
+                    continue;
+                }
+
+                if (y > -60 && y < gp.screenHeight + 80) {
+                    g2.drawString(displayLine, getXforCenteredText(displayLine), y);
+                }
+
+                y += title ? 58 : heading ? 48 : 40;
+            }
         }
     }
 
@@ -172,101 +317,52 @@ public class UI {
         g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
         if (titleScreenState == TitleScreenState.MAIN_MENU) {
-            // TITLE NAME
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));
             String text = "Terminal 2:28 AM";
             int x = getXforCenteredText(text);
-            int y = gp.tileSize * 3;
+            int y = gp.screenHeight / 2 - 155;
 
-            // SHADOW
             g2.setColor(Color.gray);
             g2.drawString(text, x + 5, y + 5);
-            // MAIN COLOR
             g2.setColor(Color.white);
             g2.drawString(text, x, y);
 
-            // MENU
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 48F));
-
-            text = "NEW GAME";
-            x = getXforCenteredText(text);
-            y += gp.tileSize * 3.5;
-            g2.drawString(text, x, y);
-            if (commandNum == 0) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
-
-            text = "LOAD GAME";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 1) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
-
-            text = "QUIT";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 2) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+            String[] options = { "NEW GAME", "LOAD GAME", "QUIT" };
+            drawCenteredMenuOptions(options, gp.screenHeight / 2 + 85, 62, 48F);
         } else if (titleScreenState == TitleScreenState.CHARACTER_SELECT) {
             g2.setColor(Color.white);
-            g2.setFont(g2.getFont().deriveFont(42F));
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 42F));
 
-            String text = "Select your character";
+            String text = "Select your Character";
             int x = getXforCenteredText(text);
-            int y = gp.tileSize * 2;
+            int y = gp.screenHeight / 2 - 220;
             g2.drawString(text, x, y);
 
-            text = "Detective";
-            x = getXforCenteredText(text);
-            y += gp.tileSize * 2;
-            g2.drawString(text, x, y);
-            if (commandNum == 0) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+            String[] options = { "Detective", "Officer", "Intruder", "Artist", "Collector" };
+            drawCenteredMenuOptions(options, gp.screenHeight / 2 - 95, 58, 42F);
+            drawCenteredMenuOption("Back", 5, gp.screenHeight / 2 + 255, 42F);
+        }
+    }
 
-            text = "Officer";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 1) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+    private void drawCenteredMenuOptions(String[] options, int startY, int rowHeight, float fontSize) {
+        int y = startY;
 
-            text = "Intruder";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 2) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+        for (int i = 0; i < options.length; i++) {
+            drawCenteredMenuOption(options[i], i, y, fontSize);
+            y += rowHeight;
+        }
+    }
 
-            text = "Artist";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 3) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+    private void drawCenteredMenuOption(String text, int optionIndex, int y, float fontSize) {
+        boolean selected = commandNum == optionIndex;
+        g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
+        g2.setColor(selected ? Color.white : new Color(205, 205, 205));
 
-            text = "Collector";
-            x = getXforCenteredText(text);
-            y += gp.tileSize;
-            g2.drawString(text, x, y);
-            if (commandNum == 4) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+        int x = getXforCenteredText(text);
+        g2.drawString(text, x, y);
 
-            text = "Back";
-            x = getXforCenteredText(text);
-            y += gp.tileSize * 2;
-            g2.drawString(text, x, y);
-            if (commandNum == 5) {
-                g2.drawString(">", x - gp.tileSize, y);
-            }
+        if (selected) {
+            g2.drawString(">", x - gp.tileSize, y);
         }
     }
 

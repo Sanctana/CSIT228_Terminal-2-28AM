@@ -39,6 +39,11 @@ public class KeyHandler implements KeyListener {
             return;
         }
 
+        if (gp.gameState == GameState.VICTORY_ENDING) {
+            handleVictoryEndingInput(code);
+            return;
+        }
+
         if (gp.gameState != GameState.PLAY && gp.gameState != GameState.PAUSE) {
             return;
         }
@@ -71,6 +76,12 @@ public class KeyHandler implements KeyListener {
     private void handleGameOverInput(int code) {
         if (code == KeyEvent.VK_ENTER) {
             gp.requestRespawn();
+        }
+    }
+
+    private void handleVictoryEndingInput(int code) {
+        if (code == KeyEvent.VK_ENTER && gp.isVictoryEndingComplete()) {
+            gp.requestReturnToMainMenu();
         }
     }
 
@@ -131,13 +142,15 @@ public class KeyHandler implements KeyListener {
             case 2 -> selectedCharacter = CharacterType.INTRUDER;
             case 3 -> selectedCharacter = CharacterType.ARTIST;
             case 4 -> selectedCharacter = CharacterType.COLLECTOR;
-            case 5 -> gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
+            case 5 -> {
+                gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
+                gp.ui.commandNum = 0;
+            }
             }
 
             if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
                 gp.requestNewGame(selectedCharacter);
             }
-            gp.ui.commandNum = 0; // Reset selection for next time
         }
 
     }
