@@ -6,8 +6,8 @@ import battle.EnemySkill;
 public class GuidanceP1 extends Enemy {
     public GuidanceP1() {
         this.health = 750;
-        this.skills.add(new EnemySkill(15, 35, true));
-        this.skills.add(new EnemySkill(15, 35, false));
+        this.skills.add(new EnemySkill(15, 30, true));
+        this.skills.add(new EnemySkill(15, 30, false));
     }
 
     @Override
