@@ -150,8 +150,8 @@ public class GamePanel extends JPanel implements Runnable {
             player.update();
             if (player.heartRate <= 40 || player.heartRate >= 180) {
                 gameState = GameState.GAME_OVER;
-           // } else if (player.state == EntityState.TO_NEXT_MAP && triggerBossBeforeNextFloor()) {
-             //   return;
+            } else if (player.state == EntityState.TO_NEXT_MAP && triggerBossBeforeNextFloor()) {
+                return;
             } else if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
                 startRespawnTransition(Transitions.CHANGE_MAP);
             }
