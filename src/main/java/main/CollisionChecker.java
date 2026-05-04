@@ -1,8 +1,8 @@
 package main;
 
-import Utilities.States.EntityState;
-import Utilities.States.TileType;
-import entity.Player.Entity;
+import entity.player.Entity;
+import utilities.states.EntityState;
+import utilities.states.TileType;
 
 public class CollisionChecker {
     GamePanel gp;

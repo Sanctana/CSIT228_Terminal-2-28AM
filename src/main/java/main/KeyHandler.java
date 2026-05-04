@@ -3,9 +3,9 @@ package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import Utilities.States.TitleScreenState;
-import entity.Player.CharacterType;
-import Utilities.States.GameState;
+import entity.player.CharacterType;
+import utilities.states.GameState;
+import utilities.states.TitleScreenState;
 
 public class KeyHandler implements KeyListener {
     GamePanel gp;

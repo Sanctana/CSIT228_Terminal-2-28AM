@@ -2,10 +2,10 @@ package battle;
 
 import javax.swing.JFrame;
 
-import Utilities.UtilityTool;
-import entity.Player.Character;
-import entity.Player.CharacterType;
+import entity.player.Character;
+import entity.player.CharacterType;
 import main.GamePanel;
+import utilities.UtilityTool;
 
 public class Main {
     public static void main(String[] args) {

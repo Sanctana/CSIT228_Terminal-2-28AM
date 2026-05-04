@@ -1,11 +1,12 @@
 package battle;
 
 import main.GamePanel;
+import utilities.UtilityTool;
+
 import javax.swing.JPanel;
 
-import Utilities.UtilityTool;
-import entity.Enemy.Enemy;
-import entity.Player.Character;
+import entity.enemy.Enemy;
+import entity.player.Character;
 
 public final class BattleLauncher {
 

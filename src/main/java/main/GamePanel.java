@@ -11,18 +11,18 @@ import java.awt.Point;
 import java.util.Stack;
 import javax.swing.JPanel;
 
-import Maps.Map;
-import Maps.ThirdFloorMap;
-import UI.UI;
-import Utilities.UtilityTool;
-import Utilities.States.EntityState;
-import Utilities.States.GameState;
-import Utilities.States.TitleScreenState;
 import battle.BattleLauncher;
-import entity.Enemy.Enemy;
-import entity.Player.Character;
-import entity.Player.CharacterType;
+import entity.enemy.Enemy;
+import entity.player.Character;
+import entity.player.CharacterType;
 import environment.EnvironmentManager;
+import maps.Map;
+import maps.ThirdFloorMap;
+import ui.UI;
+import utilities.UtilityTool;
+import utilities.states.EntityState;
+import utilities.states.GameState;
+import utilities.states.TitleScreenState;
 
 enum Transitions {
     NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN
@@ -72,7 +72,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
-   // private EnvironmentManager eManager = new EnvironmentManager(this);
+   private EnvironmentManager eManager = new EnvironmentManager(this);
     private final KeyHandler keyH = new KeyHandler(this);
 
     public GamePanel() {
@@ -89,7 +89,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame() {
-        //eManager.setup();
+        eManager.setup();
         gameState = GameState.TITLE;
 
         // playMusic(0);
