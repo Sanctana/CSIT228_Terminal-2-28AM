@@ -91,4 +91,9 @@ public class Detective extends Character {
             resetRevolver();
         }
     }
+
+    @Override
+    public String getPlayerPortraitPath() {
+        return "/player/Detective/Detective_Icon.jpg";
+    }
 }

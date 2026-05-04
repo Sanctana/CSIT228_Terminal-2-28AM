@@ -12,7 +12,10 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import battle.BattleLauncher.BattleResultListener;
 import entity.enemy.Enemy;
@@ -68,26 +71,7 @@ public class Panel extends JPanel {
     }
 
     private Image loadPlayerPortrait() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource(getPlayerPortraitPath()))).getImage();
-    }
-
-    private String getPlayerPortraitPath() {
-        if (player instanceof Detective) {
-            return "/player/Detective/Detective_Icon.jpg";
-        }
-        if (player instanceof Officer) {
-            return "/player/Officer/Officer_Icon.jpg";
-        }
-        if (player instanceof Intruder) {
-            return "/player/Intruder/Intruder_Icon.jpg";
-        }
-        if (player instanceof Artist) {
-            return "/player/Artist/Artist_Icon.jpg";
-        }
-        if (player instanceof DebtCollector) {
-            return "/player/Collector/Collector_Icon.jpg";
-        }
-        return "/Assets/andrew.png";
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource(player.getPlayerPortraitPath()))).getImage();
     }
 
     private void initButtons() {
@@ -236,30 +220,6 @@ public class Panel extends JPanel {
         startEnemyTimer();
     }
 
-    //old code
-
-//    private void applyPlayerAction(int damage) {
-//        isProcessing = true;
-//        if (gp.isOneShotModeEnabled()) {
-//            damage = Math.max(damage, maxEnemyHP);
-//        }
-//        enemyHP = Math.max(0, enemyHP - damage);
-//        player.resetResistance();
-//        toggleSkills(false);
-//        toggleProtectActions(false);
-//        toggleMenu(true);
-//        repaint();
-//
-//        if (enemyHP <= 0) {
-//            JOptionPane.showMessageDialog(this, enemy.getDefeatMessage());
-//            startVictoryTransition();
-//        } else {
-//            startEnemyTimer();
-//        }
-//    }
-
-    //new implemented code
-
     private void applyPlayerAction(int damage) {
         isProcessing = true;
 
@@ -283,8 +243,7 @@ public class Panel extends JPanel {
                 player.addItem(drop);
 
                 JOptionPane.showMessageDialog(this,
-                        "The enemy has been suppressed.\nYou received: "
-                                + drop.getQuantity() + "x " + drop.getName());
+                        "The enemy has been suppressed.\nYou received: " + drop.getQuantity() + "x " + drop.getName());
             } else {
                 JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
             }
@@ -299,7 +258,6 @@ public class Panel extends JPanel {
         this.enemy = null;
         startVictoryTransition();
     }
-
 
     private void startVictoryTransition() {
         victoryTransitionActive = true;
@@ -467,26 +425,18 @@ public class Panel extends JPanel {
     }
 
     private void layoutVisibleButtons(JButton[] buttons, int panelWidth, int y, int pad, int btnW, int btnGap) {
-        int visibleCount = 0;
-        for (JButton button : buttons) {
-            if (button != null && button.isVisible()) {
-                visibleCount++;
-            }
-        }
+        List<JButton> visible = Arrays.stream(buttons).filter(b -> b != null && b.isVisible())
+                .collect(Collectors.toList());
 
-        if (visibleCount == 0) {
+        if (visible.isEmpty())
             return;
-        }
 
+        int visibleCount = visible.size();
         int totalWidth = (visibleCount * btnW) + ((visibleCount - 1) * btnGap);
         int startX = panelWidth - pad - totalWidth;
-        int visibleIndex = 0;
 
-        for (JButton button : buttons) {
-            if (button != null && button.isVisible()) {
-                button.setBounds(startX + (visibleIndex * (btnW + btnGap)), y + 45, btnW, 80);
-                visibleIndex++;
-            }
+        for (int i = 0; i < visibleCount; i++) {
+            visible.get(i).setBounds(startX + i * (btnW + btnGap), y + 45, btnW, 80);
         }
     }
 

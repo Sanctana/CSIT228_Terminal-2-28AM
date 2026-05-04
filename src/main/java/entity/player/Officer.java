@@ -28,4 +28,9 @@ public class Officer extends Character {
         right = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer.gif")).getImage();
 
     }
+
+    @Override
+    public String getPlayerPortraitPath() {
+        return "/player/Officer/Officer_Icon.jpg";
+    }
 }

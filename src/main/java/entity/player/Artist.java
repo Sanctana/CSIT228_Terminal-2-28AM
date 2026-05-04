@@ -58,4 +58,9 @@ public class Artist extends Character {
         skills.set(0, new Skill(s1Min, s1Max, s1Name));
         skills.set(1, new Skill(s2Min, s2Max, s2Name));
     }
+
+    @Override
+    public String getPlayerPortraitPath() {
+        return "/player/Artist/Artist_Icon.jpg";
+    }
 }

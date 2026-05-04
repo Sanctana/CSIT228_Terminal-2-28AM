@@ -50,4 +50,23 @@ public class UtilityTool {
         EnemyType[] enemyTypes = EnemyType.values();
         return enemyFactory(enemyTypes[(int) (Math.random() * enemyTypes.length)]);
     }
+
+    public static CharacterType getCharacterType(Character player) {
+        if (player instanceof Detective) {
+            return CharacterType.DETECTIVE;
+        }
+        if (player instanceof Officer) {
+            return CharacterType.OFFICER;
+        }
+        if (player instanceof Intruder) {
+            return CharacterType.INTRUDER;
+        }
+        if (player instanceof Artist) {
+            return CharacterType.ARTIST;
+        }
+        if (player instanceof DebtCollector) {
+            return CharacterType.COLLECTOR;
+        }
+        return CharacterType.DETECTIVE;
+    }
 }

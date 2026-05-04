@@ -27,4 +27,9 @@ public class DebtCollector extends Character {
         left = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector.gif")).getImage();
         right = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector.gif")).getImage();
     }
+
+    @Override
+    public String getPlayerPortraitPath() {
+        return "/player/Collector/Collector_Icon.jpg";
+    }
 }

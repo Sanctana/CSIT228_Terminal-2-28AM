@@ -59,7 +59,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Character player;
     public GameState gameState;
     public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
-    // transitions
+                                                                 // transitions
     private JPanel activeBattlePanel;
     private Enemy pendingEnemy;
     private Path pendingLoadSavePath;
@@ -381,39 +381,39 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (RESPAWN_FADE_STEP > 0) {
             switch (transitionPhase) {
-                case RESPAWN -> respawnPlayer();
-                case NEW_GAME -> beginNewGameTransition();
-                case LOAD_GAME -> completeLoadSavedGame();
-                case BATTLE_RETURN -> {
-                    encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
-                    // retriggering
-                    gameState = GameState.PLAY;
+            case RESPAWN -> respawnPlayer();
+            case NEW_GAME -> beginNewGameTransition();
+            case LOAD_GAME -> completeLoadSavedGame();
+            case BATTLE_RETURN -> {
+                encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
+                // retriggering
+                gameState = GameState.PLAY;
+            }
+            case GAME_OVER -> gameState = GameState.GAME_OVER;
+            case VICTORY_RETURN -> completeReturnToMainMenu();
+            case MAIN_MENU_RETURN -> completeReturnToMainMenu();
+            case CHANGE_MAP -> {
+                if (player.state == EntityState.TO_NEXT_MAP) {
+                    player.storeCurrentPosition();
+
+                    map = map.transitionToMap(player.state);
+
+                    Point spawnPoint = map.loadMap();
+                    player.setLocation(spawnPoint.y, spawnPoint.x);
+                } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
+                    map = map.transitionToMap(player.state);
+                    map.loadMap();
+
+                    player.restorePreviousPosition(); // Restore the player's previous position after transitioning
+                    // back
+
                 }
-                case GAME_OVER -> gameState = GameState.GAME_OVER;
-                case VICTORY_RETURN -> completeReturnToMainMenu();
-                case MAIN_MENU_RETURN -> completeReturnToMainMenu();
-                case CHANGE_MAP -> {
-                    if (player.state == EntityState.TO_NEXT_MAP) {
-                        player.storeCurrentPosition();
-
-                        map = map.transitionToMap(player.state);
-
-                        Point spawnPoint = map.loadMap();
-                        player.setLocation(spawnPoint.y, spawnPoint.x);
-                    } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
-                        map = map.transitionToMap(player.state);
-                        map.loadMap();
-
-                        player.restorePreviousPosition(); // Restore the player's previous position after transitioning
-                        // back
-
-                    }
-                    player.state = EntityState.IDLE;
-                    gameState = GameState.PLAY;
-                }
-                case NONE -> {
-                    // No action needed
-                }
+                player.state = EntityState.IDLE;
+                gameState = GameState.PLAY;
+            }
+            case NONE -> {
+                // No action needed
+            }
             }
         } else {
             transitionPhase = Transitions.NONE;
@@ -498,7 +498,7 @@ public class GamePanel extends JPanel implements Runnable {
             player.setResistance(saveData.resistance);
 
             for (int i = 0; i < saveData.inventoryQuantities.length && i < player.getInventory().length; i++) {
-                player.getInventory()[i].setQuantity(saveData.inventoryQuantities[i]);
+                player.getItem(i).setQuantity(saveData.inventoryQuantities[i]);
             }
 
             previousPlayerPositions.clear();
@@ -600,7 +600,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                 map.draw(graphics2d);
                 player.draw(graphics2d);
-                //eManager.draw(graphics2d);
+                // eManager.draw(graphics2d);
 
                 graphics2d.setTransform(originalTransform);
                 ui.draw();

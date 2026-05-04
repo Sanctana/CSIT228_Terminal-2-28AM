@@ -5,13 +5,8 @@ import maps.FirstFloorMap;
 import maps.Map;
 import maps.SecondFloorMap;
 import maps.ThirdFloorMap;
-import entity.player.Artist;
 import entity.player.Character;
 import entity.player.CharacterType;
-import entity.player.DebtCollector;
-import entity.player.Detective;
-import entity.player.Intruder;
-import entity.player.Officer;
 import main.GamePanel;
 
 import java.io.IOException;
@@ -40,7 +35,7 @@ public class SaveManager {
         }
 
         Properties properties = new Properties();
-        properties.setProperty("characterType", getCharacterType(player).name());
+        properties.setProperty("characterType", UtilityTool.getCharacterType(player).name());
         properties.setProperty("characterName", player.getName());
         properties.setProperty("mapName", gp.map.getMapName());
         properties.setProperty("worldX", Integer.toString(player.worldX));
@@ -125,25 +120,6 @@ public class SaveManager {
         } catch (IOException e) {
             return 0L;
         }
-    }
-
-    private static CharacterType getCharacterType(Character player) {
-        if (player instanceof Detective) {
-            return CharacterType.DETECTIVE;
-        }
-        if (player instanceof Officer) {
-            return CharacterType.OFFICER;
-        }
-        if (player instanceof Intruder) {
-            return CharacterType.INTRUDER;
-        }
-        if (player instanceof Artist) {
-            return CharacterType.ARTIST;
-        }
-        if (player instanceof DebtCollector) {
-            return CharacterType.COLLECTOR;
-        }
-        return CharacterType.DETECTIVE;
     }
 
     public static class SaveData {

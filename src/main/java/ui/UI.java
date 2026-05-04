@@ -9,6 +9,9 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
+import javax.swing.ImageIcon;
+import java.nio.file.Path;
+import java.util.List;
 
 import inventory.Item;
 import main.GamePanel;
@@ -19,10 +22,6 @@ import battle.Action;
 import battle.Skill;
 import entity.player.Character;
 import entity.player.CharacterType;
-
-import javax.swing.ImageIcon;
-import java.nio.file.Path;
-import java.util.List;
 
 public class UI {
     public static final long VICTORY_ENDING_COMPLETE_MS = 56_000L;
@@ -610,9 +609,6 @@ public class UI {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 18F));
         g2.setColor(new Color(205, 205, 205, alpha));
         for (Skill skill : skills) {
-            String damage = skill.getFloorDMG() == skill.getCeilDMG()
-                    ? String.valueOf(skill.getFloorDMG())
-                    : skill.getFloorDMG() + "-" + skill.getCeilDMG();
             drawWrappedText("- " + skill.getSkillName(), x + 16, y, maxWidth - 16, 22);
             y += 24;
         }

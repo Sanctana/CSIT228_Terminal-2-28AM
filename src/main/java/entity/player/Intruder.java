@@ -65,4 +65,9 @@ public class Intruder extends Character {
 
         abstractionMeter = Math.min(100, abstractionMeter + gain);
     }
+
+    @Override
+    public String getPlayerPortraitPath() {
+        return "/player/Intruder/Intruder_Icon.jpg";
+    }
 }
