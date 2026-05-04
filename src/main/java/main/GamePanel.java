@@ -72,7 +72,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     private static final long ENCOUNTER_TRANSITION_DURATION_MS = 1500L;
 
-    private EnvironmentManager eManager = new EnvironmentManager(this);
+   // private EnvironmentManager eManager = new EnvironmentManager(this);
     private final KeyHandler keyH = new KeyHandler(this);
 
     public GamePanel() {
@@ -89,7 +89,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame() {
-        eManager.setup();
+        //eManager.setup();
         gameState = GameState.TITLE;
 
         // playMusic(0);
@@ -469,7 +469,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                 map.draw(graphics2d);
                 player.draw(graphics2d);
-                eManager.draw(graphics2d);
+                //eManager.draw(graphics2d);
 
                 graphics2d.setTransform(originalTransform);
                 ui.draw();
