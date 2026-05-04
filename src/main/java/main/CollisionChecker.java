@@ -71,7 +71,7 @@ public class CollisionChecker {
         TileType tileType2 = gp.map.tile[tileNum2].getTileType();
 
         if (tileType1 == TileType.BATTLE_TRIGGER || tileType2 == TileType.BATTLE_TRIGGER) {
-            gp.triggerBattle();
+            gp.triggerBattle(false);
         }
 
         if (isWalkable(tileType1) && isWalkable(tileType2)) {

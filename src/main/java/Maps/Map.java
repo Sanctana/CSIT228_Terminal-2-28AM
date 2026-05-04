@@ -21,6 +21,7 @@ import main.GamePanel;
 import Utilities.UtilityTool;
 import Utilities.States.EntityState;
 import Utilities.States.TileType;
+import entity.Enemy.Enemy;
 
 public abstract class Map {
     public GamePanel gp;
@@ -158,4 +159,6 @@ public abstract class Map {
     public abstract Map getNextMap();
 
     public abstract Map getPreviousMap();
+
+    public abstract Enemy createBoss();
 }

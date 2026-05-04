@@ -1,7 +1,7 @@
-package entity.Boss;
+package entity.Enemy.Boss;
 
-import battle.Enemy;
 import battle.EnemySkill;
+import entity.Enemy.Enemy;
 
 public class GuidanceP3 extends Enemy {
     public GuidanceP3() {
@@ -28,5 +28,10 @@ public class GuidanceP3 extends Enemy {
     @Override
     public boolean isBoss() {
         return true;
+    }
+
+    @Override
+    public String getDefeatMessage(){
+        return getDisplayName() + " has been defeated! The way down is open.";
     }
 }

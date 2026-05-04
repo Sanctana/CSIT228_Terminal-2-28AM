@@ -11,21 +11,15 @@ import java.awt.Point;
 import java.util.Stack;
 import javax.swing.JPanel;
 
-import Maps.FirstFloorMap;
 import Maps.Map;
 import Maps.ThirdFloorMap;
-import Maps.SecondFloorMap;
-import Maps.FirstFloorMap;
 import UI.UI;
 import Utilities.UtilityTool;
 import Utilities.States.EntityState;
 import Utilities.States.GameState;
 import Utilities.States.TitleScreenState;
 import battle.BattleLauncher;
-import battle.Enemy;
-import entity.Boss.GuidanceP1;
-import entity.Boss.GuidanceP2;
-import entity.Boss.GuidanceP3;
+import entity.Enemy.Enemy;
 import entity.Player.Character;
 import entity.Player.CharacterType;
 import environment.EnvironmentManager;
@@ -33,6 +27,10 @@ import environment.EnvironmentManager;
 enum Transitions {
     NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN
 }
+
+// TODO: Include a boolean if the player already defeated
+// the boss on this floor to determine whether to
+// trigger the boss before transitioning again or not
 
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 8;
@@ -63,10 +61,6 @@ public class GamePanel extends JPanel implements Runnable {
     private Enemy pendingEnemy;
     private long encounterStartTime;
     private String encounterMessage = "";
-    private boolean bossEncounter = false;
-    private boolean pendingBossMapTransition = false;
-    private boolean pendingFinalBossVictory = false;
-    private boolean finalBossDefeated = false;
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
     private long victoryEndingStartTime = 0L;
@@ -150,9 +144,9 @@ public class GamePanel extends JPanel implements Runnable {
             player.update();
             if (player.heartRate <= 40 || player.heartRate >= 180) {
                 gameState = GameState.GAME_OVER;
-            } else if (player.state == EntityState.TO_NEXT_MAP && triggerBossBeforeNextFloor()) {
-                return;
-            } else if (player.state == EntityState.TO_NEXT_MAP || player.state == EntityState.TO_PREVIOUS_MAP) {
+            } else if (player.state == EntityState.TO_NEXT_MAP) {
+                triggerBattle(true);
+            } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
                 startRespawnTransition(Transitions.CHANGE_MAP);
             }
         } else if (gameState == GameState.ENEMY_ENCOUNTER) {
@@ -165,49 +159,23 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void triggerBattle() {
+    public void triggerBattle(boolean bossTrigger) {
         if (System.currentTimeMillis() - encounterStartTime < 5_000) { // 5 seconds of invulnerability after triggering
                                                                        // a battle
             return;
         }
 
-        pendingEnemy = BattleLauncher.createRandomEnemy();
-        startEncounter(pendingEnemy, pendingEnemy.getDisplayName() + " appeared", false, false);
+        if (bossTrigger) {
+            pendingEnemy = map.createBoss();
+        } else {
+            pendingEnemy = BattleLauncher.createRandomEnemy();
+        }
+
+        startEncounter(pendingEnemy.getEncounterMessage());
     }
 
-    private boolean triggerBossBeforeNextFloor() {
-        if ("3RD FLOOR".equals(map.getMapName())) {
-            startEncounter(new GuidanceP1(), "Guidance P1 blocks the descent", true, true);
-            return true;
-        }
-
-        if ("2ND FLOOR".equals(map.getMapName())) {
-            startEncounter(new GuidanceP2(), "Guidance P2 waits beyond the door", true, true);
-            return true;
-        }
-
-        if ("1ST FLOOR".equals(map.getMapName())) {
-            if (finalBossDefeated) {
-                player.state = EntityState.IDLE;
-                keyH.resetMovementInput();
-                showStatusMessage("Guidance P3 defeated");
-                return true;
-            }
-
-            startEncounter(new GuidanceP3(), "Guidance P3 waits at the final exit", true, false);
-            pendingFinalBossVictory = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    private void startEncounter(Enemy enemy, String message, boolean isBossEncounter, boolean changeMapAfterVictory) {
-        pendingEnemy = enemy;
+    private void startEncounter(String message) {
         encounterMessage = message;
-        bossEncounter = isBossEncounter;
-        pendingBossMapTransition = changeMapAfterVictory;
-        pendingFinalBossVictory = false;
         encounterStartTime = System.currentTimeMillis();
         gameState = GameState.ENEMY_ENCOUNTER;
     }
@@ -239,16 +207,12 @@ public class GamePanel extends JPanel implements Runnable {
             activeBattlePanel = null;
         }
 
-        boolean shouldChangeMap = pendingBossMapTransition && !lostBattle;
-        boolean defeatedFinalBoss = pendingFinalBossVictory && !lostBattle;
+        boolean shouldChangeMap = player.state == EntityState.TO_NEXT_MAP && !lostBattle;
+        boolean defeatedFinalBoss = map.getNextMap() == null && !lostBattle;
 
         pendingEnemy = null;
-        bossEncounter = false;
-        pendingBossMapTransition = false;
-        pendingFinalBossVictory = false;
 
         if (defeatedFinalBoss) {
-            finalBossDefeated = true;
             player.state = EntityState.IDLE;
             showStatusMessage("Guidance P3 defeated");
         }
@@ -301,10 +265,6 @@ public class GamePanel extends JPanel implements Runnable {
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
-        bossEncounter = false;
-        pendingBossMapTransition = false;
-        pendingFinalBossVictory = false;
-        finalBossDefeated = false;
         statusMessage = "";
         victoryEndingStartTime = 0L;
         keyH.resetMovementInput();
@@ -342,10 +302,6 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         pendingEnemy = null;
-        bossEncounter = false;
-        pendingBossMapTransition = false;
-        pendingFinalBossVictory = false;
-        finalBossDefeated = false;
         previousPlayerPositions.clear();
 
         // Please check if this is really 70 since some Character sets it to 100 upon
@@ -439,10 +395,6 @@ public class GamePanel extends JPanel implements Runnable {
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
-        bossEncounter = false;
-        pendingBossMapTransition = false;
-        pendingFinalBossVictory = false;
-        finalBossDefeated = false;
         keyH.resetMovementInput();
         completeFirstLoad();
     }
@@ -452,7 +404,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public boolean isBossEncounter() {
-        return bossEncounter;
+        return pendingEnemy.isBoss();
     }
 
     public float getEncounterTransitionProgress() {

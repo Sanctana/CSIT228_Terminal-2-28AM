@@ -1,5 +1,7 @@
 package Maps;
 
+import entity.Enemy.Enemy;
+import entity.Enemy.Boss.GuidanceP2;
 import main.GamePanel;
 
 public class SecondFloorMap extends Map {
@@ -15,5 +17,10 @@ public class SecondFloorMap extends Map {
     @Override
     public Map getPreviousMap() {
         return new ThirdFloorMap(gp);
+    }
+
+    @Override
+    public Enemy createBoss() {
+        return new GuidanceP2();
     }
 }

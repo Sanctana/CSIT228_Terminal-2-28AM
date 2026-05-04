@@ -1,6 +1,5 @@
 package entity.Enemy;
 
-import battle.Enemy;
 import battle.EnemySkill;
 
 public class Stillborn extends Enemy {
@@ -18,5 +17,10 @@ public class Stillborn extends Enemy {
     @Override
     public String getAttackURL() {
         return "/Assets/EnemiesSprites/Stillborn_Attack.gif";
+    }
+
+    @Override
+    public boolean isBoss() {
+        return false;
     }
 }

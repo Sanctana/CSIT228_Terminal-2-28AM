@@ -4,6 +4,7 @@ import main.GamePanel;
 import javax.swing.JPanel;
 
 import Utilities.UtilityTool;
+import entity.Enemy.Enemy;
 import entity.Player.Character;
 
 public final class BattleLauncher {

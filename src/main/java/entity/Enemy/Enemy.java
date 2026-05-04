@@ -1,6 +1,8 @@
-package battle;
+package entity.Enemy;
 
 import java.util.ArrayList;
+
+import battle.EnemySkill;
 
 public abstract class Enemy {
     protected int health;
@@ -42,11 +44,21 @@ public abstract class Enemy {
         return getClass().getSimpleName();
     }
 
-    public boolean isBoss() {
-        return false;
-    }
+    public abstract boolean isBoss();
 
     public abstract String getIdleURL();
 
     public abstract String getAttackURL();
+
+    protected String getEncounterMessage(String verb) {
+        return getDisplayName() + " " + verb + "!";
+    }
+
+    public String getEncounterMessage() {
+        return getEncounterMessage("appears");
+    }
+
+    public String getDefeatMessage() {
+        return "The enemy has been suppressed.";
+    }
 }

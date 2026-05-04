@@ -3,7 +3,7 @@ package Utilities;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import battle.Enemy;
+import entity.Enemy.Enemy;
 import entity.Enemy.Brighteyes;
 import entity.Enemy.EnemyType;
 import entity.Enemy.Scalper;

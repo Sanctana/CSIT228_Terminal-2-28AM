@@ -15,6 +15,7 @@ import java.awt.RenderingHints;
 import java.util.Objects;
 
 import battle.BattleLauncher.BattleResultListener;
+import entity.Enemy.Enemy;
 import entity.Player.Character;
 import main.GamePanel;
 
@@ -219,10 +220,7 @@ public class Panel extends JPanel {
         repaint();
 
         if (enemyHP <= 0) {
-            String victoryMessage = enemy.isBoss()
-                    ? enemy.getDisplayName() + " has been defeated. The way down is open."
-                    : "The enemy has been suppressed.";
-            JOptionPane.showMessageDialog(this, victoryMessage);
+            JOptionPane.showMessageDialog(this, enemy.getDefeatMessage());
             startVictoryTransition();
         } else {
             startEnemyTimer();
