@@ -32,4 +32,9 @@ public class DebtCollector extends Character {
     public String getPlayerPortraitPath() {
         return "/player/Collector/Collector_Icon.jpg";
     }
+
+    @Override
+    public CharacterType getCharacterType() {
+        return CharacterType.COLLECTOR;
+    }
 }

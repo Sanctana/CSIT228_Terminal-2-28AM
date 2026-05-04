@@ -179,4 +179,6 @@ public abstract class Character extends Entity {
 
 
     public abstract String getPlayerPortraitPath();
+
+    public abstract CharacterType getCharacterType();
 }

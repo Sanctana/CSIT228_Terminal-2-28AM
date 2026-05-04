@@ -35,7 +35,7 @@ public class SaveManager {
         }
 
         Properties properties = new Properties();
-        properties.setProperty("characterType", UtilityTool.getCharacterType(player).name());
+        properties.setProperty("characterType", player.getCharacterType().name());
         properties.setProperty("characterName", player.getName());
         properties.setProperty("mapName", gp.map.getMapName());
         properties.setProperty("worldX", Integer.toString(player.worldX));

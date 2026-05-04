@@ -63,4 +63,9 @@ public class Artist extends Character {
     public String getPlayerPortraitPath() {
         return "/player/Artist/Artist_Icon.jpg";
     }
+
+    @Override
+    public CharacterType getCharacterType() {
+        return CharacterType.ARTIST;
+    }
 }

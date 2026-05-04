@@ -70,4 +70,9 @@ public class Intruder extends Character {
     public String getPlayerPortraitPath() {
         return "/player/Intruder/Intruder_Icon.jpg";
     }
+
+    @Override
+    public CharacterType getCharacterType() {
+        return CharacterType.INTRUDER;
+    }
 }

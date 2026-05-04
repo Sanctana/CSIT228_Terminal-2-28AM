@@ -33,4 +33,9 @@ public class Officer extends Character {
     public String getPlayerPortraitPath() {
         return "/player/Officer/Officer_Icon.jpg";
     }
+
+    @Override
+    public CharacterType getCharacterType() {
+        return CharacterType.OFFICER;
+    }
 }

@@ -96,4 +96,9 @@ public class Detective extends Character {
     public String getPlayerPortraitPath() {
         return "/player/Detective/Detective_Icon.jpg";
     }
+
+    @Override
+    public CharacterType getCharacterType() {
+        return CharacterType.DETECTIVE;
+    }
 }

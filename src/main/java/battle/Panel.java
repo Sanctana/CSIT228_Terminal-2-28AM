@@ -19,12 +19,7 @@ import java.util.stream.Collectors;
 
 import battle.BattleLauncher.BattleResultListener;
 import entity.enemy.Enemy;
-import entity.player.Artist;
 import entity.player.Character;
-import entity.player.DebtCollector;
-import entity.player.Detective;
-import entity.player.Intruder;
-import entity.player.Officer;
 import inventory.Item;
 import main.GamePanel;
 
