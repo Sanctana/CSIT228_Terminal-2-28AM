@@ -23,5 +23,4 @@ Game {
         gamePanel.startGameThread();
     }
 
-
 }

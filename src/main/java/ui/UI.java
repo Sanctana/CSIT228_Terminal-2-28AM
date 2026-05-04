@@ -1,16 +1,26 @@
 package ui;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.Composite;
 import java.awt.Graphics2D;
-
-import entity.player.Character;
-
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
 
-import main.GamePanel;
-import utilities.states.TitleScreenState;
 import inventory.Item;
+import main.GamePanel;
+import utilities.SaveManager;
+import utilities.UtilityTool;
+import utilities.states.TitleScreenState;
+import battle.Action;
+import battle.Skill;
+import entity.player.Character;
+import entity.player.CharacterType;
+
+import javax.swing.ImageIcon;
+import java.nio.file.Path;
+import java.util.List;
 
 public class UI {
     public static final long VICTORY_ENDING_COMPLETE_MS = 56_000L;
@@ -21,8 +31,20 @@ public class UI {
     private Font arial_40;
     public int commandNum;
     public TitleScreenState titleScreenState;
+    public boolean pauseQuitConfirm;
+    public PauseSavePrompt pauseSavePrompt = PauseSavePrompt.NONE;
+    public boolean loadDeleteConfirm;
+    public int pendingDeleteSaveIndex;
+    public List<Path> saveFiles = List.of();
     int pulseCounter;
     boolean pulseOn;
+    private final CharacterPreview[] characterPreviews;
+    private int lastCharacterPreviewIndex = -1;
+    private float characterPreviewAlpha = 0F;
+
+    public enum PauseSavePrompt {
+        NONE, MAIN_MENU, QUIT
+    }
 
     public UI(GamePanel gp, Graphics2D g2) {
         this.gp = gp;
@@ -32,6 +54,18 @@ public class UI {
 
         titleScreenState = TitleScreenState.MAIN_MENU;
         commandNum = pulseCounter = 0;
+        characterPreviews = new CharacterPreview[] {
+                new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
+                        "/player/Detective/Front_Detective_Idle.png", gp),
+                new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
+                        "/player/Officer/Front_Officer_Idle.png", gp),
+                new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",
+                        "/player/Intruder/Front_Intruder_Idle.png", gp),
+                new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
+                        "/player/Artist/Front_Artist_Idle.png", gp),
+                new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
+                        "/player/Collector/Front_Collector_Idle.png", gp)
+        };
     }
 
     public void draw() {
@@ -72,7 +106,7 @@ public class UI {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
             int alpha = Math.min(255, (int) ((elapsed - VICTORY_ENDING_COMPLETE_MS) / 4));
             g2.setColor(new Color(230, 230, 230, alpha));
-            String text = "Press Enter to play again";
+            String text = "Press Enter to Play Again";
             g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2);
         }
     }
@@ -111,7 +145,7 @@ public class UI {
                 "",
                 "",
                 "Created by:",
-                "Team Sactana",
+                "Team Terminal 2:28 AM",
                 "",
                 "",
                 "Game design, programming, and graphics:",
@@ -123,15 +157,15 @@ public class UI {
                 "",
                 "",
                 "Story and atmosphere:",
-                "Team Sactana",
+                "Team Terminal 2:28 AM",
                 "",
                 "",
                 "Battle system:",
-                "Team Sactana",
+                "Team Terminal 2:28 AM",
                 "",
                 "",
                 "Maps and level layout:",
-                "Team Sactana",
+                "Team Terminal 2:28 AM",
                 "",
                 "",
                 "Special thanks:",
@@ -152,7 +186,7 @@ public class UI {
                 "",
                 "",
                 "",
-                "Thank you for reaching the end.",
+                "Thank you for reaching the end",
                 "The night is over."
         };
 
@@ -332,17 +366,253 @@ public class UI {
             String[] options = { "NEW GAME", "LOAD GAME", "QUIT" };
             drawCenteredMenuOptions(options, gp.screenHeight / 2 + 85, 62, 48F);
         } else if (titleScreenState == TitleScreenState.CHARACTER_SELECT) {
-            g2.setColor(Color.white);
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 42F));
+            drawCharacterSelectScreen();
+        } else if (titleScreenState == TitleScreenState.LOAD_GAME) {
+            drawLoadGameScreen();
+        }
+    }
 
-            String text = "Select your Character";
-            int x = getXforCenteredText(text);
-            int y = gp.screenHeight / 2 - 220;
-            g2.drawString(text, x, y);
+    private void drawLoadGameScreen() {
+        g2.setColor(Color.white);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 56F));
 
-            String[] options = { "Detective", "Officer", "Intruder", "Artist", "Collector" };
-            drawCenteredMenuOptions(options, gp.screenHeight / 2 - 95, 58, 42F);
-            drawCenteredMenuOption("Back", 5, gp.screenHeight / 2 + 255, 42F);
+        String text = "LOAD GAME";
+        int y = gp.screenHeight / 2 - 230;
+        g2.drawString(text, getXforCenteredText(text), y);
+
+        if (!saveFiles.isEmpty() && !loadDeleteConfirm) {
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 22F));
+            g2.setColor(new Color(165, 165, 165));
+            text = "Press Enter to load     Press D to delete";
+            g2.drawString(text, getXforCenteredText(text), y + 42);
+        }
+
+        if (loadDeleteConfirm) {
+            drawLoadDeleteConfirmation();
+            return;
+        }
+
+        if (saveFiles.isEmpty()) {
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 42F));
+            text = "NO SAVE DATA";
+            g2.setColor(new Color(180, 180, 180));
+            g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2 + 10);
+            drawCenteredMenuOption("BACK", 0, gp.screenHeight / 2 + 255, 42F);
+            return;
+        }
+
+        int startY = gp.screenHeight / 2 - 92;
+        int rowHeight = 48;
+        int visibleSaves = Math.min(saveFiles.size(), 6);
+        int selectedIndex = Math.max(0, Math.min(commandNum, saveFiles.size()));
+        int firstIndex = Math.max(0, selectedIndex - visibleSaves + 1);
+        firstIndex = Math.min(firstIndex, Math.max(0, saveFiles.size() - visibleSaves));
+
+        for (int i = 0; i < visibleSaves; i++) {
+            int saveIndex = firstIndex + i;
+            drawCenteredMenuOption(SaveManager.getDisplayName(saveFiles.get(saveIndex)), saveIndex, startY + i * rowHeight,
+                    30F);
+        }
+
+        drawCenteredMenuOption("BACK", saveFiles.size(), gp.screenHeight / 2 + 255, 42F);
+    }
+
+    private void drawLoadDeleteConfirmation() {
+        int frameWidth = 680;
+        int frameHeight = 230;
+        int frameX = (gp.screenWidth - frameWidth) / 2;
+        int frameY = gp.screenHeight / 2 - 70;
+
+        g2.setColor(new Color(0, 0, 0, 225));
+        g2.fillRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setColor(new Color(230, 230, 230));
+        g2.setStroke(new BasicStroke(4f));
+        g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+        g2.setColor(Color.white);
+        String text = "Delete save data?";
+        g2.drawString(text, getXforCenteredText(text), frameY + 76);
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 22F));
+        g2.setColor(new Color(205, 205, 205));
+        text = "This save file will be removed.";
+        g2.drawString(text, getXforCenteredText(text), frameY + 114);
+
+        drawTwoChoiceOptions("YES", "NO", frameY + 178);
+    }
+
+    private void drawCharacterSelectScreen() {
+        g2.setColor(Color.white);
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 42F));
+
+        String text = "SELECT YOUR CHARACTER";
+        int x = gp.tileSize + 55;
+        int y = gp.screenHeight / 2 - 270;
+        g2.drawString(text, x, y);
+
+        String[] options = { "Detective", "Officer", "Intruder", "Artist", "Collector" };
+
+        int menuX = gp.tileSize + 55;
+        int startY = gp.screenHeight / 2 - 95;
+        int rowHeight = 58;
+        drawLeftMenuOptions(options, menuX, startY, rowHeight, 42F);
+        drawLeftMenuOption("BACK", 5, menuX, gp.screenHeight / 2 + 255, 42F);
+        drawCharacterPreviewPanel();
+    }
+
+    private void drawLeftMenuOptions(String[] options, int x, int startY, int rowHeight, float fontSize) {
+        int y = startY;
+
+        for (int i = 0; i < options.length; i++) {
+            drawLeftMenuOption(options[i], i, x, y, fontSize);
+            y += rowHeight;
+        }
+    }
+
+    private void drawLeftMenuOption(String text, int optionIndex, int x, int y, float fontSize) {
+        boolean selected = commandNum == optionIndex;
+        g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
+        g2.setColor(selected ? Color.white : new Color(205, 205, 205));
+        g2.drawString(text, x, y);
+
+        if (selected) {
+            g2.drawString(">", x - gp.tileSize, y);
+        }
+    }
+
+    private void drawCharacterPreviewPanel() {
+        int selectedIndex = commandNum >= 0 && commandNum < characterPreviews.length
+                ? commandNum
+                : Math.max(0, lastCharacterPreviewIndex);
+
+        if (selectedIndex != lastCharacterPreviewIndex) {
+            lastCharacterPreviewIndex = selectedIndex;
+            characterPreviewAlpha = 0F;
+        }
+
+        characterPreviewAlpha = Math.min(1F, characterPreviewAlpha + 0.08F);
+
+        int alpha = Math.round(255 * characterPreviewAlpha);
+        if (alpha <= 0) {
+            return;
+        }
+
+        CharacterPreview preview = characterPreviews[selectedIndex];
+        Character character = preview.character;
+
+        int frameX = gp.screenWidth / 2 - 24;
+        int frameY = gp.screenHeight / 2 - 185;
+        int frameWidth = gp.screenWidth - frameX - gp.tileSize;
+        int frameHeight = 470;
+        int contentInset = 38;
+        int arc = 18;
+
+        g2.setColor(new Color(0, 0, 0, Math.min(220, alpha)));
+        g2.fillRoundRect(frameX, frameY, frameWidth, frameHeight, arc, arc);
+
+        g2.setColor(new Color(230, 230, 230, alpha));
+        g2.setStroke(new BasicStroke(4f));
+        g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, arc, arc);
+
+        int portraitFrameSize = 220;
+        int portraitSize = 180;
+        int portraitFrameX = frameX + contentInset;
+        int portraitFrameY = frameY + (frameHeight - portraitFrameSize) / 2;
+        int portraitX = portraitFrameX + (portraitFrameSize - portraitSize) / 2;
+        int portraitY = frameY + (frameHeight - portraitSize) / 2;
+
+        g2.setColor(new Color(25, 25, 25, Math.min(200, alpha)));
+        g2.fillRoundRect(portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, 14, 14);
+        g2.setColor(new Color(120, 120, 120, alpha));
+        g2.drawRoundRect(portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, 14, 14);
+
+        Image portrait = preview.portrait;
+        if (portrait != null) {
+            Composite oldComposite = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, characterPreviewAlpha));
+            g2.drawImage(portrait, portraitX, portraitY, portraitSize, portraitSize, null);
+            g2.setComposite(oldComposite);
+        }
+
+        int detailsX = portraitFrameX + portraitFrameSize + 45;
+        int detailsY = frameY + contentInset + 20;
+        int detailsWidth = frameX + frameWidth - detailsX - contentInset;
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+        g2.setColor(new Color(255, 255, 255, alpha));
+        g2.drawString(preview.menuName, detailsX, detailsY);
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
+        int lineY = drawWrappedDetailLine("Title", character.getName(), detailsX, detailsY + 34, detailsWidth,
+                alpha);
+        lineY += 12;
+        lineY = drawDetailLine("Weapon", preview.weapon, detailsX, lineY, alpha);
+        lineY = drawDetailLine("Defense", Math.round(character.initialResistance * 100) + "% resistance", detailsX,
+                lineY, alpha);
+
+        lineY += 10;
+        lineY = drawDetailSection("Skills", character.skills, detailsX, lineY, detailsWidth, alpha);
+        lineY += 10;
+        drawActionSection(character.actions, detailsX, lineY, detailsWidth, alpha);
+    }
+
+    private int drawDetailLine(String label, String value, int x, int y, int alpha) {
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.setColor(new Color(230, 230, 230, alpha));
+        g2.drawString(label + ":", x, y);
+
+        int valueX = x + 112;
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
+        g2.setColor(new Color(205, 205, 205, alpha));
+        g2.drawString(value, valueX, y);
+        return y + 30;
+    }
+
+    private int drawWrappedDetailLine(String label, String value, int x, int y, int maxWidth, int alpha) {
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.setColor(new Color(230, 230, 230, alpha));
+        g2.drawString(label + ":", x, y);
+
+        int valueY = y + 26;
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
+        g2.setColor(new Color(205, 205, 205, alpha));
+        drawWrappedText(value, x + 16, valueY, maxWidth - 16, 24);
+
+        int lineCount = Math.max(1, (g2.getFontMetrics().stringWidth(value) / Math.max(1, maxWidth - 16)) + 1);
+        return valueY + (lineCount * 24);
+    }
+
+    private int drawDetailSection(String label, java.util.List<Skill> skills, int x, int y, int maxWidth, int alpha) {
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.setColor(new Color(230, 230, 230, alpha));
+        g2.drawString(label + ":", x, y);
+        y += 28;
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 18F));
+        g2.setColor(new Color(205, 205, 205, alpha));
+        for (Skill skill : skills) {
+            String damage = skill.getFloorDMG() == skill.getCeilDMG()
+                    ? String.valueOf(skill.getFloorDMG())
+                    : skill.getFloorDMG() + "-" + skill.getCeilDMG();
+            drawWrappedText("- " + skill.getSkillName(), x + 16, y, maxWidth - 16, 22);
+            y += 24;
+        }
+        return y;
+    }
+
+    private void drawActionSection(java.util.List<Action> actions, int x, int y, int maxWidth, int alpha) {
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
+        g2.setColor(new Color(230, 230, 230, alpha));
+        g2.drawString("Actions:", x, y);
+        y += 28;
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 18F));
+        g2.setColor(new Color(205, 205, 205, alpha));
+        for (Action action : actions) {
+            drawWrappedText("- " + action.getName(), x + 16, y, maxWidth - 16, 22);
+            y += 24;
         }
     }
 
@@ -365,6 +635,20 @@ public class UI {
 
         if (selected) {
             g2.drawString(">", x - gp.tileSize, y);
+        }
+    }
+
+    private static class CharacterPreview {
+        private final String menuName;
+        private final String weapon;
+        private final Image portrait;
+        private final Character character;
+
+        private CharacterPreview(CharacterType type, String menuName, String weapon, String portraitPath, GamePanel gp) {
+            this.menuName = menuName;
+            this.weapon = weapon;
+            this.portrait = new ImageIcon(CharacterPreview.class.getResource(portraitPath)).getImage();
+            this.character = UtilityTool.characterFactory(type, gp);
         }
     }
 
@@ -459,34 +743,138 @@ public class UI {
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
         }
 
-        if (gp.isOneShotModeEnabled()) {
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 18F));
-            g2.setColor(new Color(255, 80, 80));
-            g2.drawString("ONE-SHOT MODE", margin, 118);
-        }
-
         String statusMessage = gp.getStatusMessage();
         if (!statusMessage.isBlank()) {
+            int statusAlpha = gp.getStatusMessageAlpha();
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
             int messageWidth = g2.getFontMetrics().stringWidth(statusMessage);
             int boxX = (gp.screenWidth - messageWidth) / 2 - 20;
             int boxY = gp.screenHeight - 90;
             int boxWidth = messageWidth + 40;
 
-            g2.setColor(new Color(0, 0, 0, 180));
+            g2.setColor(new Color(0, 0, 0, Math.min(180, statusAlpha)));
             g2.fillRoundRect(boxX, boxY, boxWidth, 42, 14, 14);
-            g2.setColor(Color.WHITE);
+            g2.setColor(new Color(255, 255, 255, statusAlpha));
             g2.drawString(statusMessage, boxX + 20, boxY + 28);
         }
     }
 
     public void drawPauseScreen() {
-        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 80F));
+        g2.setColor(new Color(0, 0, 0, 170));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 80F));
+        g2.setColor(Color.white);
         String text = "PAUSED";
         int x = getXforCenteredText(text);
-        int y = gp.screenHeight / 2;
+        int y = gp.screenHeight / 2 - 120;
 
         g2.drawString(text, x, y);
+
+        if (pauseQuitConfirm) {
+            drawPauseQuitConfirmation();
+            return;
+        }
+
+        if (pauseSavePrompt != PauseSavePrompt.NONE) {
+            drawPauseSavePrompt();
+            return;
+        }
+
+        String[] options = { "RESUME", "SAVE GAME", "MAIN MENU", "QUIT" };
+        drawCenteredMenuOptions(options, gp.screenHeight / 2, 62, 46F);
+    }
+
+    private void drawPauseSavePrompt() {
+        int frameWidth = 700;
+        int frameHeight = 240;
+        int frameX = (gp.screenWidth - frameWidth) / 2;
+        int frameY = gp.screenHeight / 2 - 80;
+
+        g2.setColor(new Color(0, 0, 0, 225));
+        g2.fillRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setColor(new Color(230, 230, 230));
+        g2.setStroke(new BasicStroke(4f));
+        g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+        g2.setColor(Color.white);
+        String text = "Would you like to save your game?";
+        g2.drawString(text, getXforCenteredText(text), frameY + 78);
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 22F));
+        g2.setColor(new Color(205, 205, 205));
+        text = pauseSavePrompt == PauseSavePrompt.MAIN_MENU ? "Save before returning to main menu?"
+                : "Save before exiting to desktop?";
+        g2.drawString(text, getXforCenteredText(text), frameY + 116);
+
+        drawThreeChoiceOptions("YES", "NO", "CANCEL", frameY + 185);
+    }
+
+    private void drawPauseQuitConfirmation() {
+        int frameWidth = 620;
+        int frameHeight = 230;
+        int frameX = (gp.screenWidth - frameWidth) / 2;
+        int frameY = gp.screenHeight / 2 - 70;
+
+        g2.setColor(new Color(0, 0, 0, 225));
+        g2.fillRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setColor(new Color(230, 230, 230));
+        g2.setStroke(new BasicStroke(4f));
+        g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 18, 18);
+
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
+        g2.setColor(Color.white);
+        String text = "Exit to desktop?";
+        g2.drawString(text, getXforCenteredText(text), frameY + 70);
+
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 22F));
+        g2.setColor(new Color(205, 205, 205));
+        text = "Are you sure you want to quit?";
+        g2.drawString(text, getXforCenteredText(text), frameY + 108);
+
+        drawTwoChoiceOptions("YES", "NO", frameY + 175);
+    }
+
+    private void drawTwoChoiceOptions(String leftText, String rightText, int optionY) {
+        String[] options = { leftText, rightText };
+        int optionGap = 120;
+        int centerX = gp.screenWidth / 2;
+
+        for (int i = 0; i < options.length; i++) {
+            boolean selected = commandNum == i;
+            g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, 36F));
+            g2.setColor(selected ? Color.white : new Color(185, 185, 185));
+
+            int optionX = centerX + ((i == 0) ? -optionGap : optionGap)
+                    - g2.getFontMetrics().stringWidth(options[i]) / 2;
+            g2.drawString(options[i], optionX, optionY);
+
+            if (selected) {
+                g2.drawString(">", optionX - gp.tileSize, optionY);
+            }
+        }
+    }
+
+    private void drawThreeChoiceOptions(String leftText, String centerText, String rightText, int optionY) {
+        String[] options = { leftText, centerText, rightText };
+        int[] offsets = { -180, 0, 180 };
+        int centerX = gp.screenWidth / 2;
+
+        for (int i = 0; i < options.length; i++) {
+            boolean selected = commandNum == i;
+            g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, 34F));
+            g2.setColor(selected ? Color.white : new Color(185, 185, 185));
+
+            int optionX = centerX + offsets[i] - g2.getFontMetrics().stringWidth(options[i]) / 2;
+            g2.drawString(options[i], optionX, optionY);
+
+            if (selected) {
+                g2.drawString(">", optionX - gp.tileSize, optionY);
+            }
+        }
     }
 
     public int getXforCenteredText(String text) {

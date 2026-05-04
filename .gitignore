@@ -43,3 +43,6 @@ bin/
 .DS_Store
 
 *.code-workspace
+
+### Local game saves ###
+saves/

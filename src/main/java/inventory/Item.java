@@ -27,6 +27,10 @@ public abstract class Item {
         return quantity;
     }
 
+    public void setQuantity(int quantity) {
+        this.quantity = Math.max(0, quantity);
+    }
+
     public boolean isUsable() {
         return quantity > 0;
     }

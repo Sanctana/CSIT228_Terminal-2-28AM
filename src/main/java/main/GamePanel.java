@@ -8,6 +8,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.Point;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Stack;
 import javax.swing.JPanel;
 
@@ -19,13 +21,14 @@ import environment.EnvironmentManager;
 import maps.Map;
 import maps.ThirdFloorMap;
 import ui.UI;
+import utilities.SaveManager;
 import utilities.UtilityTool;
 import utilities.states.EntityState;
 import utilities.states.GameState;
 import utilities.states.TitleScreenState;
 
 enum Transitions {
-    NONE, RESPAWN, NEW_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN
+    NONE, RESPAWN, NEW_GAME, LOAD_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN, MAIN_MENU_RETURN
 }
 
 // TODO: Include a boolean if the player already defeated
@@ -59,11 +62,16 @@ public class GamePanel extends JPanel implements Runnable {
                                                                  // transitions
     private JPanel activeBattlePanel;
     private Enemy pendingEnemy;
+    private Path pendingLoadSavePath;
     private long encounterStartTime;
     private String encounterMessage = "";
+    private boolean finalBossDefeated = false;
     private boolean oneShotModeEnabled = false;
     private String statusMessage = "";
+    private long statusMessageShownAt = 0L;
     private long victoryEndingStartTime = 0L;
+    private static final long STATUS_MESSAGE_DURATION_MS = 3_000L;
+    private static final long STATUS_MESSAGE_FADE_MS = 650L;
 
     private int respawnFadeAlpha = 0;
     private int RESPAWN_FADE_STEP = 18;
@@ -213,6 +221,7 @@ public class GamePanel extends JPanel implements Runnable {
         pendingEnemy = null;
 
         if (defeatedFinalBoss) {
+            finalBossDefeated = true;
             player.state = EntityState.IDLE;
             showStatusMessage("Guidance P3 defeated");
         }
@@ -260,16 +269,33 @@ public class GamePanel extends JPanel implements Runnable {
         keyH.resetMovementInput();
     }
 
+    public void returnToMainMenuFromPause() {
+        if (gameState != GameState.PAUSE || transitionPhase != Transitions.NONE) {
+            return;
+        }
+
+        ui.pauseQuitConfirm = false;
+        ui.pauseSavePrompt = UI.PauseSavePrompt.NONE;
+        keyH.resetMovementInput();
+        startRespawnTransition(Transitions.MAIN_MENU_RETURN);
+    }
+
     private void completeReturnToMainMenu() {
         player = null;
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
+        pendingLoadSavePath = null;
+        finalBossDefeated = false;
         statusMessage = "";
+        statusMessageShownAt = 0L;
         victoryEndingStartTime = 0L;
         keyH.resetMovementInput();
         ui.titleScreenState = TitleScreenState.MAIN_MENU;
         ui.commandNum = 0;
+        ui.pauseQuitConfirm = false;
+        ui.pauseSavePrompt = UI.PauseSavePrompt.NONE;
+        ui.loadDeleteConfirm = false;
         gameState = GameState.TITLE;
         revalidate();
         repaint();
@@ -302,6 +328,8 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         pendingEnemy = null;
+        pendingLoadSavePath = null;
+        finalBossDefeated = false;
         previousPlayerPositions.clear();
 
         // Please check if this is really 70 since some Character sets it to 100 upon
@@ -355,6 +383,7 @@ public class GamePanel extends JPanel implements Runnable {
             switch (transitionPhase) {
             case RESPAWN -> respawnPlayer();
             case NEW_GAME -> beginNewGameTransition();
+            case LOAD_GAME -> completeLoadSavedGame();
             case BATTLE_RETURN -> {
                 encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
                                                                  // retriggering
@@ -362,6 +391,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
             case GAME_OVER -> gameState = GameState.GAME_OVER;
             case VICTORY_RETURN -> completeReturnToMainMenu();
+            case MAIN_MENU_RETURN -> completeReturnToMainMenu();
             case CHANGE_MAP -> {
                 if (player.state == EntityState.TO_NEXT_MAP) {
                     player.storeCurrentPosition();
@@ -395,6 +425,8 @@ public class GamePanel extends JPanel implements Runnable {
         map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
+        pendingLoadSavePath = null;
+        finalBossDefeated = false;
         keyH.resetMovementInput();
         completeFirstLoad();
     }
@@ -420,6 +452,80 @@ public class GamePanel extends JPanel implements Runnable {
         return oneShotModeEnabled;
     }
 
+    public boolean isFinalBossDefeated() {
+        return finalBossDefeated;
+    }
+
+    public void saveCurrentGame() {
+        try {
+            Path savePath = SaveManager.save(this);
+            showStatusMessage("Game saved: " + savePath.getFileName());
+        } catch (IOException e) {
+            showStatusMessage("Save failed");
+            e.printStackTrace();
+        }
+    }
+
+    public void requestLoadSavedGame(Path savePath) {
+        if (transitionPhase != Transitions.NONE || savePath == null) {
+            return;
+        }
+
+        pendingLoadSavePath = savePath;
+        startRespawnTransition(Transitions.LOAD_GAME);
+    }
+
+    private void completeLoadSavedGame() {
+        if (pendingLoadSavePath == null) {
+            completeReturnToMainMenu();
+            return;
+        }
+
+        try {
+            SaveManager.SaveData saveData = SaveManager.load(pendingLoadSavePath);
+
+            if (activeBattlePanel != null) {
+                remove(activeBattlePanel);
+                activeBattlePanel = null;
+            }
+
+            player = UtilityTool.characterFactory(saveData.characterType, this);
+            map = SaveManager.createMap(saveData.mapName, this);
+            map.loadMap();
+            player.worldX = saveData.worldX;
+            player.worldY = saveData.worldY;
+            player.heartRate = saveData.heartRate;
+            player.setResistance(saveData.resistance);
+
+            for (int i = 0; i < saveData.inventoryQuantities.length && i < player.getInventory().length; i++) {
+                player.getInventory()[i].setQuantity(saveData.inventoryQuantities[i]);
+            }
+
+            previousPlayerPositions.clear();
+            pendingEnemy = null;
+            pendingLoadSavePath = null;
+            finalBossDefeated = saveData.finalBossDefeated;
+            statusMessage = "";
+            statusMessageShownAt = 0L;
+            victoryEndingStartTime = 0L;
+            ui.titleScreenState = TitleScreenState.MAIN_MENU;
+            ui.commandNum = 0;
+            ui.loadDeleteConfirm = false;
+            ui.pauseQuitConfirm = false;
+            ui.pauseSavePrompt = UI.PauseSavePrompt.NONE;
+            keyH.resetMovementInput();
+            gameState = GameState.PLAY;
+            revalidate();
+            repaint();
+            requestFocusInWindow();
+        } catch (IOException | IllegalArgumentException e) {
+            pendingLoadSavePath = null;
+            showStatusMessage("Load failed");
+            e.printStackTrace();
+            completeReturnToMainMenu();
+        }
+    }
+
     public void toggleOneShotMode() {
         oneShotModeEnabled = !oneShotModeEnabled;
         showStatusMessage("One-shot mode: " + (oneShotModeEnabled ? "ON" : "OFF"));
@@ -427,10 +533,35 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void showStatusMessage(String message) {
         statusMessage = message;
+        statusMessageShownAt = System.currentTimeMillis();
     }
 
     public String getStatusMessage() {
+        if (getStatusMessageAlpha() <= 0) {
+            return "";
+        }
+
         return statusMessage;
+    }
+
+    public int getStatusMessageAlpha() {
+        if (statusMessage.isBlank() || statusMessageShownAt == 0L) {
+            return 0;
+        }
+
+        long elapsed = System.currentTimeMillis() - statusMessageShownAt;
+        if (elapsed >= STATUS_MESSAGE_DURATION_MS + STATUS_MESSAGE_FADE_MS) {
+            statusMessage = "";
+            statusMessageShownAt = 0L;
+            return 0;
+        }
+
+        if (elapsed <= STATUS_MESSAGE_DURATION_MS) {
+            return 255;
+        }
+
+        float fadeProgress = (elapsed - STATUS_MESSAGE_DURATION_MS) / (float) STATUS_MESSAGE_FADE_MS;
+        return Math.max(0, Math.min(255, Math.round(255 * (1F - fadeProgress))));
     }
 
     @Override
