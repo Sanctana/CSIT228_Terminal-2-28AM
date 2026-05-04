@@ -23,4 +23,5 @@ public class EnvironmentManager {
 
         lighting.draw(g2);
     }
+
 }
