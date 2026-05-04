@@ -165,4 +165,15 @@ public abstract class Character extends Entity {
             setLocation(previousPosition.y, previousPosition.x);
         }
     }
+
+    public void addItem(Item droppedItem) {
+        if (droppedItem == null) return;
+
+        for (int i = 0; i < inventory.length; i++) {
+            if (inventory[i] != null && inventory[i].getClass().equals(droppedItem.getClass())) {
+                inventory[i].setQuantity(inventory[i].getQuantity() + droppedItem.getQuantity());
+                return;
+            }
+        }
+    }
 }

@@ -1,8 +1,11 @@
 package entity.enemy;
 
 import java.util.ArrayList;
-
 import battle.EnemySkill;
+import inventory.Defibrillator;
+import inventory.IVFluids;
+import inventory.Item;
+import inventory.Scalpel;
 
 public abstract class Enemy {
     protected int health;
@@ -23,6 +26,27 @@ public abstract class Enemy {
         }
         return damageOutput;
     }
+
+    public Item dropItem() {
+        int amount = (int)(Math.random() * 3) + 1;
+
+        String enemyName = getClass().getSimpleName();
+
+        switch (enemyName) {
+            case "Scalper":
+                return new Scalpel(amount);
+
+            case "Stillborn":
+                return new IVFluids(amount);
+
+            case "Brighteyes":
+                return new Defibrillator(amount);
+
+            default:
+                return null;
+        }
+    }
+
 
     public void setHealth(int health) {
         this.health = health;

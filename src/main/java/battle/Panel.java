@@ -17,6 +17,7 @@ import java.util.Objects;
 import battle.BattleLauncher.BattleResultListener;
 import entity.enemy.Enemy;
 import entity.player.Character;
+import inventory.Item;
 import main.GamePanel;
 
 public class Panel extends JPanel {
@@ -207,25 +208,70 @@ public class Panel extends JPanel {
         startEnemyTimer();
     }
 
+    //old code
+
+//    private void applyPlayerAction(int damage) {
+//        isProcessing = true;
+//        if (gp.isOneShotModeEnabled()) {
+//            damage = Math.max(damage, maxEnemyHP);
+//        }
+//        enemyHP = Math.max(0, enemyHP - damage);
+//        player.resetResistance();
+//        toggleSkills(false);
+//        toggleProtectActions(false);
+//        toggleMenu(true);
+//        repaint();
+//
+//        if (enemyHP <= 0) {
+//            JOptionPane.showMessageDialog(this, enemy.getDefeatMessage());
+//            startVictoryTransition();
+//        } else {
+//            startEnemyTimer();
+//        }
+//    }
+
+    //new implemented code
+
     private void applyPlayerAction(int damage) {
         isProcessing = true;
+
         if (gp.isOneShotModeEnabled()) {
             damage = Math.max(damage, maxEnemyHP);
         }
+
         enemyHP = Math.max(0, enemyHP - damage);
         player.resetResistance();
+
+        // UI Updates
         toggleSkills(false);
         toggleProtectActions(false);
         toggleMenu(true);
         repaint();
 
         if (enemyHP <= 0) {
-            JOptionPane.showMessageDialog(this, enemy.getDefeatMessage());
-            startVictoryTransition();
+            Item drop = enemy.dropItem();
+
+            if (drop != null) {
+                player.addItem(drop);
+
+                JOptionPane.showMessageDialog(this,
+                        "The enemy has been suppressed.\nYou received: "
+                                + drop.getQuantity() + "x " + drop.getName());
+            } else {
+                JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
+            }
+
+            resetBattle();
         } else {
             startEnemyTimer();
         }
     }
+
+    public void resetBattle() {
+        this.enemy = null;
+        startVictoryTransition();
+    }
+
 
     private void startVictoryTransition() {
         victoryTransitionActive = true;
