@@ -16,7 +16,12 @@ import java.util.Objects;
 
 import battle.BattleLauncher.BattleResultListener;
 import entity.enemy.Enemy;
+import entity.player.Artist;
 import entity.player.Character;
+import entity.player.DebtCollector;
+import entity.player.Detective;
+import entity.player.Intruder;
+import entity.player.Officer;
 import inventory.Item;
 import main.GamePanel;
 
@@ -54,12 +59,35 @@ public class Panel extends JPanel {
 
         background = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/HospitalHallway1.png")))
                 .getImage();
-        portrait = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Assets/andrew.png"))).getImage();
+        portrait = loadPlayerPortrait();
         enemyAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getIdleURL()))).getImage();
         enemyAttackAnim = new ImageIcon(Objects.requireNonNull(getClass().getResource(enemy.getAttackURL())))
                 .getImage();
 
         initButtons();
+    }
+
+    private Image loadPlayerPortrait() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource(getPlayerPortraitPath()))).getImage();
+    }
+
+    private String getPlayerPortraitPath() {
+        if (player instanceof Detective) {
+            return "/player/Detective/Detective_Icon.jpg";
+        }
+        if (player instanceof Officer) {
+            return "/player/Officer/Officer_Icon.jpg";
+        }
+        if (player instanceof Intruder) {
+            return "/player/Intruder/Intruder_Icon.jpg";
+        }
+        if (player instanceof Artist) {
+            return "/player/Artist/Artist_Icon.jpg";
+        }
+        if (player instanceof DebtCollector) {
+            return "/player/Collector/Collector_Icon.jpg";
+        }
+        return "/Assets/andrew.png";
     }
 
     private void initButtons() {

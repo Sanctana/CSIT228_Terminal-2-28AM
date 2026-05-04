@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Shape;
+import java.awt.geom.RoundRectangle2D;
 
 import inventory.Item;
 import main.GamePanel;
@@ -56,15 +58,15 @@ public class UI {
         commandNum = pulseCounter = 0;
         characterPreviews = new CharacterPreview[] {
                 new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
-                        "/player/Detective/Front_Detective_Idle.png", gp),
+                        "/player/Detective/Detective_Icon.jpg", gp),
                 new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
-                        "/player/Officer/Front_Officer_Idle.png", gp),
+                        "/player/Officer/Officer_Icon.jpg", gp),
                 new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",
-                        "/player/Intruder/Front_Intruder_Idle.png", gp),
+                        "/player/Intruder/Intruder_Icon.jpg", gp),
                 new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
-                        "/player/Artist/Front_Artist_Idle.png", gp),
+                        "/player/Artist/Artist_Icon.jpg", gp),
                 new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
-                        "/player/Collector/Front_Collector_Idle.png", gp)
+                        "/player/Collector/Collector_Icon.jpg", gp)
         };
     }
 
@@ -517,11 +519,8 @@ public class UI {
         g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, arc, arc);
 
         int portraitFrameSize = 220;
-        int portraitSize = 180;
         int portraitFrameX = frameX + contentInset;
         int portraitFrameY = frameY + (frameHeight - portraitFrameSize) / 2;
-        int portraitX = portraitFrameX + (portraitFrameSize - portraitSize) / 2;
-        int portraitY = frameY + (frameHeight - portraitSize) / 2;
 
         g2.setColor(new Color(25, 25, 25, Math.min(200, alpha)));
         g2.fillRoundRect(portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, 14, 14);
@@ -531,8 +530,26 @@ public class UI {
         Image portrait = preview.portrait;
         if (portrait != null) {
             Composite oldComposite = g2.getComposite();
+            Shape oldClip = g2.getClip();
+
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, characterPreviewAlpha));
-            g2.drawImage(portrait, portraitX, portraitY, portraitSize, portraitSize, null);
+
+            // 🔥 Clip to rounded rectangle (same as frame)
+            Shape clip = new RoundRectangle2D.Float(
+                    portraitFrameX,
+                    portraitFrameY,
+                    portraitFrameSize,
+                    portraitFrameSize,
+                    14, // same arc as your frame
+                    14
+            );
+            g2.setClip(clip);
+
+            // Draw image INSIDE clipped area
+            g2.drawImage(portrait, portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, null);
+
+            // Restore
+            g2.setClip(oldClip);
             g2.setComposite(oldComposite);
         }
 
