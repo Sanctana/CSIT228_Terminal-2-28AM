@@ -2,8 +2,8 @@ package main;
 
 import javax.swing.JFrame;
 
-public class
-Game {
+
+public class Game {
     public static JFrame window;
 
     void main(String[] args) {
