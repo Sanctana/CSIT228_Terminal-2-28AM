@@ -20,41 +20,38 @@ public class KeyHandler implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
-        // TITLE STATE
-        if (gp.gameState == GameState.TITLE) {
+        switch (gp.gameState) {
+        case TITLE -> {
             handleTitleInput(code);
             return;
         }
-
-        if (gp.gameState == GameState.INVENTORY) {
+        case INVENTORY -> {
             handleInventoryInput(code);
             return;
         }
-
-        if (gp.gameState == GameState.GAME_OVER) {
+        case GAME_OVER -> {
             handleGameOverInput(code);
             return;
         }
-
-        if (gp.gameState == GameState.VICTORY_ENDING) {
+        case VICTORY_ENDING -> {
             handleVictoryEndingInput(code);
             return;
         }
-
-        if (gp.gameState == GameState.PAUSE) {
+        case PAUSE -> {
             handlePauseInput(code);
             return;
         }
-
-        if (gp.gameState != GameState.PLAY) {
+        case PLAY -> {
             return;
+        }
+        default -> {
+        }
         }
 
         // PLAY STATE

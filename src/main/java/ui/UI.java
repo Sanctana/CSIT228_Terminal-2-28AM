@@ -65,7 +65,7 @@ public class UI {
 
         characterPreviews = new CharacterPreview[] {
                 new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
-                        "/player/Detective/LLoyd_Transparent.png", gp),
+                        "/player/Detective/Lloyd_Transparent.png", gp),
                 new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
                         "/player/Officer/Andrew_Transparent.png", gp),
                 new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",

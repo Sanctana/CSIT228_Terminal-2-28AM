@@ -91,7 +91,6 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyH);
         this.setFocusable(true);
 
-        map = new ThirdFloorMap(this); // Default map
         gameThread = new Thread(this, "GameLoop");
         cChecker = new CollisionChecker(this);
     }
@@ -233,8 +232,13 @@ public class GamePanel extends JPanel implements Runnable {
         if (defeatedFinalBoss) {
             startVictoryEnding();
         } else {
-            transitionPhase = lostBattle ? Transitions.GAME_OVER
-                    : shouldChangeMap ? Transitions.CHANGE_MAP : Transitions.BATTLE_RETURN;
+            if (lostBattle) {
+                transitionPhase = Transitions.GAME_OVER;
+            } else if (shouldChangeMap) {
+                transitionPhase = Transitions.CHANGE_MAP;
+            } else {
+                transitionPhase = Transitions.BATTLE_RETURN;
+            }
             respawnFadeAlpha = 255;
         }
     }
@@ -282,7 +286,6 @@ public class GamePanel extends JPanel implements Runnable {
 
     private void completeReturnToMainMenu() {
         player = null;
-        map = new ThirdFloorMap(this);
         previousPlayerPositions.clear();
         pendingEnemy = null;
         pendingLoadSavePath = null;
