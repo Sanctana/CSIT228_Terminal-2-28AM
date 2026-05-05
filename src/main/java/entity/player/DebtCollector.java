@@ -4,9 +4,6 @@ import javax.swing.ImageIcon;
 
 import battle.ability.Action;
 import battle.ability.Skill;
-
-import java.awt.Graphics2D;
-
 import main.GamePanel;
 
 public class DebtCollector extends Character {
@@ -36,11 +33,6 @@ public class DebtCollector extends Character {
         down = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector.gif")).getImage();
         left = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector.gif")).getImage();
         right = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector.gif")).getImage();
-    }
-
-    @Override
-    public void draw(Graphics2D g2) {
-        super.draw(g2);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package entity.player;
 
 import javax.swing.ImageIcon;
-import java.awt.Graphics2D;
 
 import battle.Panel;
 import battle.ability.Action;
@@ -47,8 +46,6 @@ public class Intruder extends Character {
 
     @Override
     public int useSkill(int index) {
-        skills.get(index).triggerCooldown();
-
         if (index == 0) {
             abstractionMeter = Math.max(0, abstractionMeter - 10);
         } else if (index == 1) { // Ambush
@@ -74,11 +71,6 @@ public class Intruder extends Character {
         }
 
         abstractionMeter = Math.min(100, abstractionMeter + gain);
-    }
-
-    @Override
-    public void draw(Graphics2D g2) {
-        super.draw(g2);
     }
 
     @Override

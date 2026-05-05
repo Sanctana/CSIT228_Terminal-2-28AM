@@ -10,7 +10,8 @@ public class Skill extends Ability {
         this.ceilDMG = ceilDMG;
     }
 
-    public int getDamage() {
+    public int useSkill() {
+        triggerCooldown();
         return (int) (Math.random() * (ceilDMG - floorDMG + 1)) + floorDMG;
     }
 

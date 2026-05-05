@@ -52,8 +52,6 @@ public class Detective extends Character {
 
     @Override
     public int useSkill(int skillIndex) {
-        skills.get(skillIndex).triggerCooldown();
-
         if (skillIndex == 0) { // Skill 1: Shoot
             int finalDmg = (int) (20 * damageMultiplier);
             this.damageMultiplier = 0.5;

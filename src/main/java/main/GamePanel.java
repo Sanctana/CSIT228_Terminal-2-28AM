@@ -386,7 +386,7 @@ public class GamePanel extends JPanel implements Runnable {
             case LOAD_GAME -> completeLoadSavedGame();
             case BATTLE_RETURN -> {
                 encounterStartTime = System.currentTimeMillis(); // Reset encounter timer to prevent immediate
-                // retriggering
+                                                                 // retriggering
                 gameState = GameState.PLAY;
             }
             case GAME_OVER -> gameState = GameState.GAME_OVER;
@@ -405,7 +405,7 @@ public class GamePanel extends JPanel implements Runnable {
                     map.loadMap();
 
                     player.restorePreviousPosition(); // Restore the player's previous position after transitioning
-                    // back
+                                                      // back
 
                 }
                 player.state = EntityState.IDLE;

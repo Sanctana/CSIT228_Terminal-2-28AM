@@ -6,7 +6,6 @@ import battle.Panel;
 import battle.ability.Action;
 import battle.ability.Skill;
 import main.GamePanel;
-import java.awt.*;
 
 public class Artist extends Character {
     private int currentMode = 1; // Default: Recreation
@@ -60,11 +59,6 @@ public class Artist extends Character {
     private void updateSkills(String s1Name, int s1Min, int s1Max, String s2Name, int s2Min, int s2Max) {
         skills.get(0).setStats(s1Min, s1Max, s1Name);
         skills.get(1).setStats(s2Min, s2Max, s2Name);
-    }
-
-    @Override
-    public void draw(Graphics2D g2) {
-        super.draw(g2);
     }
 
     @Override

@@ -4,9 +4,6 @@ import javax.swing.ImageIcon;
 
 import battle.ability.Action;
 import battle.ability.Skill;
-
-import java.awt.Graphics2D;
-
 import main.GamePanel;
 
 public class Officer extends Character {
@@ -34,11 +31,6 @@ public class Officer extends Character {
         down = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer.gif")).getImage();
         left = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer.gif")).getImage();
         right = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer.gif")).getImage();
-    }
-
-    @Override
-    public void draw(Graphics2D g2) {
-        super.draw(g2);
     }
 
     @Override

@@ -1,16 +1,11 @@
 package entity.player;
 
-import main.KeyHandler;
-import utilities.states.Direction;
-import utilities.states.EntityState;
-
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import main.GamePanel;
 import battle.Panel;
 import battle.ability.Action;
 import battle.ability.Skill;
@@ -18,6 +13,10 @@ import inventory.Defibrillator;
 import inventory.IVFluids;
 import inventory.Item;
 import inventory.Scalpel;
+import main.KeyHandler;
+import main.GamePanel;
+import utilities.states.Direction;
+import utilities.states.EntityState;
 
 public abstract class Character extends Entity {
     public final int screenX;
@@ -77,9 +76,7 @@ public abstract class Character extends Entity {
 
     public int useSkill(int index) {
         if (index >= 0 && index < skills.size()) {
-            Skill s = skills.get(index);
-            s.triggerCooldown();
-            return s.getDamage();
+            return skills.get(index).useSkill();
         }
         return 0;
     }
@@ -90,9 +87,7 @@ public abstract class Character extends Entity {
 
     public void useAction(int index, Panel panel) {
         if (index >= 0 && index < actions.size()) {
-            Action a = actions.get(index);
-            a.triggerCooldown(); // THIS STARTS THE TIMER
-            this.setResistance(a.action());
+            this.setResistance(actions.get(index).action());
         }
     }
 
@@ -174,7 +169,8 @@ public abstract class Character extends Entity {
     }
 
     public void addItem(Item droppedItem) {
-        if (droppedItem == null) return;
+        if (droppedItem == null)
+            return;
 
         for (int i = 0; i < inventory.length; i++) {
             if (inventory[i] != null && inventory[i].getClass().equals(droppedItem.getClass())) {
@@ -185,8 +181,10 @@ public abstract class Character extends Entity {
     }
 
     public void updateCooldowns() {
-        for (Skill s : skills) s.tick();   // Only subtracts 1
-        for (Action a : actions) a.tick(); // Only subtracts 1
+        for (Skill s : skills)
+            s.tick(); // Only subtracts 1
+        for (Action a : actions)
+            a.tick(); // Only subtracts 1
     }
 
     public ArrayList<Skill> getSkills() {
@@ -196,7 +194,6 @@ public abstract class Character extends Entity {
     public ArrayList<Action> getActions() {
         return actions;
     }
-
 
     public abstract String getPlayerPortraitPath();
 

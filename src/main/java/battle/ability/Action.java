@@ -11,6 +11,7 @@ public class Action extends Ability {
     }
 
     public double action() {
+        triggerCooldown();
         return Math.random() * (resistCeil - resistFloor) + resistFloor;
     }
 
