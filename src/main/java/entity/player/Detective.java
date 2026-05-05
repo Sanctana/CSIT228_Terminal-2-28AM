@@ -5,9 +5,9 @@ import javax.swing.JOptionPane;
 import java.awt.Graphics2D;
 import java.util.Arrays;
 
-import battle.Action;
 import battle.Panel;
-import battle.Skill;
+import battle.ability.Action;
+import battle.ability.Skill;
 import main.GamePanel;
 
 public class Detective extends Character {

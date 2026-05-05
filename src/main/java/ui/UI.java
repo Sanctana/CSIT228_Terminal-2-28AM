@@ -10,6 +10,10 @@ import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.ImageIcon;
+
+import battle.ability.Action;
+import battle.ability.Skill;
+
 import java.nio.file.Path;
 import java.util.List;
 
@@ -18,8 +22,6 @@ import main.GamePanel;
 import utilities.SaveManager;
 import utilities.UtilityTool;
 import utilities.states.TitleScreenState;
-import battle.Action;
-import battle.Skill;
 import entity.player.Character;
 import entity.player.CharacterType;
 
@@ -609,7 +611,7 @@ public class UI {
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 18F));
         g2.setColor(new Color(205, 205, 205, alpha));
         for (Skill skill : skills) {
-            drawWrappedText("- " + skill.getSkillName(), x + 16, y, maxWidth - 16, 22);
+            drawWrappedText("- " + skill.getName(), x + 16, y, maxWidth - 16, 22);
             y += 24;
         }
         return y;

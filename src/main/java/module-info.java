@@ -10,4 +10,5 @@ module terminal228am {
     exports ui;
     exports inventory;
     exports entity.enemy;
+    exports battle.ability;
 }

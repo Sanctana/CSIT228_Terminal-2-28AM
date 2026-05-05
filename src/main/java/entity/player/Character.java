@@ -1,7 +1,5 @@
 package entity.player;
 
-import battle.Action;
-import battle.Skill;
 import main.KeyHandler;
 import utilities.states.Direction;
 import utilities.states.EntityState;
@@ -14,6 +12,8 @@ import java.util.ArrayList;
 
 import main.GamePanel;
 import battle.Panel;
+import battle.ability.Action;
+import battle.ability.Skill;
 import inventory.Defibrillator;
 import inventory.IVFluids;
 import inventory.Item;

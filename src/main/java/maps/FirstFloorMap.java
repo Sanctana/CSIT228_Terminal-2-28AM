@@ -1,7 +1,6 @@
 package maps;
 
 import entity.enemy.Enemy;
-import entity.enemy.boss.GuidanceP1;
 import entity.enemy.boss.GuidanceP3;
 import main.GamePanel;
 

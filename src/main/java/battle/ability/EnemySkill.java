@@ -1,4 +1,4 @@
-package battle;
+package battle.ability;
 
 public class EnemySkill {
     private int floorDMG;

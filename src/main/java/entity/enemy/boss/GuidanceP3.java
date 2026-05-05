@@ -1,6 +1,6 @@
 package entity.enemy.boss;
 
-import battle.EnemySkill;
+import battle.ability.EnemySkill;
 import entity.enemy.Enemy;
 
 public class GuidanceP3 extends Enemy {

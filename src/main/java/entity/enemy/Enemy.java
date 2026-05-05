@@ -1,7 +1,8 @@
 package entity.enemy;
 
 import java.util.ArrayList;
-import battle.EnemySkill;
+
+import battle.ability.EnemySkill;
 import inventory.Defibrillator;
 import inventory.IVFluids;
 import inventory.Item;

@@ -1,6 +1,6 @@
 package entity.enemy;
 
-import battle.EnemySkill;
+import battle.ability.EnemySkill;
 
 public class Stillborn extends Enemy {
     public Stillborn() {

@@ -4,8 +4,8 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import battle.Action;
-import battle.Skill;
+import battle.ability.Action;
+import battle.ability.Skill;
 import inventory.Item;
 import main.GamePanel;
 import utilities.states.Direction;

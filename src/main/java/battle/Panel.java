@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import battle.BattleLauncher.BattleResultListener;
+import battle.ability.Action;
+import battle.ability.Skill;
 import entity.enemy.Enemy;
 import entity.player.Character;
 import inventory.Item;
@@ -74,13 +76,13 @@ public class Panel extends JPanel {
         protectBtn = createActionBtn("ACTION", "Select an action", new Color(160, 150, 60));
         recoverBtn = createActionBtn("ITEM", "Use an item", new Color(60, 150, 80));
 
-        skill1Btn = createActionBtn(player.skills.get(0).getSkillName(),
+        skill1Btn = createActionBtn(player.skills.get(0).getName(),
                 player.skills.get(0).getFloorDMG() + "-" + player.skills.get(0).getCeilDMG() + "DMG",
                 new Color(60, 80, 150));
-        skill2Btn = createActionBtn(player.skills.get(1).getSkillName(),
+        skill2Btn = createActionBtn(player.skills.get(1).getName(),
                 player.skills.get(1).getFloorDMG() + "-" + player.skills.get(1).getCeilDMG() + "DMG",
                 new Color(160, 150, 60));
-        skill3Btn = createActionBtn(player.skills.get(2).getSkillName(),
+        skill3Btn = createActionBtn(player.skills.get(2).getName(),
                 player.skills.get(2).getFloorDMG() + "-" + player.skills.get(2).getCeilDMG() + "DMG",
                 new Color(60, 150, 80));
 
@@ -503,7 +505,7 @@ public class Panel extends JPanel {
             String status = s.isReady() ? s.getFloorDMG() + "-" + s.getCeilDMG() + "DMG"
                     : "<font size='1'>COOLDOWN</font>";
 
-            btn.setText("<html><center><font color='white' size='4'><b>" + s.getSkillName() + "</b></font><br>"
+            btn.setText("<html><center><font color='white' size='4'><b>" + s.getName() + "</b></font><br>"
                     + "<font color='white' size='2'>" + status + "</font></center></html>");
             btn.setEnabled(s.isReady());
         }

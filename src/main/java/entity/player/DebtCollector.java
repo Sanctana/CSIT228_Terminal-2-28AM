@@ -1,9 +1,12 @@
 package entity.player;
 
 import javax.swing.ImageIcon;
+
+import battle.ability.Action;
+import battle.ability.Skill;
+
 import java.awt.Graphics2D;
-import battle.Action;
-import battle.Skill;
+
 import main.GamePanel;
 
 public class DebtCollector extends Character {

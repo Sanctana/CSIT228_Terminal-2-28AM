@@ -2,9 +2,10 @@ package entity.player;
 
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;
-import battle.Action;
+
 import battle.Panel;
-import battle.Skill;
+import battle.ability.Action;
+import battle.ability.Skill;
 import main.GamePanel;
 
 public class Intruder extends Character {

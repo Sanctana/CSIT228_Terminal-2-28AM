@@ -1,9 +1,10 @@
 package entity.player;
 
 import javax.swing.ImageIcon;
-import battle.Action;
+
 import battle.Panel;
-import battle.Skill;
+import battle.ability.Action;
+import battle.ability.Skill;
 import main.GamePanel;
 import java.awt.*;
 

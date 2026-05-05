@@ -1,6 +1,6 @@
 package entity.enemy;
 
-import battle.EnemySkill;
+import battle.ability.EnemySkill;
 
 public class Scalper extends Enemy {
     public Scalper() {
