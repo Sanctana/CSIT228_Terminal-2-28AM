@@ -1,7 +1,7 @@
 package entity.player;
 
 import javax.swing.ImageIcon;
-
+import java.awt.Graphics2D;
 import battle.Action;
 import battle.Panel;
 import battle.Skill;
@@ -13,14 +13,18 @@ public class Intruder extends Character {
     public Intruder(GamePanel gp) {
         super(70, 0.0, "Trixy - The Intruder", gp);
 
-        skills.add(new Skill(10, 30, "Crowbar Strike"));
-        skills.add(new Skill(30, 50, "Ambush"));
-        skills.add(new Skill(40, 30, "Wait...")); // assume
+        skills.add(new Skill(10, 30, "Crowbar Strike", 0));
+        skills.add(new Skill(30, 50, "Ambush", 2));
+        skills.add(new Skill(40, 30, "Wait...", 3));
 
-        actions.add(new Action(0, 0, "Hold your breath"));
-        actions.add(new Action(0, 0, "Silent Steps"));
-        actions.add(new Action(0, 0, "Blend in the dark"));
+        actions.add(new Action(0, 0, "Hold your breath", 0));
+        actions.add(new Action(0, 0, "Silent Steps", 2));
+        actions.add(new Action(0, 0, "Blend in the dark", 3));
 
+        loadAssets();
+    }
+
+    private void loadAssets() {
         idleUp = new ImageIcon(getClass().getResource("/player/Intruder/Back_Intruder_Idle.png")).getImage();
         idleDown = new ImageIcon(getClass().getResource("/player/Intruder/Front_Intruder_Idle.png")).getImage();
         idleLeft = new ImageIcon(getClass().getResource("/player/Intruder/Left_Intruder_Idle.png")).getImage();
@@ -30,7 +34,6 @@ public class Intruder extends Character {
         down = new ImageIcon(getClass().getResource("/player/Intruder/Front_Intruder.gif")).getImage();
         left = new ImageIcon(getClass().getResource("/player/Intruder/Left_Intruder.gif")).getImage();
         right = new ImageIcon(getClass().getResource("/player/Intruder/Right_Intruder.gif")).getImage();
-
     }
 
     @Override
@@ -43,27 +46,38 @@ public class Intruder extends Character {
 
     @Override
     public int useSkill(int index) {
-        if (index == 0) { // Crowbar Strike
+        skills.get(index).triggerCooldown();
+
+        if (index == 0) {
             abstractionMeter = Math.max(0, abstractionMeter - 10);
         } else if (index == 1) { // Ambush
             abstractionMeter = Math.max(0, abstractionMeter - 25);
         }
+
+        // Pass through to base to handle damage calculation
         return super.useSkill(index);
     }
 
     @Override
     public void useAction(int index, Panel panel) {
-        int gain = 0;
+        // Trigger cooldown for the action button
+        actions.get(index).triggerCooldown();
 
-        if (index == 0) { // Action 1: Hold your breath
+        int gain = 0;
+        if (index == 0) { // Hold your breath
             gain = (int) (Math.random() * 11 + 10);
-        } else if (index == 1) { // Action 2: Silent Steps
+        } else if (index == 1) { // Silent Steps
             gain = (int) (Math.random() * 8 + 3);
-        } else if (index == 2) { // Action 3: Blend in the dark
+        } else if (index == 2) { // Blend in the dark
             gain = (int) (Math.random() * 21 + 40);
         }
 
         abstractionMeter = Math.min(100, abstractionMeter + gain);
+    }
+
+    @Override
+    public void draw(Graphics2D g2) {
+        super.draw(g2);
     }
 
     @Override

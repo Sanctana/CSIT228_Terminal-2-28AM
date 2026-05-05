@@ -2,6 +2,7 @@ package entity.player;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import java.awt.Graphics2D;
 import java.util.Arrays;
 
 import battle.Action;
@@ -18,16 +19,20 @@ public class Detective extends Character {
     public Detective(GamePanel gp) {
         super(100, 0.90, "John Lloyd - The Detective", gp);
 
-        // Math overridden in useSkill
-        skills.add(new Skill(0, 0, "Shoot"));
-        skills.add(new Skill(0, 0, "Judgement"));
-        skills.add(new Skill(5, 15, "Pistol Whip"));
+        skills.add(new Skill(0, 0, "Shoot", 0));
+        skills.add(new Skill(0, 0, "Judgement", 2));
+        skills.add(new Skill(5, 15, "Pistol Whip", 3));
 
-        actions.add(new Action(0, 0, "Shoot self"));
-        actions.add(new Action(0, 0, "Peek"));
-        actions.add(new Action(0, 0, "Spin"));
+        actions.add(new Action(0, 0, "Shoot self", 0));
+        actions.add(new Action(0, 0, "Peek", 2));
+        actions.add(new Action(0, 0, "Spin", 3));
 
         resetRevolver();
+
+        loadImages();
+    }
+
+    private void loadImages() {
         idleUp = new ImageIcon(getClass().getResource("/player/Detective/Back_Detective_Idle.png")).getImage();
         idleDown = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective_Idle.png")).getImage();
         idleLeft = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective_Idle.png")).getImage();
@@ -37,7 +42,6 @@ public class Detective extends Character {
         down = new ImageIcon(getClass().getResource("/player/Detective/Front_Detective.gif")).getImage();
         left = new ImageIcon(getClass().getResource("/player/Detective/Left_Detective.gif")).getImage();
         right = new ImageIcon(getClass().getResource("/player/Detective/Right_Detective.gif")).getImage();
-
     }
 
     public void resetRevolver() {
@@ -48,10 +52,10 @@ public class Detective extends Character {
 
     @Override
     public int useSkill(int skillIndex) {
+        skills.get(skillIndex).triggerCooldown();
+
         if (skillIndex == 0) { // Skill 1: Shoot
-
             int finalDmg = (int) (20 * damageMultiplier);
-
             this.damageMultiplier = 0.5;
             resetRevolver();
             return finalDmg;
@@ -60,7 +64,6 @@ public class Detective extends Character {
         if (skillIndex == 1) { // Skill 2: Judgement
             int remaining = maxBullets - index;
             double successChance = 1.0 / remaining;
-
             if (Math.random() < successChance) {
                 return 200;
             }
@@ -72,6 +75,9 @@ public class Detective extends Character {
 
     @Override
     public void useAction(int actionIndex, Panel panel) {
+        // Manually trigger cooldown for actions
+        actions.get(actionIndex).triggerCooldown();
+
         if (actionIndex == 0) { // Action 1: Shoot self
             if (chamber[index]) {
                 this.heartRate -= 40;
@@ -83,13 +89,18 @@ public class Detective extends Character {
                 if (index >= maxBullets)
                     resetRevolver();
             }
-        } else if (actionIndex == 1) { // Action 2: Peek
+        } else if (actionIndex == 1) {
             boolean isLive = chamber[index];
             String status = isLive ? "LIVE ROUND" : "EMPTY";
             JOptionPane.showMessageDialog(null, "The current chamber is: " + status);
-        } else if (actionIndex == 2) { // Action 3: Spin
+        } else if (actionIndex == 2) {
             resetRevolver();
         }
+    }
+
+    @Override
+    public void draw(Graphics2D g2) {
+        super.draw(g2);
     }
 
     @Override

@@ -151,6 +151,7 @@ public class Panel extends JPanel {
                 isProcessing = true;
                 player.useAction(0, this);
                 finalizeAction();
+                refreshButtonText();
             }
         });
         action2Btn.addActionListener(e -> {
@@ -158,6 +159,7 @@ public class Panel extends JPanel {
                 isProcessing = true;
                 player.useAction(1, this);
                 finalizeAction();
+                refreshButtonText();
             }
         });
         action3Btn.addActionListener(e -> {
@@ -165,6 +167,7 @@ public class Panel extends JPanel {
                 isProcessing = true;
                 player.useAction(2, this);
                 finalizeAction();
+                refreshButtonText();
             }
         });
 
@@ -209,11 +212,14 @@ public class Panel extends JPanel {
     }
 
     private void finalizeAction() {
+        player.updateCooldowns();
         toggleProtectActions(false);
         toggleMenu(true);
+        refreshButtonText();
         repaint();
         startEnemyTimer();
     }
+
 
     private void applyPlayerAction(int damage) {
         isProcessing = true;
@@ -223,26 +229,23 @@ public class Panel extends JPanel {
         }
 
         enemyHP = Math.max(0, enemyHP - damage);
-        player.resetResistance();
 
-        // UI Updates
+        player.updateCooldowns();
+
         toggleSkills(false);
         toggleProtectActions(false);
         toggleMenu(true);
+        refreshButtonText(); // Refresh text to show cooldowns
         repaint();
 
         if (enemyHP <= 0) {
             Item drop = enemy.dropItem();
-
             if (drop != null) {
                 player.addItem(drop);
-
-                JOptionPane.showMessageDialog(this,
-                        "The enemy has been suppressed.\nYou received: " + drop.getQuantity() + "x " + drop.getName());
+                JOptionPane.showMessageDialog(this, "The enemy has been suppressed.\nYou received: " + drop.getQuantity() + "x " + drop.getName());
             } else {
                 JOptionPane.showMessageDialog(this, "The enemy has been suppressed.");
             }
-
             resetBattle();
         } else {
             startEnemyTimer();
@@ -253,6 +256,7 @@ public class Panel extends JPanel {
         this.enemy = null;
         startVictoryTransition();
     }
+
 
     private void startVictoryTransition() {
         victoryTransitionActive = true;
@@ -493,13 +497,26 @@ public class Panel extends JPanel {
     }
 
     public void refreshButtonText() {
-        skill1Btn.setText("<html><center><font color='white'><b>" + player.skills.get(0).getSkillName()
-                + "</b></font><br>" + "<font color='white' size='2'>" + player.skills.get(0).getFloorDMG() + "-"
-                + player.skills.get(0).getCeilDMG() + "DMG</font></center></html>");
+        for (int i = 0; i < 3; i++) {
+            Skill s = player.getSkills().get(i);
+            JButton btn = (i == 0) ? skill1Btn : (i == 1) ? skill2Btn : skill3Btn;
+            String status = s.isReady() ? s.getFloorDMG() + "-" + s.getCeilDMG() + "DMG"
+                    : "<font size='1'>COOLDOWN</font>";
 
-        skill2Btn.setText("<html><center><font color='white'><b>" + player.skills.get(1).getSkillName()
-                + "</b></font><br>" + "<font color='white' size='2'>" + player.skills.get(1).getFloorDMG() + "-"
-                + player.skills.get(1).getCeilDMG() + "DMG</font></center></html>");
+            btn.setText("<html><center><font color='white' size='4'><b>" + s.getSkillName() + "</b></font><br>"
+                    + "<font color='white' size='2'>" + status + "</font></center></html>");
+            btn.setEnabled(s.isReady());
+        }
+
+        for (int i = 0; i < 3; i++) {
+            Action a = player.getActions().get(i);
+            JButton btn = (i == 0) ? action1Btn : (i == 1) ? action2Btn : action3Btn;
+            String status = a.isReady() ? "READY" : "<font size='1'>COOLDOWN</font>";
+
+            btn.setText("<html><center><font color='white' size='4'><b>" + a.getName() + "</b></font><br>"
+                    + "<font color='#bbbbbb' size='2'>" + status + "</font></center></html>");
+            btn.setEnabled(a.isReady());
+        }
         repaint();
     }
 

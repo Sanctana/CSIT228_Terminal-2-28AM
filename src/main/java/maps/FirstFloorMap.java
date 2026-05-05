@@ -2,6 +2,7 @@ package maps;
 
 import entity.enemy.Enemy;
 import entity.enemy.boss.GuidanceP1;
+import entity.enemy.boss.GuidanceP3;
 import main.GamePanel;
 
 public class FirstFloorMap extends Map {
@@ -21,6 +22,6 @@ public class FirstFloorMap extends Map {
 
     @Override
     public Enemy createBoss() {
-        return new GuidanceP1();
+        return new GuidanceP3();
     }
 }

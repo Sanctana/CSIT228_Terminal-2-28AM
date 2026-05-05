@@ -1,5 +1,7 @@
 package entity.player;
 
+import battle.Action;
+import battle.Skill;
 import main.KeyHandler;
 import utilities.states.Direction;
 import utilities.states.EntityState;
@@ -8,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 
 import main.GamePanel;
 import battle.Panel;
@@ -74,7 +77,9 @@ public abstract class Character extends Entity {
 
     public int useSkill(int index) {
         if (index >= 0 && index < skills.size()) {
-            return skills.get(index).getDamage();
+            Skill s = skills.get(index);
+            s.triggerCooldown();
+            return s.getDamage();
         }
         return 0;
     }
@@ -85,7 +90,9 @@ public abstract class Character extends Entity {
 
     public void useAction(int index, Panel panel) {
         if (index >= 0 && index < actions.size()) {
-            this.setResistance(actions.get(index).action());
+            Action a = actions.get(index);
+            a.triggerCooldown(); // THIS STARTS THE TIMER
+            this.setResistance(a.action());
         }
     }
 
@@ -175,6 +182,19 @@ public abstract class Character extends Entity {
                 return;
             }
         }
+    }
+
+    public void updateCooldowns() {
+        for (Skill s : skills) s.tick();   // Only subtracts 1
+        for (Action a : actions) a.tick(); // Only subtracts 1
+    }
+
+    public ArrayList<Skill> getSkills() {
+        return skills;
+    }
+
+    public ArrayList<Action> getActions() {
+        return actions;
     }
 
 
