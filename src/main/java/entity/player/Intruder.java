@@ -75,7 +75,7 @@ public class Intruder extends Character {
 
     @Override
     public String getPlayerPortraitPath() {
-        return "/player/Intruder/Intruder_Icon.jpg";
+        return "/player/Intruder/Trixy_Transparent.png";
     }
 
     @Override

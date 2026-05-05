@@ -44,6 +44,7 @@ public class UI {
     private final CharacterPreview[] characterPreviews;
     private int lastCharacterPreviewIndex = -1;
     private float characterPreviewAlpha = 0F;
+    private Image titleBackground;
 
     public enum PauseSavePrompt {
         NONE, MAIN_MENU, QUIT
@@ -57,17 +58,22 @@ public class UI {
 
         titleScreenState = TitleScreenState.MAIN_MENU;
         commandNum = pulseCounter = 0;
+
+        titleBackground = new ImageIcon(
+                getClass().getResource("/Assets/TitleScreenBackground/TitleScreen.gif")
+        ).getImage();
+
         characterPreviews = new CharacterPreview[] {
                 new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
-                        "/player/Detective/Detective_Icon.jpg", gp),
+                        "/player/Detective/LLoyd_Transparent.png", gp),
                 new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
-                        "/player/Officer/Officer_Icon.jpg", gp),
+                        "/player/Officer/Andrew_Transparent.png", gp),
                 new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",
-                        "/player/Intruder/Intruder_Icon.jpg", gp),
+                        "/player/Intruder/Trixy_Transparent.png", gp),
                 new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
-                        "/player/Artist/Artist_Icon.jpg", gp),
+                        "/player/Artist/Tria_Transparent.png", gp),
                 new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
-                        "/player/Collector/Collector_Icon.jpg", gp)
+                        "/player/Collector/Yohann_Transparent.png", gp)
         };
     }
 
@@ -352,8 +358,9 @@ public class UI {
     }
 
     public void drawTitleScreen() {
-        g2.setColor(new Color(0, 0, 0));
-        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        if (titleBackground != null) {
+            g2.drawImage(titleBackground, 0, 0, gp.screenWidth, gp.screenHeight, null);
+        }
 
         if (titleScreenState == TitleScreenState.MAIN_MENU) {
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));

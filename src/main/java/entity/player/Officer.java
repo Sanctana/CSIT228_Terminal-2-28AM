@@ -35,7 +35,7 @@ public class Officer extends Character {
 
     @Override
     public String getPlayerPortraitPath() {
-        return "/player/Officer/Officer_Icon.jpg";
+        return "/player/Officer/Andrew_Transparent.png";
     }
 
     @Override

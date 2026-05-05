@@ -63,7 +63,7 @@ public class Artist extends Character {
 
     @Override
     public String getPlayerPortraitPath() {
-        return "/player/Artist/Artist_Icon.jpg";
+        return "/player/Artist/Tria_Transparent.png";
     }
 
     @Override

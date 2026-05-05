@@ -37,7 +37,7 @@ public class DebtCollector extends Character {
 
     @Override
     public String getPlayerPortraitPath() {
-        return "/player/Collector/Collector_Icon.jpg";
+        return "/player/Collector/Yohann_Transparent.png";
     }
 
     @Override
