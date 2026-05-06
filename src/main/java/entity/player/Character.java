@@ -17,6 +17,7 @@ import main.KeyHandler;
 import main.GamePanel;
 import utilities.states.Direction;
 import utilities.states.EntityState;
+import main.SoundManager;
 
 public abstract class Character extends Entity {
     public final int screenX;
@@ -24,6 +25,7 @@ public abstract class Character extends Entity {
 
     protected int maxHeartBeat = 200;
     protected KeyHandler keyH;
+    protected SoundManager sound = new SoundManager();
 
     public Character(int heartBeat, double resistance, String name, GamePanel gp) {
         super(gp);
@@ -76,7 +78,20 @@ public abstract class Character extends Entity {
 
     public int useSkill(int index) {
         if (index >= 0 && index < skills.size()) {
-            return skills.get(index).useSkill();
+
+            Skill skill = skills.get(index);
+
+            if (!skill.isReady()) {
+                return 0; // on cooldown
+            }
+
+            int damage = skill.useSkill();
+
+            skill.triggerCooldown();
+
+            playSkillSound(index); // 🔊 SOUND HERE
+
+            return damage;
         }
         return 0;
     }
@@ -87,7 +102,16 @@ public abstract class Character extends Entity {
 
     public void useAction(int index, Panel panel) {
         if (index >= 0 && index < actions.size()) {
-            this.setResistance(actions.get(index).action());
+
+            Action action = actions.get(index);
+
+            if (!action.isReady()) return;
+
+            this.setResistance(action.action());
+
+            action.triggerCooldown();
+
+            playActionSound(index); // 🔊 SOUND HERE
         }
     }
 
@@ -198,4 +222,13 @@ public abstract class Character extends Entity {
     public abstract String getPlayerPortraitPath();
 
     public abstract CharacterType getCharacterType();
+
+    protected void playSkillSound(int index) {
+        // default = no sound
+    }
+
+    protected void playActionSound(int index) {
+        // default = no sound
+    }
+
 }

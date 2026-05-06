@@ -3,17 +3,18 @@ package entity.player;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import java.util.Arrays;
-
 import battle.Panel;
 import battle.ability.Action;
 import battle.ability.Skill;
 import main.GamePanel;
+import main.SoundManager;
 
 public class Detective extends Character {
     private int maxBullets = 6;
     private int index = 0;
     private boolean[] chamber = new boolean[6];
     private double damageMultiplier = 0.5;
+    protected SoundManager sound = new SoundManager();
 
     public Detective(GamePanel gp) {
         super(70, 0.90, "John Lloyd - The Detective", gp);
@@ -51,16 +52,22 @@ public class Detective extends Character {
 
     @Override
     public int useSkill(int skillIndex) {
-        if (skillIndex == 0) { // Skill 1: Shoot
+
+        if (skillIndex == 0) { // Shoot
+            playSkillSound(skillIndex); // 🔊
+
             int finalDmg = (int) (20 * damageMultiplier);
             this.damageMultiplier = 0.5;
             resetRevolver();
             return finalDmg;
         }
 
-        if (skillIndex == 1) { // Skill 2: Judgement
+        if (skillIndex == 1) { // Judgement
+            playSkillSound(skillIndex); // 🔊
+
             int remaining = maxBullets - index;
             double successChance = 1.0 / remaining;
+
             if (Math.random() < successChance) {
                 return 200;
             }
@@ -72,10 +79,12 @@ public class Detective extends Character {
 
     @Override
     public void useAction(int actionIndex, Panel panel) {
-        // Manually trigger cooldown for actions
+
         actions.get(actionIndex).triggerCooldown();
 
-        if (actionIndex == 0) { // Action 1: Shoot self
+        playActionSound(actionIndex);
+
+        if (actionIndex == 0) {
             if (chamber[index]) {
                 this.heartRate -= 40;
                 this.damageMultiplier = 0.5;
@@ -86,12 +95,41 @@ public class Detective extends Character {
                 if (index >= maxBullets)
                     resetRevolver();
             }
+
         } else if (actionIndex == 1) {
             boolean isLive = chamber[index];
             String status = isLive ? "LIVE ROUND" : "EMPTY";
             JOptionPane.showMessageDialog(null, "The current chamber is: " + status);
+
         } else if (actionIndex == 2) {
             resetRevolver();
+        }
+    }
+
+    @Override
+    protected void playSkillSound(int index) {
+        if (index == 0) {
+            sound.playSE("/SoundEffects/lloyd_gunshot.wav");
+        }
+        if (index == 1) {
+                sound.playSE("/SoundEffects/lloyd_gunshot.wav");
+            }
+        if (index == 2) {
+            sound.playSE("/SoundEffects/metal_hit.wav");
+        }
+    }
+
+    @Override
+    protected void playActionSound(int actionIndex) {
+
+        if (actionIndex == 0) {
+                sound.playSE("/SoundEffects/lloyd_gunshot.wav");
+            }
+        if (actionIndex == 1) {
+            sound.playSE("/SoundEffects/lloyd_gunshot.wav");
+        }
+        if (actionIndex == 2) {
+            sound.playSE("/SoundEffects/revolver_spin.wav");
         }
     }
 
