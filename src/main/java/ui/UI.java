@@ -1,16 +1,12 @@
 package ui;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Image;
 import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import java.nio.file.Path;
@@ -85,16 +81,56 @@ public class UI {
                 .getImage();
 
         characterPreviews = new CharacterPreview[] {
-                new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
-                        "/player/Detective/Lloyd_Transparent.png", gp),
-                new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
-                        "/player/Officer/Andrew_Transparent.png", gp),
-                new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",
-                        "/player/Intruder/Trixy_Transparent.png", gp),
-                new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
-                        "/player/Artist/Tria_Transparent.png", gp),
-                new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
-                        "/player/Collector/Yohann_Transparent.png", gp) };
+
+                new CharacterPreview(
+                        CharacterType.DETECTIVE,
+                        "DETECTIVE",
+                        "Revolver",
+                        "John, also known as John Lloyd, is a detective residing outside "
+                                + "WildCats Town. He visits the town intending to find answers about his wife’s murder case"
+                                + "wife’s murder case.",
+                        "/player/Detective/Lloyd_Transparent.png",
+                        gp),
+
+                new CharacterPreview(
+                        CharacterType.OFFICER,
+                        "OFFICER",
+                        "Service Pistol",
+                        "Andrew is a humble and honest police officer in WildCats Town. "
+                                + "He upholds strong morals and always looks out for those in need, "
+                                + "protecting the weak with unwavering dedication.",
+                        "/player/Officer/Andrew_Transparent.png",
+                        gp),
+
+                new CharacterPreview(
+                        CharacterType.INTRUDER,
+                        "INTRUDER",
+                        "Crowbar",
+                        "Trixy once lived a normal life as a waitress in WildCats Town. "
+                                + "But after her husband fell gravely ill, debts consumed her life. "
+                                + "Now, she resorts to desperate measures just to survive.",
+                        "/player/Intruder/Trixy_Transparent.png",
+                        gp),
+
+                new CharacterPreview(
+                        CharacterType.ARTIST,
+                        "ARTIST",
+                        "Canvas Tools",
+                        "No one truly knows Tria. She shows no emotion and speaks little. "
+                                + "Locals find it disturbing that she frequently buys different shades of red paint, "
+                                + "often late at night.",
+                        "/player/Artist/Tria_Transparent.png",
+                        gp),
+
+                new CharacterPreview(
+                        CharacterType.COLLECTOR,
+                        "COLLECTOR",
+                        "Ledger",
+                        "Yohan works for a loan shark organization, tasked with collecting debts. "
+                                + "His presence alone is enough to intimidate the residents of WildCats Town.",
+                        "/player/Collector/Yohann_Transparent.png",
+                        gp)
+        };
     }
 
     private Font getMenuFont(float size) {
@@ -115,24 +151,24 @@ public class UI {
         g2.setColor(Color.white);
 
         switch (gp.gameState) {
-        case TITLE -> drawTitleScreen();
-        case PLAY -> drawPlayerUI();
-        case PAUSE -> drawPauseScreen();
-        case ENEMY_ENCOUNTER -> {
-            drawPlayerUI();
-            drawEnemyEncounter();
-        }
-        case FIRST_LOAD, BATTLE -> {
-        }
-        case INVENTORY -> {
-            drawPlayerUI();
-            drawInventoryScreen(gp.player);
-        }
-        case GAME_OVER -> {
-            drawPlayerUI();
-            drawGameOverScreen();
-        }
-        case VICTORY_ENDING -> drawVictoryEnding();
+            case TITLE -> drawTitleScreen();
+            case PLAY -> drawPlayerUI();
+            case PAUSE -> drawPauseScreen();
+            case ENEMY_ENCOUNTER -> {
+                drawPlayerUI();
+                drawEnemyEncounter();
+            }
+            case FIRST_LOAD, BATTLE -> {
+            }
+            case INVENTORY -> {
+                drawPlayerUI();
+                drawInventoryScreen(gp.player);
+            }
+            case GAME_OVER -> {
+                drawPlayerUI();
+                drawGameOverScreen();
+            }
+            case VICTORY_ENDING -> drawVictoryEnding();
         }
     }
 
@@ -309,9 +345,9 @@ public class UI {
         g2.drawString("Press Enter to use", listStartX, instructionY);
     }
 
-    private void drawWrappedText(String text, int x, int y, int maxWidth, int lineHeight) {
+    private int drawWrappedText(String text, int x, int y, int maxWidth, int lineHeight) {
         if (text == null || text.isBlank()) {
-            return;
+            return y; // nothing drawn, return starting Y
         }
 
         String[] words = text.split("\\s+");
@@ -333,7 +369,10 @@ public class UI {
 
         if (!line.isEmpty()) {
             g2.drawString(line.toString(), x, drawY);
+            drawY += lineHeight;
         }
+
+        return drawY;
     }
 
     public void drawTitleScreen() {
@@ -425,7 +464,7 @@ public class UI {
     }
 
     private TextImageCache createShadowTextCache(String text, Font font, int layers, float spreadStep,
-            int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
+                                                 int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
         BufferedImage measureImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D measureG2 = measureImage.createGraphics();
         measureG2.setFont(font);
@@ -541,22 +580,154 @@ public class UI {
     }
 
     private void drawCharacterSelectScreen() {
+        g2.setColor(new Color(0, 0, 0, 180));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        int overlayX = 0;
+        int overlayY = 150;
+        int overlayW = gp.screenWidth;
+        int overlayH = 520;
+
+        g2.setColor(new Color(255, 255, 255, 8));
+        g2.fillRect(overlayX, overlayY, overlayW, overlayH);
+
+        g2.setColor(new Color(69, 15, 15));
+        g2.setStroke(new BasicStroke(3f));
+        g2.drawLine(overlayX, overlayY, overlayX + overlayW, overlayY);
+
+        g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 52F));
         g2.setColor(Color.white);
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 42F));
+        String title = "SELECT YOUR CHARACTER";
+        g2.drawString(title, getXforCenteredText(title), 120);
 
-        String text = "SELECT YOUR CHARACTER";
-        int x = gp.tileSize + 55;
-        int y = gp.screenHeight / 2 - 270;
-        g2.drawString(text, x, y);
+        String[] options = { "DETECTIVE", "OFFICER", "INTRUDER", "ARTIST", "COLLECTOR", "BACK" };
 
-        String[] options = { "Detective", "Officer", "Intruder", "Artist", "Collector" };
+        int panelX = 60;
+        int panelY = 200;
+        int panelW = 260;
+        int textY = panelY + 60;
 
-        int menuX = gp.tileSize + 55;
-        int startY = gp.screenHeight / 2 - 95;
-        int rowHeight = 58;
-        drawLeftMenuOptions(options, menuX, startY, rowHeight, 42F);
-        drawLeftMenuOption("BACK", 5, menuX, gp.screenHeight / 2 + 255, 42F);
-        drawCharacterPreviewPanel();
+        for (int i = 0; i < options.length; i++) {
+            boolean selected = commandNum == i;
+            boolean isBackOption = "BACK".equals(options[i]);
+
+            if (selected) {
+                if (isBackOption) {
+                    g2.setColor(new Color(0, 0, 0, 180));
+                    g2.fillRoundRect(panelX + 10, textY - 27, panelW - 20, 40, 5, 10);
+
+                    g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 28F));
+                    g2.setColor(new Color(108, 2, 2));
+                    g2.drawString(options[i], panelX + 25, textY);
+                } else {
+                    g2.setColor(new Color(255, 255, 255, 60));
+                    g2.fillRoundRect(panelX + 10, textY - 27, panelW - 20, 40, 5, 10);
+
+                    g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 28F));
+                    g2.setColor(new Color(0, 0, 0, 123));
+                    g2.drawString(options[i], panelX + 27, textY + 2);
+
+                    g2.setColor(new Color(96, 1, 1));
+                    g2.drawString(options[i], panelX + 25, textY);
+                }
+            } else {
+                g2.setFont(mainMenuFont.deriveFont(Font.PLAIN, 26F));
+                g2.setColor(new Color(163, 159, 159, 169));
+                g2.drawString(options[i], panelX + 25, textY);
+            }
+
+            textY += 55;
+        }
+
+        drawCharacterInfoPanel();
+    }
+
+    private void drawCharacterInfoPanel() {
+        int selectedIndex = Math.min(commandNum, characterPreviews.length - 1);
+        CharacterPreview preview = characterPreviews[selectedIndex];
+        Character character = preview.character;
+
+        int panelX = 380;
+        int panelY = 200;
+        int panelW = gp.screenWidth - panelX - 60;
+        int panelH = 420;
+
+        g2.setColor(new Color(0, 0, 0, 200));
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+
+        g2.setColor(new Color(69, 15, 15));
+        g2.setStroke(new BasicStroke(3f));
+        g2.drawRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+
+        int imgSize = 160;
+        int imgX = panelX + 30;
+        int imgY = panelY + 30;
+
+        g2.setColor(new Color(60, 60, 60));
+        g2.fillRoundRect(imgX, imgY, imgSize, imgSize, 18, 18);
+
+        if (preview.portrait != null) {
+            g2.drawImage(preview.portrait, imgX, imgY, imgSize, imgSize, null);
+        }
+
+        int textX = imgX + imgSize + 25;
+        int textY = imgY + 30;
+
+        g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 45));
+        g2.setColor(new Color(108, 2, 2));
+        g2.drawString(preview.menuName, textX, textY);
+
+        g2.setFont(arial_40.deriveFont(Font.PLAIN, 18F));
+        g2.setColor(new Color(200, 200, 200, 171));
+        int descMaxWidth = panelX + panelW - textX - 40;
+        int afterDescY = drawWrappedText(preview.description, textX, textY + 35, descMaxWidth, 22);
+
+        int infoY = afterDescY + 75;
+        g2.setFont(arial_40.deriveFont(Font.BOLD, 20F));
+        g2.setColor(Color.white);
+        g2.drawString("WEAPON:", panelX + 30, infoY);
+
+        g2.setFont(arial_40.deriveFont(Font.PLAIN, 20F));
+        g2.setColor(new Color(200, 200, 200));
+        g2.drawString(preview.weapon, panelX + 30, infoY + 30);
+
+        g2.setFont(arial_40.deriveFont(Font.BOLD, 20F));
+        g2.setColor(Color.white);
+        g2.drawString("DEFENSE:", panelX + 30, infoY + 80);
+
+        g2.setFont(arial_40.deriveFont(Font.PLAIN, 20F));
+        g2.setColor(new Color(200, 200, 200));
+        g2.drawString(Math.round(character.initialResistance * 100) + "% Resistance", panelX + 30, infoY + 110);
+
+        int skillX = panelX + 250;
+        int skillY = infoY;
+
+        g2.setFont(arial_40.deriveFont(Font.BOLD, 20F));
+        g2.setColor(Color.white);
+        g2.drawString("SKILLS:", skillX, skillY);
+
+        g2.setFont(arial_40.deriveFont(Font.PLAIN, 18F));
+        g2.setColor(new Color(200, 200, 200));
+        int y = skillY + 30;
+        for (Skill skill : character.skills) {
+            g2.drawString("- " + skill.getName(), skillX, y);
+            y += 24;
+        }
+
+        int actionX = skillX + 250;
+        int actionY = skillY;
+
+        g2.setFont(arial_40.deriveFont(Font.BOLD, 20F));
+        g2.setColor(Color.white);
+        g2.drawString("ACTIONS:", actionX, actionY);
+
+        g2.setFont(arial_40.deriveFont(Font.PLAIN, 18F));
+        g2.setColor(new Color(200, 200, 200));
+        int ay = actionY + 30;
+        for (Action action : character.actions) {
+            g2.drawString("- " + action.getName(), actionX, ay);
+            ay += 24;
+        }
     }
 
     private void drawLeftMenuOptions(String[] options, int x, int startY, int rowHeight, float fontSize) {
@@ -589,144 +760,6 @@ public class UI {
         }
     }
 
-    private void drawCharacterPreviewPanel() {
-        int selectedIndex = commandNum >= 0 && commandNum < characterPreviews.length ? commandNum
-                : Math.max(0, lastCharacterPreviewIndex);
-
-        if (selectedIndex != lastCharacterPreviewIndex) {
-            lastCharacterPreviewIndex = selectedIndex;
-            characterPreviewAlpha = 0F;
-        }
-
-        characterPreviewAlpha = Math.min(1F, characterPreviewAlpha + 0.08F);
-
-        int alpha = Math.round(255 * characterPreviewAlpha);
-        if (alpha <= 0) {
-            return;
-        }
-
-        CharacterPreview preview = characterPreviews[selectedIndex];
-        Character character = preview.character;
-
-        int frameX = gp.screenWidth / 2 - 24;
-        int frameY = gp.screenHeight / 2 - 185;
-        int frameWidth = gp.screenWidth - frameX - gp.tileSize;
-        int frameHeight = 470;
-        int contentInset = 38;
-        int arc = 18;
-
-        g2.setColor(new Color(0, 0, 0, Math.min(220, alpha)));
-        g2.fillRoundRect(frameX, frameY, frameWidth, frameHeight, arc, arc);
-
-        g2.setColor(new Color(230, 230, 230, alpha));
-        g2.setStroke(new BasicStroke(4f));
-        g2.drawRoundRect(frameX, frameY, frameWidth, frameHeight, arc, arc);
-
-        int portraitFrameSize = 220;
-        int portraitFrameX = frameX + contentInset;
-        int portraitFrameY = frameY + (frameHeight - portraitFrameSize) / 2;
-
-        g2.setColor(new Color(25, 25, 25, Math.min(200, alpha)));
-        g2.fillRoundRect(portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, 14, 14);
-        g2.setColor(new Color(120, 120, 120, alpha));
-        g2.drawRoundRect(portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, 14, 14);
-
-        Image portrait = preview.portrait;
-        if (portrait != null) {
-            Composite oldComposite = g2.getComposite();
-            Shape oldClip = g2.getClip();
-
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, characterPreviewAlpha));
-
-            Shape clip = new RoundRectangle2D.Float(portraitFrameX, portraitFrameY, portraitFrameSize,
-                    portraitFrameSize, 14, // same arc as your frame
-                    14);
-            g2.setClip(clip);
-
-            // Draw image INSIDE clipped area
-            g2.drawImage(portrait, portraitFrameX, portraitFrameY, portraitFrameSize, portraitFrameSize, null);
-
-            // Restore
-            g2.setClip(oldClip);
-            g2.setComposite(oldComposite);
-        }
-
-        int detailsX = portraitFrameX + portraitFrameSize + 45;
-        int detailsY = frameY + contentInset + 20;
-        int detailsWidth = frameX + frameWidth - detailsX - contentInset;
-
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
-        g2.setColor(new Color(255, 255, 255, alpha));
-        g2.drawString(preview.menuName, detailsX, detailsY);
-
-        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
-        int lineY = drawWrappedDetailLine("Title", character.getName(), detailsX, detailsY + 34, detailsWidth, alpha);
-        lineY += 12;
-        lineY = drawDetailLine("Weapon", preview.weapon, detailsX, lineY, alpha);
-        lineY = drawDetailLine("Defense", Math.round(character.initialResistance * 100) + "% resistance", detailsX,
-                lineY, alpha);
-
-        lineY += 10;
-        lineY = drawDetailSection("Skills", character.skills, detailsX, lineY, detailsWidth, alpha);
-        lineY += 10;
-        drawActionSection(character.actions, detailsX, lineY, detailsWidth, alpha);
-    }
-
-    private int drawDetailLine(String label, String value, int x, int y, int alpha) {
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-        g2.setColor(new Color(230, 230, 230, alpha));
-        g2.drawString(label + ":", x, y);
-
-        int valueX = x + 112;
-        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
-        g2.setColor(new Color(205, 205, 205, alpha));
-        g2.drawString(value, valueX, y);
-        return y + 30;
-    }
-
-    private int drawWrappedDetailLine(String label, String value, int x, int y, int maxWidth, int alpha) {
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-        g2.setColor(new Color(230, 230, 230, alpha));
-        g2.drawString(label + ":", x, y);
-
-        int valueY = y + 26;
-        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
-        g2.setColor(new Color(205, 205, 205, alpha));
-        drawWrappedText(value, x + 16, valueY, maxWidth - 16, 24);
-
-        int lineCount = Math.max(1, (g2.getFontMetrics().stringWidth(value) / Math.max(1, maxWidth - 16)) + 1);
-        return valueY + (lineCount * 24);
-    }
-
-    private int drawDetailSection(String label, java.util.List<Skill> skills, int x, int y, int maxWidth, int alpha) {
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-        g2.setColor(new Color(230, 230, 230, alpha));
-        g2.drawString(label + ":", x, y);
-        y += 28;
-
-        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 18F));
-        g2.setColor(new Color(205, 205, 205, alpha));
-        for (Skill skill : skills) {
-            drawWrappedText("- " + skill.getName(), x + 16, y, maxWidth - 16, 22);
-            y += 24;
-        }
-        return y;
-    }
-
-    private void drawActionSection(java.util.List<Action> actions, int x, int y, int maxWidth, int alpha) {
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-        g2.setColor(new Color(230, 230, 230, alpha));
-        g2.drawString("Actions:", x, y);
-        y += 28;
-
-        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 18F));
-        g2.setColor(new Color(205, 205, 205, alpha));
-        for (Action action : actions) {
-            drawWrappedText("- " + action.getName(), x + 16, y, maxWidth - 16, 22);
-            y += 24;
-        }
-    }
-
     private void drawCenteredMenuOptions(String[] options, int startY, int rowHeight, float fontSize) {
         int y = startY;
 
@@ -738,13 +771,13 @@ public class UI {
 
     private void drawCenteredMenuOption(String text, int optionIndex, int y, float fontSize) {
         boolean selected = commandNum == optionIndex;
+
         g2.setFont(mainMenuFont.deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
 
         int x = getXforCenteredText(text);
 
         int shadowOffset = selected ? 3 : 2;
         int shadowAlpha = selected ? 120 : 80;
-
         Color shadowColor = new Color(0, 0, 0, shadowAlpha);
 
         int jitter = selected ? (int) (Math.random() * 2) : 0;
@@ -762,21 +795,34 @@ public class UI {
         g2.drawString(text, x + jitter, y + jitter);
 
         if (selected) {
+            // Choose font for the arrow symbol based on the option
+            if ("QUIT".equals(text)) {
+                g2.setFont(mainMenuFont.deriveFont(Font.BOLD, fontSize));
+            } else {
+                g2.setFont(arial_40.deriveFont(Font.BOLD, 35f));
+            }
+
             g2.setColor(Color.white);
             g2.drawString(">", x - gp.tileSize + jitter, y + jitter);
+
+            // Reset back to mainMenuFont for consistency
+            g2.setFont(mainMenuFont.deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
         }
     }
 
     private static class CharacterPreview {
         private final String menuName;
         private final String weapon;
+        private final String description;
         private final Image portrait;
         private final Character character;
 
-        private CharacterPreview(CharacterType type, String menuName, String weapon, String portraitPath,
-                GamePanel gp) {
+        private CharacterPreview(CharacterType type, String menuName, String weapon,
+                                 String description, String portraitPath, GamePanel gp) {
+
             this.menuName = menuName;
             this.weapon = weapon;
+            this.description = description;
             this.portrait = new ImageIcon(CharacterPreview.class.getResource(portraitPath)).getImage();
             this.character = UtilityTool.characterFactory(type, gp);
         }
