@@ -2,7 +2,6 @@ package entity.player;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import java.awt.Graphics2D;
 import java.util.Arrays;
 
 import battle.Panel;
@@ -94,11 +93,6 @@ public class Detective extends Character {
         } else if (actionIndex == 2) {
             resetRevolver();
         }
-    }
-
-    @Override
-    public void draw(Graphics2D g2) {
-        super.draw(g2);
     }
 
     @Override

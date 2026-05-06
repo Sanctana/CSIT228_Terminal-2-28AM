@@ -31,10 +31,6 @@ enum Transitions {
     NONE, RESPAWN, NEW_GAME, LOAD_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN, MAIN_MENU_RETURN
 }
 
-// TODO: Include a boolean if the player already defeated
-// the boss on this floor to determine whether to
-// trigger the boss before transitioning again or not
-
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 8;
     private final int scale = 8;
@@ -99,7 +95,7 @@ public class GamePanel extends JPanel implements Runnable {
         eManager.setup();
         gameState = GameState.TITLE;
 
-        playMusic(0);
+        // playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         graphics2d = (Graphics2D) tempScreen.getGraphics();
@@ -335,8 +331,6 @@ public class GamePanel extends JPanel implements Runnable {
         finalBossDefeated = false;
         previousPlayerPositions.clear();
 
-        // Please check if this is really 70 since some Character sets it to 100 upon
-        // creation
         player.heartRate = 70;
         player.setDefaultValues();
         keyH.resetMovementInput();

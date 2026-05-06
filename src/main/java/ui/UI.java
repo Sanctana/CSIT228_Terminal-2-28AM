@@ -10,13 +10,11 @@ import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.ImageIcon;
-
-import battle.ability.Action;
-import battle.ability.Skill;
-
 import java.nio.file.Path;
 import java.util.List;
 
+import battle.ability.Action;
+import battle.ability.Skill;
 import inventory.Item;
 import main.GamePanel;
 import utilities.SaveManager;
@@ -27,11 +25,12 @@ import entity.player.CharacterType;
 
 public class UI {
     public static final long VICTORY_ENDING_COMPLETE_MS = 56_000L;
-
     private GamePanel gp;
     private Graphics2D g2;
 
     private Font arial_40;
+    private Font mainMenuFont;
+
     public int commandNum;
     public TitleScreenState titleScreenState;
     public boolean pauseQuitConfirm;
@@ -55,13 +54,13 @@ public class UI {
         this.g2 = g2;
 
         arial_40 = new Font("Arial", Font.PLAIN, 40);
+        mainMenuFont = getMenuFont(40);
 
         titleScreenState = TitleScreenState.MAIN_MENU;
         commandNum = pulseCounter = 0;
 
-        titleBackground = new ImageIcon(
-                getClass().getResource("/Assets/TitleScreenBackground/TitleScreen.gif")
-        ).getImage();
+        titleBackground = new ImageIcon(getClass().getResource("/Assets/TitleScreenBackground/TitleScreen.gif"))
+                .getImage();
 
         characterPreviews = new CharacterPreview[] {
                 new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
@@ -73,12 +72,21 @@ public class UI {
                 new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
                         "/player/Artist/Tria_Transparent.png", gp),
                 new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
-                        "/player/Collector/Yohann_Transparent.png", gp)
-        };
+                        "/player/Collector/Yohann_Transparent.png", gp) };
+    }
+
+    private Font getMenuFont(float size) {
+        try {
+            return Font.createFont(Font.TRUETYPE_FONT,
+                    getClass().getResourceAsStream("/Assets/Fonts/DK Face Your Fears.ttf"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Font("Arial", Font.BOLD, (int) size);
+        }
     }
 
     public void draw() {
-        g2.setFont(arial_40);
+        g2.setFont(mainMenuFont);
         g2.setColor(Color.white);
 
         switch (gp.gameState) {
@@ -126,78 +134,24 @@ public class UI {
             return;
         }
 
-        String[] lines = {
-                "Terminal 2:28 AM",
-                "The hospital grows quiet",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                """
+        String[] lines = { "Terminal 2:28 AM", "The hospital grows quiet", "", "", "", "", "", "", "", "", """
                 Thank you for playing this
                 game, we really appreciated the
                 support You gave us while we are
                 doing this project.
-                
+
                 We will always love you!
-                    
+
                 - Test Only
-                """,
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "Created by:",
-                "Team Terminal 2:28 AM",
-                "",
-                "",
-                "Game design, programming, and graphics:",
-                "Abarquez Yohann",
-                "Trixy Flores",
-                "Loyd Hernaez",
-                "Andrew Sangasina",
-                "Trea Tangpos",
-                "",
-                "",
-                "Story and atmosphere:",
-                "Team Terminal 2:28 AM",
-                "",
-                "",
-                "Battle system:",
-                "Team Terminal 2:28 AM",
-                "",
-                "",
-                "Maps and level layout:",
-                "Team Terminal 2:28 AM",
-                "",
-                "",
-                "Special thanks:",
-                "Our instructor",
-                "Our classmates",
-                """
-                Everyone who played and 
-                tested Terminal 2:28 AM
-                """,
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "Thank you for reaching the end",
-                "The night is over."
-        };
+                """, "", "", "", "", "", "", "Created by:", "Team Terminal 2:28 AM", "", "",
+                "Game design, programming, and graphics:", "Abarquez Yohann", "Trixy Flores", "Loyd Hernaez",
+                "Andrew Sangasina", "Trea Tangpos", "", "", "Story and atmosphere:", "Team Terminal 2:28 AM", "", "",
+                "Battle system:", "Team Terminal 2:28 AM", "", "", "Maps and level layout:", "Team Terminal 2:28 AM",
+                "", "", "Special thanks:", "Our instructor", "Our classmates", """
+                        Everyone who played and
+                        tested Terminal 2:28 AM
+                        """, "", "", "", "", "", "", "", "", "", "", "", "Thank you for reaching the end",
+                "The night is over." };
 
         float fadeIn = Math.min(1F, scrollElapsed / 2000F);
         int baseAlpha = Math.min(255, Math.round(255 * fadeIn));
@@ -363,15 +317,21 @@ public class UI {
         }
 
         if (titleScreenState == TitleScreenState.MAIN_MENU) {
-            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 96F));
-            String text = "Terminal 2:28 AM";
-            int x = getXforCenteredText(text);
+            g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 96F));
+            // String text = "Terminal 2:28 AM";
+            String terminal = "Terminal";
+            String time = "2:28 AM";
+            int x = getXforCenteredText(terminal);
             int y = gp.screenHeight / 2 - 155;
 
-            g2.setColor(Color.gray);
-            g2.drawString(text, x + 5, y + 5);
+            int timeX = getXforCenteredText(time);
+            int timeY = y + 86;
+
             g2.setColor(Color.white);
-            g2.drawString(text, x, y);
+            g2.drawString(terminal, x, y);
+            
+            g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 68F));
+            g2.drawString(time, timeX, timeY);
 
             String[] options = { "NEW GAME", "LOAD GAME", "QUIT" };
             drawCenteredMenuOptions(options, gp.screenHeight / 2 + 85, 62, 48F);
@@ -420,8 +380,8 @@ public class UI {
 
         for (int i = 0; i < visibleSaves; i++) {
             int saveIndex = firstIndex + i;
-            drawCenteredMenuOption(SaveManager.getDisplayName(saveFiles.get(saveIndex)), saveIndex, startY + i * rowHeight,
-                    30F);
+            drawCenteredMenuOption(SaveManager.getDisplayName(saveFiles.get(saveIndex)), saveIndex,
+                    startY + i * rowHeight, 30F);
         }
 
         drawCenteredMenuOption("BACK", saveFiles.size(), gp.screenHeight / 2 + 255, 42F);
@@ -493,8 +453,7 @@ public class UI {
     }
 
     private void drawCharacterPreviewPanel() {
-        int selectedIndex = commandNum >= 0 && commandNum < characterPreviews.length
-                ? commandNum
+        int selectedIndex = commandNum >= 0 && commandNum < characterPreviews.length ? commandNum
                 : Math.max(0, lastCharacterPreviewIndex);
 
         if (selectedIndex != lastCharacterPreviewIndex) {
@@ -542,15 +501,9 @@ public class UI {
 
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, characterPreviewAlpha));
 
-            // 🔥 Clip to rounded rectangle (same as frame)
-            Shape clip = new RoundRectangle2D.Float(
-                    portraitFrameX,
-                    portraitFrameY,
-                    portraitFrameSize,
-                    portraitFrameSize,
-                    14, // same arc as your frame
-                    14
-            );
+            Shape clip = new RoundRectangle2D.Float(portraitFrameX, portraitFrameY, portraitFrameSize,
+                    portraitFrameSize, 14, // same arc as your frame
+                    14);
             g2.setClip(clip);
 
             // Draw image INSIDE clipped area
@@ -570,8 +523,7 @@ public class UI {
         g2.drawString(preview.menuName, detailsX, detailsY);
 
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 20F));
-        int lineY = drawWrappedDetailLine("Title", character.getName(), detailsX, detailsY + 34, detailsWidth,
-                alpha);
+        int lineY = drawWrappedDetailLine("Title", character.getName(), detailsX, detailsY + 34, detailsWidth, alpha);
         lineY += 12;
         lineY = drawDetailLine("Weapon", preview.weapon, detailsX, lineY, alpha);
         lineY = drawDetailLine("Defense", Math.round(character.initialResistance * 100) + "% resistance", detailsX,
@@ -649,7 +601,7 @@ public class UI {
 
     private void drawCenteredMenuOption(String text, int optionIndex, int y, float fontSize) {
         boolean selected = commandNum == optionIndex;
-        g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
+        g2.setFont(mainMenuFont.deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
         g2.setColor(selected ? Color.white : new Color(205, 205, 205));
 
         int x = getXforCenteredText(text);
@@ -666,7 +618,8 @@ public class UI {
         private final Image portrait;
         private final Character character;
 
-        private CharacterPreview(CharacterType type, String menuName, String weapon, String portraitPath, GamePanel gp) {
+        private CharacterPreview(CharacterType type, String menuName, String weapon, String portraitPath,
+                GamePanel gp) {
             this.menuName = menuName;
             this.weapon = weapon;
             this.portrait = new ImageIcon(CharacterPreview.class.getResource(portraitPath)).getImage();
