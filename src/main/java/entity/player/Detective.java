@@ -17,7 +17,7 @@ public class Detective extends Character {
     private double damageMultiplier = 0.5;
 
     public Detective(GamePanel gp) {
-        super(100, 0.90, "John Lloyd - The Detective", gp);
+        super(70, 0.90, "John Lloyd - The Detective", gp);
 
         skills.add(new Skill(0, 0, "Shoot", 0));
         skills.add(new Skill(0, 0, "Judgement", 2));

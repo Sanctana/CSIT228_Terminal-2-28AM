@@ -99,7 +99,7 @@ public class GamePanel extends JPanel implements Runnable {
         eManager.setup();
         gameState = GameState.TITLE;
 
-        // playMusic(0);
+        playMusic(0);
 
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         graphics2d = (Graphics2D) tempScreen.getGraphics();
@@ -603,7 +603,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                 map.draw(graphics2d);
                 player.draw(graphics2d);
-                // eManager.draw(graphics2d);
+                eManager.draw(graphics2d);
 
                 graphics2d.setTransform(originalTransform);
                 ui.draw();

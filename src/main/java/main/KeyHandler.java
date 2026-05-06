@@ -47,9 +47,6 @@ public class KeyHandler implements KeyListener {
             handlePauseInput(code);
             return;
         }
-        case PLAY -> {
-            return;
-        }
         default -> {
         }
         }

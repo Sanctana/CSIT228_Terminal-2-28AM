@@ -11,7 +11,7 @@ public class Artist extends Character {
     private int currentMode = 1; // Default: Recreation
 
     public Artist(GamePanel gp) {
-        super(100, 0.0, "Tria - The Artist", gp);
+        super(70, 0.0, "Tria - The Artist", gp);
 
         skills.add(new Skill(20, 40, "Forgotten Memories", 0));
         skills.add(new Skill(25, 50, "Taking what's not yours", 2));
