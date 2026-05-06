@@ -9,8 +9,7 @@ public class Game {
     void main(String[] args) {
         window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-        window.setTitle("Terminal-2-28AM");
+        window.setResizable(false);x
 
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
