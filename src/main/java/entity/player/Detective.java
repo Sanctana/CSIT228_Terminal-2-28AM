@@ -103,7 +103,7 @@ public class Detective extends Character {
 
     @Override
     public String getPlayerPortraitPath() {
-        return "/player/Detective/LLoyd_Transparent.png";
+        return "/player/Detective/Lloyd_Transparent.png";
     }
 
     @Override
