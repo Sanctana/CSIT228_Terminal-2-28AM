@@ -6,8 +6,10 @@ import battle.Panel;
 import battle.ability.Action;
 import battle.ability.Skill;
 import main.GamePanel;
+import main.SoundManager;
 
 public class Artist extends Character {
+    protected SoundManager sound = new SoundManager();
     private int currentMode = 1; // Default: Recreation
 
     public Artist(GamePanel gp) {
@@ -59,6 +61,16 @@ public class Artist extends Character {
     private void updateSkills(String s1Name, int s1Min, int s1Max, String s2Name, int s2Min, int s2Max) {
         skills.get(0).setStats(s1Min, s1Max, s1Name);
         skills.get(1).setStats(s2Min, s2Max, s2Name);
+    }
+
+    @Override
+    protected void playSkillSound(int index) {
+        sound.playSE("/SoundEffects/sharp-sound.wav");
+    }
+
+    @Override
+    protected void playActionSound(int index) {
+        sound.playSE("/SoundEffects/tria_action.wav");
     }
 
     @Override

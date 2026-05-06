@@ -5,8 +5,11 @@ import javax.swing.ImageIcon;
 import battle.ability.Action;
 import battle.ability.Skill;
 import main.GamePanel;
+import main.SoundManager;
 
 public class DebtCollector extends Character {
+    protected SoundManager sound = new SoundManager();
+
     public DebtCollector(GamePanel gp) {
         super(70, 0.20, "Yohann - The Debt Collector", gp);
 
@@ -33,6 +36,16 @@ public class DebtCollector extends Character {
         down = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector.gif")).getImage();
         left = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector.gif")).getImage();
         right = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector.gif")).getImage();
+    }
+
+    @Override
+    protected void playSkillSound(int index) {
+        sound.playSE("/SoundEffects/yohann_punch.wav");
+    }
+
+    @Override
+    protected void playActionSound(int index) {
+        sound.playSE("/SoundEffects/swoosh.wav");
     }
 
     @Override

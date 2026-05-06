@@ -52,26 +52,35 @@ public class Detective extends Character {
 
     @Override
     public int useSkill(int skillIndex) {
+        if (skillIndex >= 0 && skillIndex < skills.size()) {
+            Skill skill = skills.get(skillIndex);
 
-        if (skillIndex == 0) { // Shoot
-            playSkillSound(skillIndex); // 🔊
-
-            int finalDmg = (int) (20 * damageMultiplier);
-            this.damageMultiplier = 0.5;
-            resetRevolver();
-            return finalDmg;
-        }
-
-        if (skillIndex == 1) { // Judgement
-            playSkillSound(skillIndex); // 🔊
-
-            int remaining = maxBullets - index;
-            double successChance = 1.0 / remaining;
-
-            if (Math.random() < successChance) {
-                return 200;
+            if (!skill.isReady()) {
+                return 0;
             }
-            return 0;
+
+            if (skillIndex == 0) {
+                playSkillSound(skillIndex);
+                int finalDmg = (int) (20 * damageMultiplier);
+                this.damageMultiplier = 0.5;
+                resetRevolver();
+
+                skill.triggerCooldown();
+                return finalDmg;
+            }
+
+            if (skillIndex == 1) {
+                playSkillSound(skillIndex);
+                int remaining = maxBullets - index;
+                double successChance = 1.0 / remaining;
+
+                skill.triggerCooldown();
+
+                if (Math.random() < successChance) {
+                    return 200;
+                }
+                return 0;
+            }
         }
 
         return super.useSkill(skillIndex);
@@ -129,7 +138,7 @@ public class Detective extends Character {
             sound.playSE("/SoundEffects/lloyd_gunshot.wav");
         }
         if (actionIndex == 2) {
-            sound.playSE("/SoundEffects/revolver_spin.wav");
+            sound.playSE("/SoundEffects/revolver_spin.wav"); //temporary
         }
     }
 

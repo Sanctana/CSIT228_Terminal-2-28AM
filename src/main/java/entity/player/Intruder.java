@@ -8,6 +8,7 @@ import battle.ability.Skill;
 import main.GamePanel;
 
 public class Intruder extends Character {
+
     private int abstractionMeter = 50;
 
     public Intruder(GamePanel gp) {
@@ -46,31 +47,49 @@ public class Intruder extends Character {
 
     @Override
     public int useSkill(int index) {
-        if (index == 0) {
-            abstractionMeter = Math.max(0, abstractionMeter - 10);
-        } else if (index == 1) { // Ambush
-            abstractionMeter = Math.max(0, abstractionMeter - 25);
-        }
+        if (index >= 0 && index < skills.size()) {
+            Skill skill = skills.get(index);
+            if (!skill.isReady()) return 0;
 
-        // Pass through to base to handle damage calculation
+            if (index == 0) {
+                abstractionMeter = Math.max(0, abstractionMeter - 10);
+            } else if (index == 1) {
+                abstractionMeter = Math.max(0, abstractionMeter - 25);
+            }
+        }
         return super.useSkill(index);
     }
 
     @Override
     public void useAction(int index, Panel panel) {
-        // Trigger cooldown for the action button
-        actions.get(index).triggerCooldown();
+        if (index >= 0 && index < actions.size()) {
+            Action action = actions.get(index);
+            if (!action.isReady()) return;
 
-        int gain = 0;
-        if (index == 0) { // Hold your breath
-            gain = (int) (Math.random() * 11 + 10);
-        } else if (index == 1) { // Silent Steps
-            gain = (int) (Math.random() * 8 + 3);
-        } else if (index == 2) { // Blend in the dark
-            gain = (int) (Math.random() * 21 + 40);
+            int gain = 0;
+            if (index == 0) {
+                gain = (int) (Math.random() * 11 + 10);
+            } else if (index == 1) {
+                gain = (int) (Math.random() * 8 + 3);
+            } else if (index == 2) {
+                gain = (int) (Math.random() * 21 + 40);
+            }
+
+            abstractionMeter = Math.min(100, abstractionMeter + gain);
+
+            playActionSound(index);
+            action.triggerCooldown();
         }
+    }
 
-        abstractionMeter = Math.min(100, abstractionMeter + gain);
+    @Override
+    protected void playSkillSound(int index) {
+        sound.playSE("/SoundEffects/lloyd_gunshot.wav"); //temporary
+    }
+
+    @Override
+    protected void playActionSound(int index) {
+        sound.playSE("/SoundEffects/trixy_action.wav");
     }
 
     @Override
