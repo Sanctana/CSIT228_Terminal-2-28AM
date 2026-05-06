@@ -1,4 +1,4 @@
-package main;// package main;
+package main;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,6 +21,17 @@ public class SoundManager {
             clip.open(ais);
         } catch (Exception e) {
             System.out.println("Error: Could not find the music file!");
+        }
+    }
+
+    public void playSE(String path) {
+        try {
+            AudioInputStream ais = AudioSystem.getAudioInputStream(getClass().getResource(path));
+            Clip clip = AudioSystem.getClip();
+            clip.open(ais);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
