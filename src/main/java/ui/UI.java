@@ -6,9 +6,12 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import java.nio.file.Path;
 import java.util.List;
@@ -30,6 +33,8 @@ public class UI {
 
     private Font arial_40;
     private Font mainMenuFont;
+    private Font titleFont;
+    private Font timeFont;
 
     public int commandNum;
     public TitleScreenState titleScreenState;
@@ -44,7 +49,23 @@ public class UI {
     private int lastCharacterPreviewIndex = -1;
     private float characterPreviewAlpha = 0F;
     private Image titleBackground;
-
+    private static final String TITLE_TEXT = "Terminal";
+    private static final String TIME_TEXT = "2:28 AM";
+    private static final int TITLE_FONT_SIZE = 200;
+    private static final int TIME_FONT_SIZE = 130;
+    private static final int TITLE_SHADOW_LAYERS = 8;
+    private static final float TITLE_SHADOW_SPREAD = 0.8F;
+    private static final int TITLE_SHADOW_OFFSET_X = 3;
+    private static final int TITLE_SHADOW_OFFSET_Y = 3;
+    private static final int TIME_SHADOW_OFFSET_X = -6;
+    private static final int TIME_SHADOW_OFFSET_Y = 3;
+    private static final Color TITLE_FLICKER_COLOR = new Color(255, 0, 0, 10);
+    private static final Color TIME_COLOR = new Color(90, 10, 10);
+    private static final Color TIME_GHOST_COLOR = new Color(120, 0, 0, 100);
+    private int cachedTitleScreenWidth = -1;
+    private int cachedTitleScreenHeight = -1;
+    private TextImageCache titleTextCache;
+    private TextImageCache timeTextCache;
 
     public enum PauseSavePrompt {
         NONE, MAIN_MENU, QUIT
@@ -316,46 +337,26 @@ public class UI {
     }
 
     public void drawTitleScreen() {
+        ensureTitleScreenCache();
+
         if (titleBackground != null) {
             g2.drawImage(titleBackground, 0, 0, gp.screenWidth, gp.screenHeight, null);
         }
 
         if (Math.random() < 0.03) {
-            g2.setColor(new Color(255, 0, 0, 10));
+            g2.setColor(TITLE_FLICKER_COLOR);
             g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
         }
 
-        float breathe = (float)Math.sin(System.currentTimeMillis() * 0.020) * 2;
+        float breathe = (float) Math.sin(System.currentTimeMillis() * 0.020) * 2;
 
         if (titleScreenState == TitleScreenState.MAIN_MENU) {
+            int titleX = getXforCenteredWidth(titleTextCache.textWidth);
+            int titleY = gp.screenHeight / 2 - 120 + (int) breathe;
 
-            Font titleFont = mainMenuFont.deriveFont(Font.BOLD, 200F);
-            g2.setFont(titleFont);
-            g2.setColor(Color.white);
+            g2.drawImage(titleTextCache.image, titleX - titleTextCache.anchorX, titleY - titleTextCache.anchorY, null);
 
-            String terminal = "Terminal";
-            int titleX = getXforCenteredText(terminal);
-            int titleY = gp.screenHeight / 2 - 120 + (int)breathe;
-
-            int shadowLayers = 8;
-
-            for (int i = 0; i < shadowLayers; i++) {
-
-                float spread = i * 0.8f;
-                int alpha = 140 - (i * 15);
-                if (alpha < 0) alpha = 0;
-
-                g2.setColor(new Color(0, 0, 0, alpha));
-
-                g2.drawString(terminal,
-                        titleX + (int)spread + 3,
-                        titleY + (int)spread + 3);
-            }
-
-            g2.setColor(Color.white);
-            g2.drawString(terminal, titleX, titleY);
-
-            int glitchTimer = (int)(System.currentTimeMillis() / 100);
+            int glitchTimer = (int) (System.currentTimeMillis() / 100);
 
             boolean glitch = false;
             if (glitchTimer % 15 == 0 && Math.random() < 0.6) {
@@ -366,44 +367,21 @@ public class UI {
             int glitchY = 0;
 
             if (glitch) {
-                glitchX = (int)(Math.random() * 6 - 3);
-                glitchY = (int)(Math.random() * 4 - 2);
+                glitchX = (int) (Math.random() * 6 - 3);
+                glitchY = (int) (Math.random() * 4 - 2);
             }
 
-            Font timeFont = mainMenuFont.deriveFont(Font.BOLD, 130F);
-            g2.setFont(timeFont);
-
-            String time = "2:28 AM";
-
-            int timeX = getXforCenteredText(time) - 8 + glitchX;
+            int timeX = getXforCenteredWidth(timeTextCache.textWidth) - 8 + glitchX;
             int timeY = titleY + 120 + glitchY;
 
-            for (int i = 0; i < shadowLayers; i++) {
-
-                float spread = i * 0.8f;
-
-                int alpha = 140 - (i * 15);
-
-                if (alpha < 0) alpha = 0;
-
-                g2.setColor(new Color(0, 0, 0, alpha));
-
-                g2.drawString(time,
-                        timeX + (int)spread - 6,
-                        timeY + (int)spread + 3);
-            }
-
-            Color deepRed = new Color(90, 10, 10);
+            g2.drawImage(timeTextCache.image, timeX - timeTextCache.anchorX, timeY - timeTextCache.anchorY, null);
 
             if (glitch) {
-                int ghostOffset = (int)(Math.random() * 4 - 2);
-                g2.setColor(new Color(120, 0, 0, 100));
-                g2.drawString(time, timeX + ghostOffset + 2, timeY + ghostOffset + 2);
+                int ghostOffset = (int) (Math.random() * 4 - 2);
+                g2.setFont(timeFont);
+                g2.setColor(TIME_GHOST_COLOR);
+                g2.drawString(TIME_TEXT, timeX + ghostOffset + 2, timeY + ghostOffset + 2);
             }
-
-            g2.setColor(deepRed);
-            g2.drawString(time, timeX, timeY);
-            g2.setColor(Color.white);
 
             String[] options = { "NEW GAME", "LOAD GAME", "QUIT" };
             drawCenteredMenuOptions(options, gp.screenHeight / 2 + 120, 62, 48F);
@@ -412,6 +390,83 @@ public class UI {
         } else if (titleScreenState == TitleScreenState.LOAD_GAME) {
             drawLoadGameScreen();
         }
+    }
+
+    // Cache title screen assets to avoid per-frame allocations.
+    private void ensureTitleScreenCache() {
+        if (cachedTitleScreenWidth == gp.screenWidth && cachedTitleScreenHeight == gp.screenHeight
+                && titleTextCache != null && timeTextCache != null) {
+            return;
+        }
+
+        cachedTitleScreenWidth = gp.screenWidth;
+        cachedTitleScreenHeight = gp.screenHeight;
+
+        titleFont = mainMenuFont.deriveFont(Font.BOLD, (float) TITLE_FONT_SIZE);
+        timeFont = mainMenuFont.deriveFont(Font.BOLD, (float) TIME_FONT_SIZE);
+
+        Color[] shadowColors = createShadowColors(TITLE_SHADOW_LAYERS);
+        titleTextCache = createShadowTextCache(TITLE_TEXT, titleFont, TITLE_SHADOW_LAYERS, TITLE_SHADOW_SPREAD,
+                TITLE_SHADOW_OFFSET_X, TITLE_SHADOW_OFFSET_Y, shadowColors, Color.white);
+        timeTextCache = createShadowTextCache(TIME_TEXT, timeFont, TITLE_SHADOW_LAYERS, TITLE_SHADOW_SPREAD,
+                TIME_SHADOW_OFFSET_X, TIME_SHADOW_OFFSET_Y, shadowColors, TIME_COLOR);
+    }
+
+    private Color[] createShadowColors(int layers) {
+        Color[] colors = new Color[layers];
+        for (int i = 0; i < layers; i++) {
+            int alpha = 140 - (i * 15);
+            if (alpha < 0) {
+                alpha = 0;
+            }
+            colors[i] = new Color(0, 0, 0, alpha);
+        }
+        return colors;
+    }
+
+    private TextImageCache createShadowTextCache(String text, Font font, int layers, float spreadStep,
+            int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
+        BufferedImage measureImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D measureG2 = measureImage.createGraphics();
+        measureG2.setFont(font);
+        FontMetrics fontMetrics = measureG2.getFontMetrics();
+        int textWidth = fontMetrics.stringWidth(text);
+        int textHeight = fontMetrics.getHeight();
+        int ascent = fontMetrics.getAscent();
+        measureG2.dispose();
+
+        int maxSpread = Math.round((layers - 1) * spreadStep);
+        int minOffsetX = Math.min(0, Math.min(baseShadowOffsetX, baseShadowOffsetX + maxSpread));
+        int maxOffsetX = Math.max(0, Math.max(baseShadowOffsetX, baseShadowOffsetX + maxSpread));
+        int minOffsetY = Math.min(0, Math.min(baseShadowOffsetY, baseShadowOffsetY + maxSpread));
+        int maxOffsetY = Math.max(0, Math.max(baseShadowOffsetY, baseShadowOffsetY + maxSpread));
+
+        int padding = 2;
+        int imageWidth = textWidth + (maxOffsetX - minOffsetX) + (padding * 2);
+        int imageHeight = textHeight + (maxOffsetY - minOffsetY) + (padding * 2);
+
+        BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D textG2 = image.createGraphics();
+        textG2.setFont(font);
+        textG2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        textG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int anchorX = padding - minOffsetX;
+        int anchorY = padding - minOffsetY + ascent;
+
+        for (int i = 0; i < layers; i++) {
+            float spread = i * spreadStep;
+            int offsetX = baseShadowOffsetX + Math.round(spread);
+            int offsetY = baseShadowOffsetY + Math.round(spread);
+            textG2.setColor(shadowColors[i]);
+            textG2.drawString(text, anchorX + offsetX, anchorY + offsetY);
+        }
+
+        textG2.setColor(textColor);
+        textG2.drawString(text, anchorX, anchorY);
+        textG2.dispose();
+
+        return new TextImageCache(image, anchorX, anchorY, textWidth);
     }
 
     private void drawLoadGameScreen() {
@@ -516,7 +571,6 @@ public class UI {
     private void drawLeftMenuOption(String text, int optionIndex, int x, int y, float fontSize) {
         boolean selected = commandNum == optionIndex;
         g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
-        Color bloodRed = new Color(110, 29, 29);
         if (selected) {
             g2.setColor(new Color(255, 30, 30, 60));
             g2.drawString(text, x + 2, y + 2);
@@ -527,7 +581,7 @@ public class UI {
         }
         g2.drawString(text, x, y);
 
-        int jitter = selected ? (int)(Math.random() * 2) : 0;
+        int jitter = selected ? (int) (Math.random() * 2) : 0;
         g2.drawString(text, x + jitter, y + jitter);
 
         if (selected) {
@@ -693,7 +747,7 @@ public class UI {
 
         Color shadowColor = new Color(0, 0, 0, shadowAlpha);
 
-        int jitter = selected ? (int)(Math.random() * 2) : 0;
+        int jitter = selected ? (int) (Math.random() * 2) : 0;
 
         g2.setColor(shadowColor);
         g2.drawString(text, x + shadowOffset + jitter, y + shadowOffset + jitter);
@@ -725,6 +779,20 @@ public class UI {
             this.weapon = weapon;
             this.portrait = new ImageIcon(CharacterPreview.class.getResource(portraitPath)).getImage();
             this.character = UtilityTool.characterFactory(type, gp);
+        }
+    }
+
+    private static class TextImageCache {
+        private final BufferedImage image;
+        private final int anchorX;
+        private final int anchorY;
+        private final int textWidth;
+
+        private TextImageCache(BufferedImage image, int anchorX, int anchorY, int textWidth) {
+            this.image = image;
+            this.anchorX = anchorX;
+            this.anchorY = anchorY;
+            this.textWidth = textWidth;
         }
     }
 
@@ -957,6 +1025,10 @@ public class UI {
         int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         int x = gp.screenWidth / 2 - length / 2;
         return x;
+    }
+
+    private int getXforCenteredWidth(int width) {
+        return gp.screenWidth / 2 - width / 2;
     }
 
     public void drawGameOverScreen() {
