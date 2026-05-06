@@ -45,6 +45,7 @@ public class UI {
     private float characterPreviewAlpha = 0F;
     private Image titleBackground;
 
+
     public enum PauseSavePrompt {
         NONE, MAIN_MENU, QUIT
     }
@@ -86,6 +87,9 @@ public class UI {
     }
 
     public void draw() {
+        g2.setColor(new Color(0, 0, 0, 120));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
         g2.setFont(mainMenuFont);
         g2.setColor(Color.white);
 
@@ -316,25 +320,93 @@ public class UI {
             g2.drawImage(titleBackground, 0, 0, gp.screenWidth, gp.screenHeight, null);
         }
 
-        if (titleScreenState == TitleScreenState.MAIN_MENU) {
-            g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 96F));
-            // String text = "Terminal 2:28 AM";
-            String terminal = "Terminal";
-            String time = "2:28 AM";
-            int x = getXforCenteredText(terminal);
-            int y = gp.screenHeight / 2 - 155;
+        if (Math.random() < 0.03) {
+            g2.setColor(new Color(255, 0, 0, 10));
+            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+        }
 
-            int timeX = getXforCenteredText(time);
-            int timeY = y + 86;
+        float breathe = (float)Math.sin(System.currentTimeMillis() * 0.020) * 2;
+
+        if (titleScreenState == TitleScreenState.MAIN_MENU) {
+
+            Font titleFont = mainMenuFont.deriveFont(Font.BOLD, 200F);
+            g2.setFont(titleFont);
+            g2.setColor(Color.white);
+
+            String terminal = "Terminal";
+            int titleX = getXforCenteredText(terminal);
+            int titleY = gp.screenHeight / 2 - 120 + (int)breathe;
+
+            int shadowLayers = 8;
+
+            for (int i = 0; i < shadowLayers; i++) {
+
+                float spread = i * 0.8f;
+                int alpha = 140 - (i * 15);
+                if (alpha < 0) alpha = 0;
+
+                g2.setColor(new Color(0, 0, 0, alpha));
+
+                g2.drawString(terminal,
+                        titleX + (int)spread + 3,
+                        titleY + (int)spread + 3);
+            }
 
             g2.setColor(Color.white);
-            g2.drawString(terminal, x, y);
-            
-            g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 68F));
+            g2.drawString(terminal, titleX, titleY);
+
+            int glitchTimer = (int)(System.currentTimeMillis() / 100);
+
+            boolean glitch = false;
+            if (glitchTimer % 15 == 0 && Math.random() < 0.6) {
+                glitch = true;
+            }
+
+            int glitchX = 0;
+            int glitchY = 0;
+
+            if (glitch) {
+                glitchX = (int)(Math.random() * 6 - 3);
+                glitchY = (int)(Math.random() * 4 - 2);
+            }
+
+            Font timeFont = mainMenuFont.deriveFont(Font.BOLD, 130F);
+            g2.setFont(timeFont);
+
+            String time = "2:28 AM";
+
+            int timeX = getXforCenteredText(time) - 8 + glitchX;
+            int timeY = titleY + 120 + glitchY;
+
+            for (int i = 0; i < shadowLayers; i++) {
+
+                float spread = i * 0.8f;
+
+                int alpha = 140 - (i * 15);
+
+                if (alpha < 0) alpha = 0;
+
+                g2.setColor(new Color(0, 0, 0, alpha));
+
+                g2.drawString(time,
+                        timeX + (int)spread - 6,
+                        timeY + (int)spread + 3);
+            }
+
+            Color deepRed = new Color(90, 10, 10);
+
+            if (glitch) {
+                int ghostOffset = (int)(Math.random() * 4 - 2);
+                g2.setColor(new Color(120, 0, 0, 100));
+                g2.drawString(time, timeX + ghostOffset + 2, timeY + ghostOffset + 2);
+            }
+
+            g2.setColor(deepRed);
             g2.drawString(time, timeX, timeY);
+            g2.setColor(Color.white);
 
             String[] options = { "NEW GAME", "LOAD GAME", "QUIT" };
-            drawCenteredMenuOptions(options, gp.screenHeight / 2 + 85, 62, 48F);
+            drawCenteredMenuOptions(options, gp.screenHeight / 2 + 120, 62, 48F);
         } else if (titleScreenState == TitleScreenState.CHARACTER_SELECT) {
             drawCharacterSelectScreen();
         } else if (titleScreenState == TitleScreenState.LOAD_GAME) {
@@ -444,8 +516,19 @@ public class UI {
     private void drawLeftMenuOption(String text, int optionIndex, int x, int y, float fontSize) {
         boolean selected = commandNum == optionIndex;
         g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
-        g2.setColor(selected ? Color.white : new Color(205, 205, 205));
+        Color bloodRed = new Color(110, 29, 29);
+        if (selected) {
+            g2.setColor(new Color(255, 30, 30, 60));
+            g2.drawString(text, x + 2, y + 2);
+
+            g2.setColor(new Color(96, 1, 1));
+        } else {
+            g2.setColor(new Color(120, 120, 120, 140));
+        }
         g2.drawString(text, x, y);
+
+        int jitter = selected ? (int)(Math.random() * 2) : 0;
+        g2.drawString(text, x + jitter, y + jitter);
 
         if (selected) {
             g2.drawString(">", x - gp.tileSize, y);
@@ -602,13 +685,31 @@ public class UI {
     private void drawCenteredMenuOption(String text, int optionIndex, int y, float fontSize) {
         boolean selected = commandNum == optionIndex;
         g2.setFont(mainMenuFont.deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
-        g2.setColor(selected ? Color.white : new Color(205, 205, 205));
 
         int x = getXforCenteredText(text);
-        g2.drawString(text, x, y);
+
+        int shadowOffset = selected ? 3 : 2;
+        int shadowAlpha = selected ? 120 : 80;
+
+        Color shadowColor = new Color(0, 0, 0, shadowAlpha);
+
+        int jitter = selected ? (int)(Math.random() * 2) : 0;
+
+        g2.setColor(shadowColor);
+        g2.drawString(text, x + shadowOffset + jitter, y + shadowOffset + jitter);
 
         if (selected) {
-            g2.drawString(">", x - gp.tileSize, y);
+            g2.drawString(text, x + 2 + jitter, y + 2 + jitter);
+            g2.setColor(new Color(108, 2, 2));
+        } else {
+            g2.setColor(new Color(120, 120, 120, 140));
+        }
+
+        g2.drawString(text, x + jitter, y + jitter);
+
+        if (selected) {
+            g2.setColor(Color.white);
+            g2.drawString(">", x - gp.tileSize + jitter, y + jitter);
         }
     }
 
