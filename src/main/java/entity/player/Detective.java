@@ -121,8 +121,8 @@ public class Detective extends Character {
             sound.playSE("/SoundEffects/lloyd_gunshot.wav");
         }
         if (index == 1) {
-                sound.playSE("/SoundEffects/lloyd_gunshot.wav");
-            }
+            sound.playSE("/SoundEffects/lloyd_gunshot.wav");
+        }
         if (index == 2) {
             sound.playSE("/SoundEffects/metal_hit.wav");
         }
@@ -132,8 +132,8 @@ public class Detective extends Character {
     protected void playActionSound(int actionIndex) {
 
         if (actionIndex == 0) {
-                sound.playSE("/SoundEffects/lloyd_gunshot.wav");
-            }
+            sound.playSE("/SoundEffects/lloyd_gunshot.wav");
+        }
         if (actionIndex == 1) {
             sound.playSE("/SoundEffects/lloyd_gunshot.wav");
         }

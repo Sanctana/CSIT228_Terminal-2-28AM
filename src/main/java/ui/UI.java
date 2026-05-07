@@ -42,8 +42,6 @@ public class UI {
     int pulseCounter;
     boolean pulseOn;
     private final CharacterPreview[] characterPreviews;
-    private int lastCharacterPreviewIndex = -1;
-    private float characterPreviewAlpha = 0F;
     private Image titleBackground;
     private static final String TITLE_TEXT = "Terminal";
     private static final String TIME_TEXT = "2:28 AM";
@@ -63,6 +61,8 @@ public class UI {
     private TextImageCache titleTextCache;
     private TextImageCache timeTextCache;
 
+    private Image exampleImage;
+
     public enum PauseSavePrompt {
         NONE, MAIN_MENU, QUIT
     }
@@ -80,57 +80,39 @@ public class UI {
         titleBackground = new ImageIcon(getClass().getResource("/Assets/TitleScreenBackground/TitleScreen.gif"))
                 .getImage();
 
+        exampleImage = new ImageIcon(getClass().getResource("/Assets/d1xgudw-8e070a01-ba1c-46bb-b194-9d38180ce69c.png"))
+                .getImage();
+
         characterPreviews = new CharacterPreview[] {
 
-                new CharacterPreview(
-                        CharacterType.DETECTIVE,
-                        "DETECTIVE",
-                        "Revolver",
+                new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
                         "John, also known as John Lloyd, is a detective residing outside "
                                 + "WildCats Town. He visits the town intending to find answers about his wife’s murder case"
                                 + "wife’s murder case.",
-                        "/player/Detective/Lloyd_Transparent.png",
-                        gp),
+                        "/player/Detective/Lloyd_Transparent.png", gp),
 
-                new CharacterPreview(
-                        CharacterType.OFFICER,
-                        "OFFICER",
-                        "Service Pistol",
+                new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
                         "Andrew is a humble and honest police officer in WildCats Town. "
                                 + "He upholds strong morals and always looks out for those in need, "
                                 + "protecting the weak with unwavering dedication.",
-                        "/player/Officer/Andrew_Transparent.png",
-                        gp),
+                        "/player/Officer/Andrew_Transparent.png", gp),
 
-                new CharacterPreview(
-                        CharacterType.INTRUDER,
-                        "INTRUDER",
-                        "Crowbar",
+                new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",
                         "Trixy once lived a normal life as a waitress in WildCats Town. "
                                 + "But after her husband fell gravely ill, debts consumed her life. "
                                 + "Now, she resorts to desperate measures just to survive.",
-                        "/player/Intruder/Trixy_Transparent.png",
-                        gp),
+                        "/player/Intruder/Trixy_Transparent.png", gp),
 
-                new CharacterPreview(
-                        CharacterType.ARTIST,
-                        "ARTIST",
-                        "Canvas Tools",
+                new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
                         "No one truly knows Tria. She shows no emotion and speaks little. "
                                 + "Locals find it disturbing that she frequently buys different shades of red paint, "
                                 + "often late at night.",
-                        "/player/Artist/Tria_Transparent.png",
-                        gp),
+                        "/player/Artist/Tria_Transparent.png", gp),
 
-                new CharacterPreview(
-                        CharacterType.COLLECTOR,
-                        "COLLECTOR",
-                        "Ledger",
+                new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
                         "Yohan works for a loan shark organization, tasked with collecting debts. "
                                 + "His presence alone is enough to intimidate the residents of WildCats Town.",
-                        "/player/Collector/Yohann_Transparent.png",
-                        gp)
-        };
+                        "/player/Collector/Yohann_Transparent.png", gp) };
     }
 
     private Font getMenuFont(float size) {
@@ -151,24 +133,24 @@ public class UI {
         g2.setColor(Color.white);
 
         switch (gp.gameState) {
-            case TITLE -> drawTitleScreen();
-            case PLAY -> drawPlayerUI();
-            case PAUSE -> drawPauseScreen();
-            case ENEMY_ENCOUNTER -> {
-                drawPlayerUI();
-                drawEnemyEncounter();
-            }
-            case FIRST_LOAD, BATTLE -> {
-            }
-            case INVENTORY -> {
-                drawPlayerUI();
-                drawInventoryScreen(gp.player);
-            }
-            case GAME_OVER -> {
-                drawPlayerUI();
-                drawGameOverScreen();
-            }
-            case VICTORY_ENDING -> drawVictoryEnding();
+        case TITLE -> drawTitleScreen();
+        case PLAY -> drawPlayerUI();
+        case PAUSE -> drawPauseScreen();
+        case ENEMY_ENCOUNTER -> {
+            drawPlayerUI();
+            drawEnemyEncounter();
+        }
+        case FIRST_LOAD, BATTLE -> {
+        }
+        case INVENTORY -> {
+            drawPlayerUI();
+            drawInventoryScreen(gp.player);
+        }
+        case GAME_OVER -> {
+            drawPlayerUI();
+            drawGameOverScreen();
+        }
+        case VICTORY_ENDING -> drawVictoryEnding();
         }
     }
 
@@ -464,7 +446,7 @@ public class UI {
     }
 
     private TextImageCache createShadowTextCache(String text, Font font, int layers, float spreadStep,
-                                                 int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
+            int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
         BufferedImage measureImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D measureG2 = measureImage.createGraphics();
         measureG2.setFont(font);
@@ -817,8 +799,8 @@ public class UI {
         private final Image portrait;
         private final Character character;
 
-        private CharacterPreview(CharacterType type, String menuName, String weapon,
-                                 String description, String portraitPath, GamePanel gp) {
+        private CharacterPreview(CharacterType type, String menuName, String weapon, String description,
+                String portraitPath, GamePanel gp) {
 
             this.menuName = menuName;
             this.weapon = weapon;
@@ -849,6 +831,10 @@ public class UI {
         // ===== TOP LEFT (CHARACTER NAME) =====
         g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
         g2.setColor(Color.white);
+
+        if (exampleImage != null) {
+            g2.drawImage(exampleImage, 0, 0, gp.screenWidth, gp.screenHeight, null);
+        }
 
         String characterText = gp.player.getName().toUpperCase();
 
