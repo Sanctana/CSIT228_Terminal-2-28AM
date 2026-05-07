@@ -2,8 +2,11 @@ package entity.enemy.boss;
 
 import battle.ability.EnemySkill;
 import entity.enemy.Enemy;
+import main.SoundManager;
 
 public class GuidanceP3 extends Enemy {
+    protected SoundManager sound = new SoundManager();
+
     public GuidanceP3() {
         this.health = 1500;
         this.skills.add(new EnemySkill(25, 40, true));
@@ -18,6 +21,16 @@ public class GuidanceP3 extends Enemy {
     @Override
     public String getAttackURL() {
         return "/Assets/EnemiesSprites/Guidance_P3_Attack.gif";
+    }
+
+    @Override
+    public String getSoundURL() {
+        return "/SoundEffects/guidance_p3.wav";
+    }
+
+    @Override
+    public void playSkillSound(int index) {
+        sound.playSE("/SoundEffects/guidance_p3.wav");
     }
 
     @Override

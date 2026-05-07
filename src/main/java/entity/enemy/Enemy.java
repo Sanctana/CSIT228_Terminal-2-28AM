@@ -14,9 +14,13 @@ public abstract class Enemy {
 
     public int skill() {
         if (skills.isEmpty())
-            return 0; // No skills, no damage
+            return 0;
 
-        EnemySkill chosenSkill = skills.get((int) (Math.random() * skills.size()));
+        int skillIndex = (int) (Math.random() * skills.size());
+
+        playSkillSound(skillIndex);
+
+        EnemySkill chosenSkill = skills.get(skillIndex);
 
         int minDmg = chosenSkill.getFloorDMG();
         int maxDmg = chosenSkill.getCeilDMG();
@@ -48,13 +52,12 @@ public abstract class Enemy {
         }
     }
 
-
     public void setHealth(int health) {
         this.health = health;
     }
 
     public void takeDamage(int dmg) {
-        health = Math.max(0, health - dmg); // Ensure health doesn't go below 0
+        health = Math.max(0, health - dmg);
     }
 
     public int getHealth() {
@@ -64,6 +67,10 @@ public abstract class Enemy {
     public boolean getIsAlive() {
         return health > 0;
     }
+
+    public abstract String getSoundURL();
+
+    public abstract void playSkillSound(int index);
 
     public String getDisplayName() {
         return getClass().getSimpleName();

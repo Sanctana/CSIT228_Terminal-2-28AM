@@ -2,6 +2,7 @@ package entity.enemy;
 
 import battle.ability.EnemySkill;
 
+
 public class Brighteyes extends Enemy {
     public Brighteyes() {
         this.health = 200;
@@ -17,6 +18,17 @@ public class Brighteyes extends Enemy {
     @Override
     public String getAttackURL() {
         return "/Assets/EnemiesSprites/Brighteyes_Attack.gif";
+    }
+
+
+    @Override
+    public String getSoundURL() {
+        return "";
+    }
+
+    @Override
+    public void playSkillSound(int index) {
+
     }
 
     @Override

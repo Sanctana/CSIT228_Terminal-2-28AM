@@ -20,6 +20,16 @@ public class Scalper extends Enemy {
     }
 
     @Override
+    public String getSoundURL() {
+        return "";
+    }
+
+    @Override
+    public void playSkillSound(int index) {
+
+    }
+
+    @Override
     public boolean isBoss() {
         return false;
     }
