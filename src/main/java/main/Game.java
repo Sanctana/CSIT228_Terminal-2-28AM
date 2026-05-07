@@ -1,8 +1,6 @@
 package main;
 
 import javax.swing.JFrame;
-
-
 public class Game {
     public static JFrame window;
 

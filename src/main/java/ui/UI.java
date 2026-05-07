@@ -133,24 +133,24 @@ public class UI {
         g2.setColor(Color.white);
 
         switch (gp.gameState) {
-        case TITLE -> drawTitleScreen();
-        case PLAY -> drawPlayerUI();
-        case PAUSE -> drawPauseScreen();
-        case ENEMY_ENCOUNTER -> {
-            drawPlayerUI();
-            drawEnemyEncounter();
-        }
-        case FIRST_LOAD, BATTLE -> {
-        }
-        case INVENTORY -> {
-            drawPlayerUI();
-            drawInventoryScreen(gp.player);
-        }
-        case GAME_OVER -> {
-            drawPlayerUI();
-            drawGameOverScreen();
-        }
-        case VICTORY_ENDING -> drawVictoryEnding();
+            case TITLE -> drawTitleScreen();
+            case PLAY -> drawPlayerUI();
+            case PAUSE -> drawPauseScreen();
+            case ENEMY_ENCOUNTER -> {
+                drawPlayerUI();
+                drawEnemyEncounter();
+            }
+            case FIRST_LOAD, BATTLE -> {
+            }
+            case INVENTORY -> {
+                drawPlayerUI();
+                drawInventoryScreen(gp.player);
+            }
+            case GAME_OVER -> {
+                drawPlayerUI();
+                drawGameOverScreen();
+            }
+            case VICTORY_ENDING -> drawVictoryEnding();
         }
     }
 
@@ -446,7 +446,7 @@ public class UI {
     }
 
     private TextImageCache createShadowTextCache(String text, Font font, int layers, float spreadStep,
-            int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
+                                                 int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
         BufferedImage measureImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D measureG2 = measureImage.createGraphics();
         measureG2.setFont(font);
@@ -800,7 +800,7 @@ public class UI {
         private final Character character;
 
         private CharacterPreview(CharacterType type, String menuName, String weapon, String description,
-                String portraitPath, GamePanel gp) {
+                                 String portraitPath, GamePanel gp) {
 
             this.menuName = menuName;
             this.weapon = weapon;
