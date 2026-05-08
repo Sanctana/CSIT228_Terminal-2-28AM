@@ -22,6 +22,8 @@ import utilities.states.TitleScreenState;
 import entity.player.Character;
 import entity.player.CharacterType;
 
+import java.awt.AlphaComposite;
+
 public class UI {
     public static final long VICTORY_ENDING_COMPLETE_MS = 56_000L;
     private GamePanel gp;
@@ -80,39 +82,38 @@ public class UI {
         titleBackground = new ImageIcon(getClass().getResource("/Assets/TitleScreenBackground/TitleScreen.gif"))
                 .getImage();
 
-        exampleImage = new ImageIcon(getClass().getResource("/Assets/d1xgudw-8e070a01-ba1c-46bb-b194-9d38180ce69c.png"))
+        exampleImage = new ImageIcon(getClass().getResource("/Assets/Blood.png"))
                 .getImage();
-
         characterPreviews = new CharacterPreview[] {
 
                 new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
                         "John, also known as John Lloyd, is a detective residing outside "
                                 + "WildCats Town. He visits the town intending to find answers about his wife’s murder case"
                                 + "wife’s murder case.",
-                        "/player/Detective/Lloyd_Transparent.png", gp),
+                        "/player/Detective/Lloyd_Transparent.png", "/player/Detective/Loyd.png", gp),
 
                 new CharacterPreview(CharacterType.OFFICER, "OFFICER", "Service Pistol",
                         "Andrew is a humble and honest police officer in WildCats Town. "
                                 + "He upholds strong morals and always looks out for those in need, "
                                 + "protecting the weak with unwavering dedication.",
-                        "/player/Officer/Andrew_Transparent.png", gp),
+                        "/player/Officer/Andrew_Transparent.png", "/player/Officer/Andrew.png", gp),
 
                 new CharacterPreview(CharacterType.INTRUDER, "INTRUDER", "Crowbar",
                         "Trixy once lived a normal life as a waitress in WildCats Town. "
                                 + "But after her husband fell gravely ill, debts consumed her life. "
                                 + "Now, she resorts to desperate measures just to survive.",
-                        "/player/Intruder/Trixy_Transparent.png", gp),
+                        "/player/Intruder/Trixy_Transparent.png", "/player/Intruder/Trixy.png", gp),
 
                 new CharacterPreview(CharacterType.ARTIST, "ARTIST", "Canvas Tools",
                         "No one truly knows Tria. She shows no emotion and speaks little. "
                                 + "Locals find it disturbing that she frequently buys different shades of red paint, "
                                 + "often late at night.",
-                        "/player/Artist/Tria_Transparent.png", gp),
+                        "/player/Artist/Tria_Transparent.png", "/player/Artist/Tria.png", gp),
 
                 new CharacterPreview(CharacterType.COLLECTOR, "COLLECTOR", "Ledger",
                         "Yohan works for a loan shark organization, tasked with collecting debts. "
                                 + "His presence alone is enough to intimidate the residents of WildCats Town.",
-                        "/player/Collector/Yohann_Transparent.png", gp) };
+                        "/player/Collector/Yohann_Transparent.png", "/player/Collector/Yohann.png", gp) };
     }
 
     private Font getMenuFont(float size) {
@@ -796,18 +797,27 @@ public class UI {
         private final String menuName;
         private final String weapon;
         private final String description;
-        private final Image portrait;
+
+        private final Image portrait;       // selection screen portrait
+        private final Image ingamePortrait;
+
         private final Character character;
 
         private CharacterPreview(CharacterType type, String menuName, String weapon, String description,
-                                 String portraitPath, GamePanel gp) {
+                                 String portraitPath, String ingamePath, GamePanel gp) {
 
             this.menuName = menuName;
             this.weapon = weapon;
             this.description = description;
+
             this.portrait = new ImageIcon(CharacterPreview.class.getResource(portraitPath)).getImage();
+            this.ingamePortrait = new ImageIcon(CharacterPreview.class.getResource(ingamePath)).getImage();
+
             this.character = UtilityTool.characterFactory(type, gp);
         }
+
+        public Image getIngamePortrait() { return ingamePortrait; }
+        public Character getCharacter() { return character; }
     }
 
     private static class TextImageCache {
@@ -824,100 +834,87 @@ public class UI {
         }
     }
 
-    public void drawPlayerUI() {
-        g2.setColor(new Color(0, 0, 0, 120));
-        g2.fillRoundRect(15, 20, 360, 100, 20, 20);
-
-        // ===== TOP LEFT (CHARACTER NAME) =====
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 24F));
-        g2.setColor(Color.white);
+    private void drawPlayerUI() {
+        int marginX = 80;
+        int marginY = 40;
 
         if (exampleImage != null) {
+            float opacity = 0.05f;
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
             g2.drawImage(exampleImage, 0, 0, gp.screenWidth, gp.screenHeight, null);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
+        int selectedIndex = Math.min(commandNum, characterPreviews.length - 1);
+        CharacterPreview preview = characterPreviews[selectedIndex];
+        if (preview.getIngamePortrait() != null) {
+            g2.drawImage(preview.getIngamePortrait(), marginX, marginY, 150, 150, null);
+        }
+
+        int textBaseX = marginX + 170;
+        int textBaseY = marginY + 35;
+
+        g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 28F));
+        g2.setColor(Color.RED);
         String characterText = gp.player.getName().toUpperCase();
+        g2.drawString(characterText, textBaseX, textBaseY);
 
-        int margin = 30;
-        int x = margin;
-        int y = 50;
+        int lineSpacing = 20;
+        int lineY = textBaseY + lineSpacing;
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(2f));
+        g2.drawLine(textBaseX, lineY, textBaseX + 450, lineY);
 
-        // Flicker effect
-        int flicker = 0;
+        int statusY = lineY + 30;
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
 
-        if (Math.random() < 0.08) {
-            flicker = (int) (Math.random() * 2);
-        }
+        String statusLabel = "STATUS:";
+        g2.setColor(new Color(255, 255, 255, 60));
+        g2.drawString(statusLabel, textBaseX, statusY);
 
-        // Shadow
-        g2.setColor(Color.black);
-        g2.drawString(characterText, x + 2 + flicker, y + 2 + flicker);
+        int statusLabelWidth = g2.getFontMetrics().stringWidth(statusLabel);
+        int statusX = textBaseX + statusLabelWidth + 8; // small gap
 
-        // Main text
-        g2.setColor(Color.white);
-        g2.drawString(characterText, x + flicker, y + flicker);
 
-        // ===== BOTTOM RIGHT (FLOOR + TIME) =====
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-
-        String floorText = gp.map.getMapName() + " - 2:28 AM";
-
-        int textWidth = (int) g2.getFontMetrics().getStringBounds(floorText, g2).getWidth();
-
-        int x2 = gp.screenWidth - textWidth - 20;
-        int y2 = gp.screenHeight - 20;
-
-        // Shadow
-        g2.setColor(Color.black);
-        g2.drawString(floorText, x2, y2);
-
-        // Main
-        g2.setColor(Color.white);
-        g2.drawString(floorText, x2 + flicker, y2);
-
-        // ===== HEART RATE DISPLAY =====
-        pulseCounter++;
-        if (pulseCounter > 30) {
-            pulseOn = !pulseOn;
-            pulseCounter = 0;
-        }
-
-        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20F));
-
-        String hrText = "HEART RATE: " + gp.player.heartRate + " BPM";
-
-        int hrX = margin;
-        int hrY = 90;
-
-        if (gp.player.heartRate < 60) {
-            g2.setColor(Color.cyan);
-        } else if (gp.player.heartRate < 100) {
-            g2.setColor(new Color(0, 200, 120));
-        } else if (gp.player.heartRate < 140) {
-            g2.setColor(new Color(255, 140, 0));
+        if (gp.player.heartRate <= 55 || gp.player.heartRate >= 165) {
+            g2.setColor(Color.YELLOW);
+            g2.drawString("WARNING", statusX, statusY);
         } else {
-            g2.setColor(new Color(200, 40, 40));
+            g2.setColor(Color.GREEN);
+            g2.drawString("STABLE", statusX, statusY);
         }
 
-        g2.drawString(hrText, hrX + flicker, hrY + flicker);
+        int hrY = statusY + 35;
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
 
-        // ===== DANGER OVERLAY (ENHANCED) =====
-        if (gp.player.heartRate >= 140 || gp.player.heartRate <= 45) {
+        String hrLabel = "HEART RATE:";
+        g2.setColor(new Color(255, 255, 255, 60));
+        g2.drawString(hrLabel, textBaseX, hrY);
 
-            int intensity;
+        int hrLabelWidth = g2.getFontMetrics().stringWidth(hrLabel);
+        int hrX = textBaseX + hrLabelWidth + 8;
 
-            if (gp.player.heartRate >= 140) {
-                intensity = gp.player.heartRate - 140;
-            } else {
-                intensity = 45 - gp.player.heartRate;
-            }
+        g2.setColor(Color.WHITE);
+        String hrValue = gp.player.heartRate + " BPM";
+        g2.drawString(hrValue, hrX, hrY);
 
-            intensity = Math.min(intensity, 40);
-            int alpha = 30 + intensity + (pulseOn ? 20 : 0); // Base + intensity + pulse
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.setColor(Color.WHITE);
+        String beforeI = "PRESS '";
+        String afterI = "' TO USE INVENTORY";
+        int invX = gp.screenWidth - 300;
+        int invY = 80;
+        g2.drawString(beforeI, invX, invY);
+        g2.setColor(Color.RED);
+        g2.drawString("I", invX + g2.getFontMetrics().stringWidth(beforeI), invY);
+        g2.setColor(Color.WHITE);
+        g2.drawString(afterI, invX + g2.getFontMetrics().stringWidth(beforeI + "I"), invY);
 
-            g2.setColor(new Color(180, 0, 0, alpha));
-            g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-        }
+        g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 34F));
+        g2.setColor(Color.RED);
+        String floorText = gp.map.getMapName() + " - 2:28 AM";
+        int textWidth = g2.getFontMetrics().stringWidth(floorText);
+        g2.drawString(floorText, gp.screenWidth - textWidth - 20, gp.screenHeight - 30);
 
         String statusMessage = gp.getStatusMessage();
         if (!statusMessage.isBlank()) {
@@ -933,6 +930,16 @@ public class UI {
             g2.setColor(new Color(255, 255, 255, statusAlpha));
             g2.drawString(statusMessage, boxX + 20, boxY + 28);
         }
+
+        int borderX = 0;
+        int borderY = 0;
+        int borderW = gp.screenWidth;
+        int borderH = gp.screenHeight;
+        int cornerRadius = (int)(Math.min(borderW, borderH) * 0.10);
+
+        g2.setColor(new Color(37, 14, 14));
+        g2.setStroke(new BasicStroke(21f));
+        g2.drawRoundRect(borderX, borderY, borderW, borderH, cornerRadius, cornerRadius);
     }
 
     public void drawPauseScreen() {
