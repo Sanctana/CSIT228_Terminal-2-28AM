@@ -5,8 +5,11 @@ import javax.swing.ImageIcon;
 import battle.ability.Action;
 import battle.ability.Skill;
 import main.GamePanel;
+import main.SoundManager;
 
 public class Officer extends Character {
+    protected SoundManager sound = new SoundManager();
+
     public Officer(GamePanel gp) {
         super(70, .25, "Andrew - The Officer", gp);
 
@@ -19,6 +22,7 @@ public class Officer extends Character {
         actions.add(new Action(.99, 1, "Immunity", 3));
 
         loadImages();
+
     }
 
     private void loadImages() {
@@ -34,6 +38,16 @@ public class Officer extends Character {
     }
 
     @Override
+    protected void playSkillSound(int index) {
+        sound.playSE("/SoundEffects/andrew_gunshot.wav");
+    }
+
+    @Override
+    protected void playActionSound(int index) {
+        sound.playSE("/SoundEffects/swoosh.wav");
+    }
+
+    @Override
     public String getPlayerPortraitPath() {
         return "/player/Officer/Andrew_Transparent.png";
     }
@@ -42,4 +56,5 @@ public class Officer extends Character {
     public CharacterType getCharacterType() {
         return CharacterType.OFFICER;
     }
+
 }
