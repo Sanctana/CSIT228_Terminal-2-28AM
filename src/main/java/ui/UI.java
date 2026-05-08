@@ -65,6 +65,8 @@ public class UI {
 
     private Image exampleImage;
 
+    private CharacterPreview selectedCharacterPreview;
+
     public enum PauseSavePrompt {
         NONE, MAIN_MENU, QUIT
     }
@@ -82,8 +84,7 @@ public class UI {
         titleBackground = new ImageIcon(getClass().getResource("/Assets/TitleScreenBackground/TitleScreen.gif"))
                 .getImage();
 
-        exampleImage = new ImageIcon(getClass().getResource("/Assets/Blood.png"))
-                .getImage();
+        exampleImage = new ImageIcon(getClass().getResource("/Assets/Blood.png")).getImage();
         characterPreviews = new CharacterPreview[] {
 
                 new CharacterPreview(CharacterType.DETECTIVE, "DETECTIVE", "Revolver",
@@ -134,24 +135,24 @@ public class UI {
         g2.setColor(Color.white);
 
         switch (gp.gameState) {
-            case TITLE -> drawTitleScreen();
-            case PLAY -> drawPlayerUI();
-            case PAUSE -> drawPauseScreen();
-            case ENEMY_ENCOUNTER -> {
-                drawPlayerUI();
-                drawEnemyEncounter();
-            }
-            case FIRST_LOAD, BATTLE -> {
-            }
-            case INVENTORY -> {
-                drawPlayerUI();
-                drawInventoryScreen(gp.player);
-            }
-            case GAME_OVER -> {
-                drawPlayerUI();
-                drawGameOverScreen();
-            }
-            case VICTORY_ENDING -> drawVictoryEnding();
+        case TITLE -> drawTitleScreen();
+        case PLAY -> drawPlayerUI();
+        case PAUSE -> drawPauseScreen();
+        case ENEMY_ENCOUNTER -> {
+            drawPlayerUI();
+            drawEnemyEncounter();
+        }
+        case FIRST_LOAD, BATTLE -> {
+        }
+        case INVENTORY -> {
+            drawPlayerUI();
+            drawInventoryScreen(gp.player);
+        }
+        case GAME_OVER -> {
+            drawPlayerUI();
+            drawGameOverScreen();
+        }
+        case VICTORY_ENDING -> drawVictoryEnding();
         }
     }
 
@@ -447,7 +448,7 @@ public class UI {
     }
 
     private TextImageCache createShadowTextCache(String text, Font font, int layers, float spreadStep,
-                                                 int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
+            int baseShadowOffsetX, int baseShadowOffsetY, Color[] shadowColors, Color textColor) {
         BufferedImage measureImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D measureG2 = measureImage.createGraphics();
         measureG2.setFont(font);
@@ -625,6 +626,10 @@ public class UI {
         drawCharacterInfoPanel();
     }
 
+    public void setSelectedCharacterPreview() {
+        selectedCharacterPreview = characterPreviews[Math.min(commandNum, characterPreviews.length - 1)];
+    }
+
     private void drawCharacterInfoPanel() {
         int selectedIndex = Math.min(commandNum, characterPreviews.length - 1);
         CharacterPreview preview = characterPreviews[selectedIndex];
@@ -713,36 +718,6 @@ public class UI {
         }
     }
 
-    private void drawLeftMenuOptions(String[] options, int x, int startY, int rowHeight, float fontSize) {
-        int y = startY;
-
-        for (int i = 0; i < options.length; i++) {
-            drawLeftMenuOption(options[i], i, x, y, fontSize);
-            y += rowHeight;
-        }
-    }
-
-    private void drawLeftMenuOption(String text, int optionIndex, int x, int y, float fontSize) {
-        boolean selected = commandNum == optionIndex;
-        g2.setFont(g2.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN, fontSize));
-        if (selected) {
-            g2.setColor(new Color(255, 30, 30, 60));
-            g2.drawString(text, x + 2, y + 2);
-
-            g2.setColor(new Color(96, 1, 1));
-        } else {
-            g2.setColor(new Color(120, 120, 120, 140));
-        }
-        g2.drawString(text, x, y);
-
-        int jitter = selected ? (int) (Math.random() * 2) : 0;
-        g2.drawString(text, x + jitter, y + jitter);
-
-        if (selected) {
-            g2.drawString(">", x - gp.tileSize, y);
-        }
-    }
-
     private void drawCenteredMenuOptions(String[] options, int startY, int rowHeight, float fontSize) {
         int y = startY;
 
@@ -798,13 +773,13 @@ public class UI {
         private final String weapon;
         private final String description;
 
-        private final Image portrait;       // selection screen portrait
+        private final Image portrait; // selection screen portrait
         private final Image ingamePortrait;
 
         private final Character character;
 
         private CharacterPreview(CharacterType type, String menuName, String weapon, String description,
-                                 String portraitPath, String ingamePath, GamePanel gp) {
+                String portraitPath, String ingamePath, GamePanel gp) {
 
             this.menuName = menuName;
             this.weapon = weapon;
@@ -816,8 +791,9 @@ public class UI {
             this.character = UtilityTool.characterFactory(type, gp);
         }
 
-        public Image getIngamePortrait() { return ingamePortrait; }
-        public Character getCharacter() { return character; }
+        public Image getIngamePortrait() {
+            return ingamePortrait;
+        }
     }
 
     private static class TextImageCache {
@@ -845,10 +821,11 @@ public class UI {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         }
 
-        int selectedIndex = Math.min(commandNum, characterPreviews.length - 1);
-        CharacterPreview preview = characterPreviews[selectedIndex];
-        if (preview.getIngamePortrait() != null) {
-            g2.drawImage(preview.getIngamePortrait(), marginX, marginY, 150, 150, null);
+        // int selectedIndex = Math.min(commandNum, characterPreviews.length - 1);
+        // CharacterPreview preview = characterPreviews[selectedIndex];
+
+        if (selectedCharacterPreview != null) {
+            g2.drawImage(selectedCharacterPreview.getIngamePortrait(), marginX, marginY, 150, 150, null);
         }
 
         int textBaseX = marginX + 170;
@@ -874,7 +851,6 @@ public class UI {
 
         int statusLabelWidth = g2.getFontMetrics().stringWidth(statusLabel);
         int statusX = textBaseX + statusLabelWidth + 8; // small gap
-
 
         if (gp.player.heartRate <= 55 || gp.player.heartRate >= 165) {
             g2.setColor(Color.YELLOW);
@@ -935,7 +911,7 @@ public class UI {
         int borderY = 0;
         int borderW = gp.screenWidth;
         int borderH = gp.screenHeight;
-        int cornerRadius = (int)(Math.min(borderW, borderH) * 0.10);
+        int cornerRadius = (int) (Math.min(borderW, borderH) * 0.10);
 
         g2.setColor(new Color(37, 14, 14));
         g2.setStroke(new BasicStroke(21f));

@@ -283,6 +283,7 @@ public class KeyHandler implements KeyListener {
             }
 
             if (gp.ui.commandNum >= 0 && gp.ui.commandNum <= 4) {
+                gp.ui.setSelectedCharacterPreview();
                 gp.requestNewGame(selectedCharacter);
             }
         }
