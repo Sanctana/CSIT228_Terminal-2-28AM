@@ -37,7 +37,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int FPS = 60;
     private final int maxScreenCol = 20;
     private final int maxScreenRow = 12;
-    private static final double WORLD_ZOOM = 2.1;
+    private static final double WORLD_ZOOM = 0.5;
 
     public final int tileSize = originalTileSize * scale; // 64 by 64
     public int screenWidth = tileSize * maxScreenCol;
@@ -148,7 +148,8 @@ public class GamePanel extends JPanel implements Runnable {
             if (player.heartRate <= 40 || player.heartRate >= 180) {
                 gameState = GameState.GAME_OVER;
             } else if (player.state == EntityState.TO_NEXT_MAP) {
-                triggerBattle(true);
+//                triggerBattle(true);
+                startRespawnTransition(Transitions.CHANGE_MAP);
             } else if (player.state == EntityState.TO_PREVIOUS_MAP) {
                 startRespawnTransition(Transitions.CHANGE_MAP);
             }
