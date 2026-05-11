@@ -2,20 +2,21 @@ package entity.player;
 
 import javax.swing.ImageIcon;
 
+import battle.Panel;
 import battle.ability.Action;
 import battle.ability.Skill;
 import main.GamePanel;
-import main.SoundManager;
 
 public class Officer extends Character {
-    protected SoundManager sound = new SoundManager();
+
+    private int abstractionMeter = 50;
 
     public Officer(GamePanel gp) {
         super(70, .25, "Andrew - The Officer", gp);
 
         skills.add(new Skill(10, 30, "Warning Shot", 0));
         skills.add(new Skill(20, 75, "Barrage of Bullets", 2));
-        skills.add(new Skill(999, 1000, "One Shot", 3));
+        skills.add(new Skill(9, 10, "One Shot", 3));
 
         actions.add(new Action(.20, .40, "Block", 0));
         actions.add(new Action(.40, .60, "Stronger Block", 2));
@@ -27,17 +28,59 @@ public class Officer extends Character {
 
 
     private void loadImages() {
-        idleUp = new ImageIcon(getClass().getResource("/player/Collector/Back_Collector_Idle.png")).getImage();
-        idleDown = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector_Idle.png")).getImage();
-        idleLeft = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector_Idle.png")).getImage();
-        idleRight = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector_Idle.png")).getImage();
+        idleUp = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer_Idle.png")).getImage();
+        idleDown = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer_Idle.png")).getImage();
+        idleLeft = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer_Idle.png")).getImage();
+        idleRight = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer_Idle.png")).getImage();
 
-        up = new ImageIcon(getClass().getResource("/player/Collector/Back_Collector.gif")).getImage();
-        down = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector.gif")).getImage();
-        left = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector.gif")).getImage();
-        right = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector.gif")).getImage();
+        up = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer.gif")).getImage();
+        down = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer.gif")).getImage();
+        left = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer.gif")).getImage();
+        right = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer.gif")).getImage();
     }
 
+
+    @Override
+    public void takeDamage(int damage) {
+        if (Math.random() * 100 < abstractionMeter) {
+            return;
+        }
+        super.takeDamage(damage);
+    }
+
+    @Override
+    public int useSkill(int index) {
+        if (index >= 0 && index < skills.size()) {
+            Skill skill = skills.get(index);
+
+            if (!skill.isReady()) return 0;
+
+            // Trigger sound manually
+            playSkillSound(index);
+
+            // Start the cooldown timer
+            skill.triggerCooldown();
+
+            // Return the damage calculation
+            return skill.useSkill();
+        }
+        return 0;
+    }
+
+    @Override
+    public void useAction(int index, Panel panel) {
+        if (index >= 0 && index < actions.size()) {
+            Action action = actions.get(index);
+
+            if (!action.isReady()) return;
+
+            // Apply standard block logic
+            this.setResistance(action.action());
+
+            playActionSound(index);
+            action.triggerCooldown();
+        }
+    }
     @Override
     protected void playSkillSound(int index) {
         sound.playSE("/SoundEffects/andrew_gunshot.wav");
@@ -57,4 +100,5 @@ public class Officer extends Character {
     public CharacterType getCharacterType() {
         return CharacterType.OFFICER;
     }
+
 }
