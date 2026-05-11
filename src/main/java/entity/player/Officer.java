@@ -15,7 +15,7 @@ public class Officer extends Character {
 
         skills.add(new Skill(10, 30, "Warning Shot", 0));
         skills.add(new Skill(20, 75, "Barrage of Bullets", 2));
-        skills.add(new Skill(999, 1000, "One Shot", 3));
+        skills.add(new Skill(9, 10, "One Shot", 3));
 
         actions.add(new Action(.20, .40, "Block", 0));
         actions.add(new Action(.40, .60, "Stronger Block", 2));
@@ -25,16 +25,17 @@ public class Officer extends Character {
 
     }
 
-    private void loadImages() {
-        idleUp = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer_Idle.png")).getImage();
-        idleDown = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer_Idle.png")).getImage();
-        idleLeft = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer_Idle.png")).getImage();
-        idleRight = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer_Idle.png")).getImage();
 
-        up = new ImageIcon(getClass().getResource("/player/Officer/Back_Officer.gif")).getImage();
-        down = new ImageIcon(getClass().getResource("/player/Officer/Front_Officer.gif")).getImage();
-        left = new ImageIcon(getClass().getResource("/player/Officer/Left_Officer.gif")).getImage();
-        right = new ImageIcon(getClass().getResource("/player/Officer/Right_Officer.gif")).getImage();
+    private void loadImages() {
+        idleUp = new ImageIcon(getClass().getResource("/player/Collector/Back_Collector_Idle.png")).getImage();
+        idleDown = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector_Idle.png")).getImage();
+        idleLeft = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector_Idle.png")).getImage();
+        idleRight = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector_Idle.png")).getImage();
+
+        up = new ImageIcon(getClass().getResource("/player/Collector/Back_Collector.gif")).getImage();
+        down = new ImageIcon(getClass().getResource("/player/Collector/Front_Collector.gif")).getImage();
+        left = new ImageIcon(getClass().getResource("/player/Collector/Left_Collector.gif")).getImage();
+        right = new ImageIcon(getClass().getResource("/player/Collector/Right_Collector.gif")).getImage();
     }
 
     @Override
@@ -56,5 +57,4 @@ public class Officer extends Character {
     public CharacterType getCharacterType() {
         return CharacterType.OFFICER;
     }
-
 }
