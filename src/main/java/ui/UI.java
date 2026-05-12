@@ -180,15 +180,15 @@ public class UI {
         }
 
         String[] lines = { "Terminal 2:28 AM", "The hospital grows quiet", "", "", "", "", "", "", "", "", """
-                Thank you for playing this
-                game, we really appreciated the
-                support You gave us while we are
-                doing this project.
-
-                We will always love you!
-
+                Thank you for playing this game! 
+                we truly appreciate the support
+                you've given us throughout this
+                project. Your encouragement means
+                a lot, and we hope you enjoyed the
+                experience as much as we enjoyed
+                creating it.
                 """, "", "", "", "", "", "", "Created by:", "Team Terminal 2:28 AM", "", "",
-                "Game design, programming, and graphics:", "Abarquez Yohann", "Trixy Flores", "Loyd Hernaez",
+                "Game design, programming, and graphics:", "Yohann Abarquez", "Trixy Flores", "Loyd Hernaez",
                 "Andrew Sangasina", "Trea Tangpos", "", "", "Story and atmosphere:", "Team Terminal 2:28 AM", "", "",
                 "Battle system:", "Team Terminal 2:28 AM", "", "", "Maps and level layout:", "Team Terminal 2:28 AM",
                 "", "", "Special thanks:", "Our instructor", "Our classmates", """
