@@ -11,7 +11,7 @@ public class IVFluids extends Item {
     @Override
     public void use(Character character) {
         if (use()) {
-            character.setHeartBeat(character.getHeartBeat() + 100);
+            character.setHeartBeat(character.getHeartBeat() + 40);
         }
     }
 }

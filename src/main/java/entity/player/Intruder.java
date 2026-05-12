@@ -16,7 +16,7 @@ public class Intruder extends Character {
 
         skills.add(new Skill(10, 30, "Crowbar Strike", 0));
         skills.add(new Skill(30, 50, "Ambush", 2));
-        skills.add(new Skill(40, 30, "Wait...", 3));
+        skills.add(new Skill(30, 40, "Wait...", 3));
 
         actions.add(new Action(0, 0, "Hold your breath", 0));
         actions.add(new Action(0, 0, "Silent Steps", 2));
