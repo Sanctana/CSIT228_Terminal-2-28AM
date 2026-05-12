@@ -187,7 +187,6 @@ public class UI {
 
                 We will always love you!
 
-                - Test Only
                 """, "", "", "", "", "", "", "Created by:", "Team Terminal 2:28 AM", "", "",
                 "Game design, programming, and graphics:", "Abarquez Yohann", "Trixy Flores", "Loyd Hernaez",
                 "Andrew Sangasina", "Trea Tangpos", "", "", "Story and atmosphere:", "Team Terminal 2:28 AM", "", "",
