@@ -14,9 +14,9 @@ public class Officer extends Character {
     public Officer(GamePanel gp) {
         super(70, .25, "Andrew - The Officer", gp);
 
-        skills.add(new Skill(10, 30, "Warning Shot", 0));
+        skills.add(new Skill(100000, 30000000, "Warning Shot", 0));
         skills.add(new Skill(20, 75, "Barrage of Bullets", 2));
-        skills.add(new Skill(999, 1000, "One Shot", 3));
+        skills.add(new Skill(9, 10, "One Shot", 3));
 
         actions.add(new Action(.20, .40, "Block", 0));
         actions.add(new Action(.40, .60, "Stronger Block", 2));

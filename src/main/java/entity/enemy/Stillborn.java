@@ -1,8 +1,10 @@
 package entity.enemy;
 
 import battle.ability.EnemySkill;
+import main.SoundManager;
 
 public class Stillborn extends Enemy {
+    protected SoundManager sound = new SoundManager();
     public Stillborn() {
         this.health = 200;
         this.skills.add(new EnemySkill(20, 30, false));
@@ -26,7 +28,7 @@ public class Stillborn extends Enemy {
 
     @Override
     public void playSkillSound(int index) {
-
+        sound.playSE("/SoundEffects/vomit.wav");
     }
 
     @Override

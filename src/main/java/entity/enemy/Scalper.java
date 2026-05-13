@@ -1,8 +1,10 @@
 package entity.enemy;
 
 import battle.ability.EnemySkill;
+import main.SoundManager;
 
 public class Scalper extends Enemy {
+    protected SoundManager sound = new SoundManager();
     public Scalper() {
         this.health = 200;
         this.skills.add(new EnemySkill(5, 15, false));
@@ -26,7 +28,7 @@ public class Scalper extends Enemy {
 
     @Override
     public void playSkillSound(int index) {
-
+        sound.playSE("/SoundEffects/scalper_slash.wav");
     }
 
     @Override
