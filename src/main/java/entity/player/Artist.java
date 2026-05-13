@@ -15,9 +15,9 @@ public class Artist extends Character {
     public Artist(GamePanel gp) {
         super(70, 0.0, "Tria - The Artist", gp);
 
-        skills.add(new Skill(20, 40, "Forgotten Memories", 0));
-        skills.add(new Skill(25, 50, "Taking what's not yours", 2));
-        skills.add(new Skill(0, 0, "Empty Canvas", 3));
+        skills.add(new Skill(25, 45, "Forgotten Memories", 0));
+        skills.add(new Skill(35, 50, "Taking what's not yours", 2));
+        skills.add(new Skill(45, 75, "Imperfect Replica", 3));
 
         actions.add(new Action(0, 0, "Obsession", 0));
         actions.add(new Action(0, 0, "Recreation", 2));
@@ -46,21 +46,22 @@ public class Artist extends Character {
 
         if (currentMode == 0) { // OBSESSION
             this.resistance = -0.20;
-            updateSkills("Relentless Pursuit", 30, 50, "Cursed Brush", 40, 80);
+            updateSkills("Relentless Pursuit", 40, 75, "Cursed Brush", 50, 100,"Scarlet Rose",75,125);
         } else if (currentMode == 1) { // RECREATION
-            this.resistance = 0.0;
-            updateSkills("Forgotten Memories", 20, 40, "Taking what's not yours", 25, 50);
+            this.resistance = 0.20;
+            updateSkills("Forgotten Memories", 20, 40, "Taking what's not yours", 25, 50,"Imperfect Replica",45,75);
         } else if (currentMode == 2) { // PRESERVATION
-            this.resistance = 0.30;
-            updateSkills("Embracing the Curse", 10, 20, "Shielded Stroke", 15, 30);
+            this.resistance = 0.50;
+            updateSkills("Embracing the Curse", 10, 20, "Shielded Stroke", 15, 30,"Everlasting Torment",20,40);
         }
 
         panel.refreshButtonText();
     }
 
-    private void updateSkills(String s1Name, int s1Min, int s1Max, String s2Name, int s2Min, int s2Max) {
+    private void updateSkills(String s1Name, int s1Min, int s1Max, String s2Name, int s2Min, int s2Max, String s3Name, int s3Min, int s3Max) {
         skills.get(0).setStats(s1Min, s1Max, s1Name);
         skills.get(1).setStats(s2Min, s2Max, s2Name);
+        skills.get(2).setStats(s3Min, s3Max, s3Name);
     }
 
     @Override

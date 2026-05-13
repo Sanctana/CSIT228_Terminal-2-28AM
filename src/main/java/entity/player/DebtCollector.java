@@ -17,11 +17,11 @@ public class DebtCollector extends Character {
 
         skills.add(new Skill(20, 75, "Penalty", 2));
 
-        skills.add(new Skill(0, 0, "Property", 3));
+        skills.add(new Skill(50, 100, "Collection", 3));
 
         actions.add(new Action(.20, .40, "Block", 0));
         actions.add(new Action(.40, .60, "Stronger Block", 2));
-        actions.add(new Action(0.99, 1, "Immunity", 3));
+        actions.add(new Action(0.75, 1, "Protection", 3));
 
         loadImages();
     }

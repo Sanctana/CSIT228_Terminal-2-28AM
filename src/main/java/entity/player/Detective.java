@@ -20,8 +20,8 @@ public class Detective extends Character {
         super(70, 0.90, "John Lloyd - The Detective", gp);
 
         skills.add(new Skill(0, 0, "Shoot", 0));
-        skills.add(new Skill(0, 0, "Judgement", 2));
-        skills.add(new Skill(5, 15, "Pistol Whip", 3));
+        skills.add(new Skill(25, 50, "Judgement", 2));
+        skills.add(new Skill(50, 75, "Pistol Whip", 3));
 
         actions.add(new Action(0, 0, "Shoot self", 0));
         actions.add(new Action(0, 0, "Peek", 2));

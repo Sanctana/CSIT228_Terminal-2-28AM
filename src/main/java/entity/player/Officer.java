@@ -14,13 +14,13 @@ public class Officer extends Character {
     public Officer(GamePanel gp) {
         super(70, .25, "Andrew - The Officer", gp);
 
-        skills.add(new Skill(100000, 30000000, "Warning Shot", 0));
+        skills.add(new Skill(100000, 30000000, "One shot", 0));
         skills.add(new Skill(20, 75, "Barrage of Bullets", 2));
         skills.add(new Skill(9, 10, "One Shot", 3));
 
-        actions.add(new Action(.20, .40, "Block", 0));
-        actions.add(new Action(.40, .60, "Stronger Block", 2));
-        actions.add(new Action(.99, 1, "Immunity", 3));
+        actions.add(new Action(.25, .50, "Serve to Protect", 0));
+        actions.add(new Action(.50, .75, "Stand Upright", 2));
+        actions.add(new Action(.99, 1, "Take Cover", 3));
 
         loadImages();
 
