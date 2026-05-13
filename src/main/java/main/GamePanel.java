@@ -18,6 +18,7 @@ import entity.enemy.Enemy;
 import entity.player.Character;
 import entity.player.CharacterType;
 import environment.EnvironmentManager;
+import maps.FirstFloorMap;
 import maps.Map;
 import maps.ThirdFloorMap;
 import ui.UI;
@@ -37,8 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int FPS = 60;
     private final int maxScreenCol = 20;
     private final int maxScreenRow = 12;
-    private static final double WORLD_ZOOM = 1.0;
-
+    private static final double WORLD_ZOOM = 1.7;
     public final int tileSize = originalTileSize * scale; // 64 by 64
     public int screenWidth = tileSize * maxScreenCol;
     public int screenHeight = tileSize * maxScreenRow;
@@ -211,7 +211,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         boolean shouldChangeMap = player.state == EntityState.TO_NEXT_MAP && !lostBattle;
-        boolean defeatedFinalBoss = map.getNextMap() == null && !lostBattle;
+        boolean defeatedFinalBoss = map.getNextMap() == null && !lostBattle && pendingEnemy.isBoss();
 
         pendingEnemy = null;
 
