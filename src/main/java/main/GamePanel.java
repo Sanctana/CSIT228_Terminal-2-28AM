@@ -18,6 +18,7 @@ import entity.enemy.Enemy;
 import entity.player.Character;
 import entity.player.CharacterType;
 import environment.EnvironmentManager;
+import maps.FirstFloorMap;
 import maps.Map;
 import maps.ThirdFloorMap;
 import ui.UI;
@@ -210,7 +211,7 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         boolean shouldChangeMap = player.state == EntityState.TO_NEXT_MAP && !lostBattle;
-        boolean defeatedFinalBoss = map.getNextMap() == null && !lostBattle;
+        boolean defeatedFinalBoss = map.getNextMap() == null && !lostBattle && pendingEnemy.isBoss();
 
         pendingEnemy = null;
 

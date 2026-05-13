@@ -180,7 +180,7 @@ public class UI {
         }
 
         String[] lines = { "Terminal 2:28 AM", "The hospital grows quiet", "", "", "", "", "", "", "", "", """
-                Thank you for playing this game! 
+                Thank you for playing this game!
                 we truly appreciate the support
                 you've given us throughout this
                 project. Your encouragement means
