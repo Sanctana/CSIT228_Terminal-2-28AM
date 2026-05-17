@@ -43,6 +43,10 @@ public class SaveManager {
         properties.setProperty("heartRate", Integer.toString(player.heartRate));
         properties.setProperty("resistance", Double.toString(player.resistance));
         properties.setProperty("finalBossDefeated", Boolean.toString(gp.isFinalBossDefeated()));
+        properties.setProperty("score", Integer.toString(player.score));
+        properties.setProperty("killCount", Integer.toString(player.killCount));
+        properties.setProperty("bossKillCount", Integer.toString(player.bossKillCount));
+        properties.setProperty("totalPlayedMs", Long.toString(gp.getTotalPlayedMs()));
 
         Item[] inventory = player.getInventory();
         for (int i = 0; i < inventory.length; i++) {
@@ -92,6 +96,10 @@ public class SaveManager {
         saveData.heartRate = Integer.parseInt(properties.getProperty("heartRate", "70"));
         saveData.resistance = Double.parseDouble(properties.getProperty("resistance", "0.1"));
         saveData.finalBossDefeated = Boolean.parseBoolean(properties.getProperty("finalBossDefeated", "false"));
+        saveData.score = Integer.parseInt(properties.getProperty("score", "0"));
+        saveData.killCount = Integer.parseInt(properties.getProperty("killCount", "0"));
+        saveData.bossKillCount = Integer.parseInt(properties.getProperty("bossKillCount", "0"));
+        saveData.totalPlayedMs = Long.parseLong(properties.getProperty("totalPlayedMs", "0"));
         saveData.inventoryQuantities = new int[] {
                 Integer.parseInt(properties.getProperty("inventory.0.quantity", "3")),
                 Integer.parseInt(properties.getProperty("inventory.1.quantity", "9")),
@@ -125,11 +133,14 @@ public class SaveManager {
     public static class SaveData {
         public CharacterType characterType;
         public String mapName;
-        public int worldX;
-        public int worldY;
+        public int worldX, worldY;
         public int heartRate;
         public double resistance;
         public boolean finalBossDefeated;
         public int[] inventoryQuantities;
+        public int score;
+        public int killCount;
+        public int bossKillCount;
+        public long totalPlayedMs;
     }
 }

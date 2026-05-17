@@ -21,6 +21,7 @@ import utilities.UtilityTool;
 import utilities.states.TitleScreenState;
 import entity.player.Character;
 import entity.player.CharacterType;
+import utilities.LeaderboardManager;
 
 import java.awt.AlphaComposite;
 
@@ -66,6 +67,11 @@ public class UI {
     private Image exampleImage;
 
     private CharacterPreview selectedCharacterPreview;
+    public String nameEntryText = "";
+    public int nameEntryIndex = 0;
+    public java.util.List<LeaderboardManager.Entry> leaderboardEntries = new java.util.ArrayList<>();
+
+
 
     public enum PauseSavePrompt {
         NONE, MAIN_MENU, QUIT
@@ -138,10 +144,16 @@ public class UI {
         case TITLE -> drawTitleScreen();
         case PLAY -> drawPlayerUI();
         case PAUSE -> drawPauseScreen();
+        case LEADERBOARD_MENU -> drawLeaderboardMenuScreen();
+        case NAME_ENTRY -> drawNameEntryScreen();
         case ENEMY_ENCOUNTER -> {
             drawPlayerUI();
             drawEnemyEncounter();
         }
+        case LEADERBOARD -> {
+                drawPlayerUI();
+                drawLeaderboardOverlay();
+            }
         case FIRST_LOAD, BATTLE -> {
         }
         case INVENTORY -> {
@@ -165,11 +177,15 @@ public class UI {
         drawVictoryCredits(elapsed);
 
         if (elapsed >= VICTORY_ENDING_COMPLETE_MS) {
+
+            drawLeaderboardOverlay();
+
+
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30F));
             int alpha = Math.min(255, (int) ((elapsed - VICTORY_ENDING_COMPLETE_MS) / 4));
             g2.setColor(new Color(230, 230, 230, alpha));
-            String text = "Press Enter to Play Again";
-            g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2);
+            String text = "Press Enter to Return to Main Menu";
+            g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2 + 230);
         }
     }
 
@@ -330,7 +346,7 @@ public class UI {
 
     private int drawWrappedText(String text, int x, int y, int maxWidth, int lineHeight) {
         if (text == null || text.isBlank()) {
-            return y; // nothing drawn, return starting Y
+            return y;
         }
 
         String[] words = text.split("\\s+");
@@ -405,7 +421,7 @@ public class UI {
                 g2.drawString(TIME_TEXT, timeX + ghostOffset + 2, timeY + ghostOffset + 2);
             }
 
-            String[] options = { "NEW GAME", "LOAD GAME", "QUIT" };
+            String[] options = { "NEW GAME", "LOAD GAME", "LEADERBOARD", "QUIT" };
             drawCenteredMenuOptions(options, gp.screenHeight / 2 + 120, 62, 48F);
         } else if (titleScreenState == TitleScreenState.CHARACTER_SELECT) {
             drawCharacterSelectScreen();
@@ -414,7 +430,7 @@ public class UI {
         }
     }
 
-    // Cache title screen assets to avoid per-frame allocations.
+
     private void ensureTitleScreenCache() {
         if (cachedTitleScreenWidth == gp.screenWidth && cachedTitleScreenHeight == gp.screenHeight
                 && titleTextCache != null && timeTextCache != null) {
@@ -772,7 +788,7 @@ public class UI {
         private final String weapon;
         private final String description;
 
-        private final Image portrait; // selection screen portrait
+        private final Image portrait;
         private final Image ingamePortrait;
 
         private final Character character;
@@ -884,6 +900,18 @@ public class UI {
         g2.drawString("I", invX + g2.getFontMetrics().stringWidth(beforeI), invY);
         g2.setColor(Color.WHITE);
         g2.drawString(afterI, invX + g2.getFontMetrics().stringWidth(beforeI + "I"), invY);
+
+        String beforeTab = "PRESS '";
+        String afterTab = "' LEADERBOARD";
+        int tabY = invY + 26;  // just below the inventory hint
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.setColor(Color.WHITE);
+        g2.drawString(beforeTab, invX, tabY);
+        g2.setColor(Color.RED);
+        g2.drawString("TAB", invX + g2.getFontMetrics().stringWidth(beforeTab), tabY);
+        g2.setColor(Color.WHITE);
+        g2.drawString(afterTab, invX + g2.getFontMetrics().stringWidth(beforeTab + "TAB"), tabY);
+
 
         g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 34F));
         g2.setColor(Color.RED);
@@ -1063,4 +1091,285 @@ public class UI {
         text = "Press Enter to Restart";
         g2.drawString(text, getXforCenteredText(text), gp.screenHeight / 2 + gp.tileSize);
     }
+    private void drawLeaderboardOverlay() {
+        int panelW = 540;
+        int panelH = 400;
+        int panelX = (gp.screenWidth - panelW) / 2;
+        int panelY = (gp.screenHeight - panelH) / 2;
+
+
+        g2.setColor(new Color(10, 10, 10, 220));
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+
+        g2.setColor(new Color(150, 20, 20));
+        g2.setStroke(new BasicStroke(3f));
+        g2.drawRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+
+
+        g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 42F));
+        g2.setColor(new Color(220, 50, 50));
+        String title = "LEADERBOARD";
+        g2.drawString(title, getXforCenteredText(title), panelY + 55);
+
+
+        g2.setColor(new Color(150, 20, 20, 180));
+        g2.setStroke(new BasicStroke(2f));
+        g2.drawLine(panelX + 30, panelY + 68, panelX + panelW - 30, panelY + 68);
+
+
+        g2.setFont(new Font("Arial", Font.BOLD, 20));
+        g2.setColor(new Color(200, 200, 200));
+        String charName = gp.player != null ? gp.player.name.toUpperCase() : "UNKNOWN";
+        g2.drawString(charName, getXforCenteredText(charName), panelY + 100);
+
+
+        long ms = gp.getTotalPlayedMs();
+        long hours = ms / 3_600_000;
+        long minutes = (ms % 3_600_000) / 60_000;
+        long seconds = (ms % 60_000) / 1_000;
+        String timeStr = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        g2.setColor(new Color(150, 150, 150));
+        String timeLabel = "TIME PLAYED";
+        g2.drawString(timeLabel, getXforCenteredText(timeLabel), panelY + 130);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 28));
+        g2.setColor(new Color(220, 220, 220));
+        g2.drawString(timeStr, getXforCenteredText(timeStr), panelY + 162);
+
+
+        g2.setColor(new Color(80, 80, 80, 150));
+        g2.setStroke(new BasicStroke(1f));
+        g2.drawLine(panelX + 30, panelY + 178, panelX + panelW - 30, panelY + 178);
+
+
+        int kills = gp.player != null ? gp.player.killCount : 0;
+        int bosses = gp.player != null ? gp.player.bossKillCount : 0;
+        int score = gp.player != null ? gp.player.score : 0;
+
+        int col1X = panelX + 60;
+        int col2X = panelX + panelW / 2 - 30;
+        int col3X = panelX + panelW - 140;
+        int labelY = panelY + 220;
+        int valueY = panelY + 260;
+
+
+        g2.setFont(new Font("Arial", Font.BOLD, 14));
+        g2.setColor(new Color(150, 150, 150));
+        g2.drawString("ENEMIES", col1X, labelY);
+        g2.drawString("BOSSES", col2X, labelY);
+        g2.drawString("SCORE", col3X, labelY);
+
+        g2.setFont(mainMenuFont.deriveFont(Font.BOLD, 48F));
+
+        g2.setColor(kills > 0 ? new Color(220, 50, 50) : new Color(100, 100, 100));
+        g2.drawString(String.valueOf(kills), col1X, valueY);
+
+        g2.setColor(bosses > 0 ? new Color(255, 180, 0) : new Color(100, 100, 100));
+        g2.drawString(String.valueOf(bosses), col2X, valueY);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 32));
+        g2.setColor(score > 0 ? new Color(100, 220, 100) : new Color(100, 100, 100));
+        g2.drawString(String.valueOf(score), col3X, valueY - 8);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 13));
+        g2.setColor(new Color(110, 110, 110));
+        String legend = "Enemy: +200pts     Boss: +1000pts";
+        g2.drawString(legend, getXforCenteredText(legend), panelY + 310);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 13));
+        g2.setColor(new Color(90, 90, 90));
+        String hint = "Release TAB to close";
+        g2.drawString(hint, getXforCenteredText(hint), panelY + panelH - 15);
+
+    }
+    private void drawNameEntryScreen() {
+        g2.setColor(new Color(0, 0, 0, 220));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+        int panelW = 560;
+        int panelH = 260;
+        int panelX = (gp.screenWidth - panelW) / 2;
+        int panelY = (gp.screenHeight - panelH) / 2;
+
+        g2.setColor(new Color(10, 10, 10, 230));
+        g2.fillRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+        g2.setColor(new Color(150, 20, 20));
+        g2.setStroke(new java.awt.BasicStroke(3f));
+        g2.drawRoundRect(panelX, panelY, panelW, panelH, 20, 20);
+
+        g2.setFont(mainMenuFont.deriveFont(java.awt.Font.BOLD, 38F));
+        g2.setColor(new Color(220, 50, 50));
+        String title = "ENTER YOUR NAME";
+        g2.drawString(title, getXforCenteredText(title), panelY + 60);
+
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 18));
+        g2.setColor(new Color(160, 160, 160));
+        String sub = "Your run has been recorded. Name yourself.";
+        g2.drawString(sub, getXforCenteredText(sub), panelY + 92);
+
+
+        int boxW = 400;
+        int boxH = 54;
+        int boxX = (gp.screenWidth - boxW) / 2;
+        int boxY = panelY + 115;
+
+        g2.setColor(new Color(30, 30, 30));
+        g2.fillRoundRect(boxX, boxY, boxW, boxH, 10, 10);
+        g2.setColor(new Color(180, 20, 20));
+        g2.setStroke(new java.awt.BasicStroke(2f));
+        g2.drawRoundRect(boxX, boxY, boxW, boxH, 10, 10);
+
+        String display = nameEntryText.isEmpty() ? "Enter Name" : nameEntryText;
+        boolean isCursor = (System.currentTimeMillis() / 500) % 2 == 0;
+        String displayWithCursor = nameEntryText + (isCursor ? "|" : " ");
+
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 24));
+        g2.setColor(nameEntryText.isEmpty() ? new Color(100, 100, 100) : Color.WHITE);
+        String toShow = nameEntryText.isEmpty() ? display : displayWithCursor;
+        g2.drawString(toShow, getXforCenteredText(toShow), boxY + 35);
+
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 15));
+        g2.setColor(new Color(100, 100, 100));
+        String hint = "Press Enter to confirm";
+        g2.drawString(hint, getXforCenteredText(hint), panelY + panelH - 15);
+    }
+
+    private void drawLeaderboardMenuScreen() {
+
+        g2.setColor(new Color(8, 8, 8));
+        g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
+
+
+        g2.setColor(new Color(37, 14, 14));
+        g2.setStroke(new java.awt.BasicStroke(21f));
+        int cr = (int)(Math.min(gp.screenWidth, gp.screenHeight) * 0.10);
+        g2.drawRoundRect(0, 0, gp.screenWidth, gp.screenHeight, cr, cr);
+
+
+        g2.setFont(mainMenuFont.deriveFont(java.awt.Font.BOLD, 56F));
+        g2.setColor(new Color(220, 50, 50));
+        String title = "LEADERBOARD";
+        g2.drawString(title, getXforCenteredText(title), 70);
+
+
+        g2.setColor(new Color(150, 20, 20));
+        g2.setStroke(new java.awt.BasicStroke(2f));
+        g2.drawLine(60, 82, gp.screenWidth - 60, 82);
+
+
+        int tableX = 50;
+        int headerY = 118;
+        int rankW = 60;
+        int nameW = 280;
+        int colW = 120;
+
+        int col1 = tableX + rankW;
+        int col2 = col1 + nameW;
+        int col3 = col2 + colW;
+        int col4 = col3 + colW;
+        int col5 = col4 + colW;
+
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 13));
+        g2.setColor(new Color(150, 150, 150));
+        g2.drawString("#", tableX + 18, headerY);
+        g2.drawString("PLAYER NAME", col1, headerY);
+        g2.drawString("BOSSES", col2, headerY);
+        g2.drawString("ENEMIES", col3, headerY);
+        g2.drawString("SCORE", col4, headerY);
+        g2.drawString("TIME", col5, headerY);
+
+
+        g2.setColor(new Color(80, 80, 80));
+        g2.setStroke(new java.awt.BasicStroke(1f));
+        g2.drawLine(tableX, headerY + 8, gp.screenWidth - tableX, headerY + 8);
+
+
+        int rowH = 52;
+        int startY = headerY + 28;
+
+        java.util.List<LeaderboardManager.Entry> entries = leaderboardEntries;
+
+        for (int i = 0; i < 10; i++) {
+            int rowY = startY + i * rowH;
+            boolean hasEntry = i < entries.size();
+
+
+            if (i % 2 == 0) {
+                g2.setColor(new Color(20, 20, 20, 180));
+            } else {
+                g2.setColor(new Color(12, 12, 12, 180));
+            }
+            g2.fillRoundRect(tableX - 8, rowY - 28, gp.screenWidth - (tableX * 2) + 16, rowH - 4, 8, 8);
+
+            // Rank number with medal colors for top 3
+            g2.setFont(mainMenuFont.deriveFont(java.awt.Font.BOLD, 26F));
+            if (i == 0) g2.setColor(new Color(255, 215, 0));
+            else if (i == 1) g2.setColor(new Color(192, 192, 192));
+            else if (i == 2) g2.setColor(new Color(205, 127, 50));
+            else g2.setColor(new Color(120, 120, 120));
+            g2.drawString(String.format("%02d", i + 1), tableX + 4, rowY);
+
+            if (hasEntry) {
+                LeaderboardManager.Entry e = entries.get(i);
+
+
+                g2.setFont(mainMenuFont.deriveFont(java.awt.Font.BOLD, 26F));
+                g2.setColor(i == 0 ? new Color(255, 215, 0) : Color.WHITE);
+                String nameDisplay = e.name.isEmpty() ? "Enter Name" : e.name;
+                g2.drawString(nameDisplay, col1, rowY);
+
+                g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+
+
+                g2.setColor(new Color(255, 180, 0));
+                g2.drawString(String.valueOf(e.bossKillCount), col2 + 20, rowY);
+
+
+                g2.setColor(new Color(220, 80, 80));
+                g2.drawString(String.valueOf(e.killCount), col3 + 20, rowY);
+
+
+                g2.setColor(new Color(100, 220, 100));
+                g2.drawString(String.valueOf(e.score), col4 + 10, rowY);
+
+
+                long ms = e.totalPlayedMs;
+                long h = ms / 3_600_000;
+                long m = (ms % 3_600_000) / 60_000;
+                long s = (ms % 60_000) / 1_000;
+                g2.setColor(new Color(180, 180, 255));
+                g2.drawString(String.format("%02d:%02d:%02d", h, m, s), col5, rowY);
+
+            } else {
+
+                g2.setFont(new java.awt.Font("Arial", java.awt.Font.ITALIC, 18));
+                g2.setColor(new Color(60, 60, 60));
+                g2.drawString("---", col1, rowY);
+                g2.drawString("-", col2 + 20, rowY);
+                g2.drawString("-", col3 + 20, rowY);
+                g2.drawString("-", col4 + 10, rowY);
+                g2.drawString("--:--:--", col5, rowY);
+            }
+
+
+            g2.setColor(new Color(40, 40, 40));
+            g2.setStroke(new java.awt.BasicStroke(1f));
+            g2.drawLine(tableX, rowY + 18, gp.screenWidth - tableX, rowY + 18);
+        }
+
+
+        int backY = gp.screenHeight - 38;
+        g2.setFont(mainMenuFont.deriveFont(java.awt.Font.BOLD, 34F));
+        g2.setColor(new Color(108, 2, 2));
+        String back = "< BACK";
+        g2.drawString(back, getXforCenteredText(back), backY);
+
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+        g2.setColor(new Color(80, 80, 80));
+        String hint = "Press Enter or Escape to return";
+        g2.drawString(hint, getXforCenteredText(hint), backY + 22);
+    }
+
 }

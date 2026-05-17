@@ -24,6 +24,9 @@ public abstract class Character extends Entity {
     public final int screenY;
 
     protected int maxHeartBeat = 200;
+    public int killCount = 0; //
+    public int score = 0;
+    public int bossKillCount = 0; // HERE
     protected KeyHandler keyH;
     protected SoundManager sound = new SoundManager();
 
@@ -82,7 +85,7 @@ public abstract class Character extends Entity {
             Skill skill = skills.get(index);
 
             if (!skill.isReady()) {
-                return 0; // on cooldown
+                return 0;
             }
 
             int damage = skill.useSkill();
@@ -174,7 +177,7 @@ public abstract class Character extends Entity {
         int x = worldX / gp.tileSize;
         int y = worldY / gp.tileSize;
 
-        // Store the current position before transitioning
+
         switch (direction) {
         case UP -> y++;
         case DOWN -> y--;

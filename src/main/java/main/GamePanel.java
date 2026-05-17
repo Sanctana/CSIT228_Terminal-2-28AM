@@ -27,6 +27,7 @@ import utilities.UtilityTool;
 import utilities.states.EntityState;
 import utilities.states.GameState;
 import utilities.states.TitleScreenState;
+import utilities.LeaderboardManager;
 
 enum Transitions {
     NONE, RESPAWN, NEW_GAME, LOAD_GAME, BATTLE_RETURN, GAME_OVER, CHANGE_MAP, VICTORY_RETURN, MAIN_MENU_RETURN
@@ -54,8 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
     public UI ui;
     public Character player;
     public GameState gameState;
-    public Stack<Point> previousPlayerPositions = new Stack<>(); // Stack to store previous player positions for map
-                                                                 // transitions
+    public Stack<Point> previousPlayerPositions = new Stack<>();
     private JPanel activeBattlePanel;
     private Enemy pendingEnemy;
     private Path pendingLoadSavePath;
@@ -78,6 +78,11 @@ public class GamePanel extends JPanel implements Runnable {
 
     private EnvironmentManager eManager = new EnvironmentManager(this);
     private final KeyHandler keyH = new KeyHandler(this);
+    private long gameStartTime = 0L; // here
+    private long totalPlayedMs = 0L;
+    private long frozenPlayedMs = -1L;
+    public boolean nameEntryPending = false;
+    public LeaderboardManager.Entry pendingLeaderboardEntry = null; // here this part to be continue
 
     public GamePanel() {
         this.setLayout(null);
@@ -86,6 +91,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.setFocusTraversalKeysEnabled(false);
 
         gameThread = new Thread(this, "GameLoop");
         cChecker = new CollisionChecker(this);
@@ -188,9 +194,15 @@ public class GamePanel extends JPanel implements Runnable {
                 new BattleLauncher.BattleResultListener() {
                     @Override
                     public void onBattleWon(Character battlePlayer) {
+                        if (pendingEnemy.isBoss()) {
+                            player.bossKillCount++;
+                            player.score += 1000;
+                        } else {
+                            player.killCount++;
+                            player.score += 200;
+                        }
                         endBattle(false);
                     }
-
                     @Override
                     public void onBattleLost(Character battlePlayer) {
                         endBattle(true);
@@ -240,11 +252,17 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void startVictoryEnding() {
+        frozenPlayedMs = getTotalPlayedMs();
         transitionPhase = Transitions.NONE;
         respawnFadeAlpha = 0;
         keyH.resetMovementInput();
         victoryEndingStartTime = System.currentTimeMillis();
         gameState = GameState.VICTORY_ENDING;
+
+        pendingLeaderboardEntry = new LeaderboardManager.Entry( //
+                player.name, player.score, player.killCount,
+                player.bossKillCount, frozenPlayedMs
+        );
     }
 
     public long getVictoryEndingElapsedMillis() {
@@ -263,10 +281,17 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameState != GameState.VICTORY_ENDING || !isVictoryEndingComplete()) {
             return;
         }
-
-        transitionPhase = Transitions.VICTORY_RETURN;
-        respawnFadeAlpha = 0;
-        keyH.resetMovementInput();
+        // Submit to leaderboard and go to name entry
+        if (pendingLeaderboardEntry != null) {
+            LeaderboardManager.addEntry(pendingLeaderboardEntry);
+            ui.nameEntryText = "";
+            ui.nameEntryIndex = LeaderboardManager.load().size() - 1; // will be rank of new entry
+            gameState = GameState.NAME_ENTRY;
+        } else {
+            transitionPhase = Transitions.VICTORY_RETURN;
+            respawnFadeAlpha = 0;
+            keyH.resetMovementInput();
+        }
     }
 
     public void returnToMainMenuFromPause() {
@@ -409,7 +434,7 @@ public class GamePanel extends JPanel implements Runnable {
                 gameState = GameState.PLAY;
             }
             case NONE -> {
-                // No action needed
+
             }
             }
         } else {
@@ -425,6 +450,9 @@ public class GamePanel extends JPanel implements Runnable {
         pendingLoadSavePath = null;
         finalBossDefeated = false;
         keyH.resetMovementInput();
+        gameStartTime = System.currentTimeMillis();
+        totalPlayedMs = 0L;
+        frozenPlayedMs = -1L;
         completeFirstLoad();
     }
 
@@ -493,6 +521,11 @@ public class GamePanel extends JPanel implements Runnable {
             player.worldY = saveData.worldY;
             player.heartRate = saveData.heartRate;
             player.setResistance(saveData.resistance);
+            player.score = saveData.score;
+            player.killCount = saveData.killCount;
+            player.bossKillCount = saveData.bossKillCount;
+            totalPlayedMs = saveData.totalPlayedMs;
+            gameStartTime = System.currentTimeMillis();
 
             for (int i = 0; i < saveData.inventoryQuantities.length && i < player.getInventory().length; i++) {
                 player.getItem(i).setQuantity(saveData.inventoryQuantities[i]);
@@ -573,14 +606,13 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void drawToTempScreen() {
         synchronized (this) {
-            // clear / background
             graphics2d.setColor(getBackground());
             graphics2d.fillRect(0, 0, screenWidth, screenHeight);
 
             if (gameState == GameState.FIRST_LOAD) {
                 return;
             }
-            // TITLE SCREEN
+
             if (gameState == GameState.TITLE) {
                 ui.draw();
                 drawRespawnTransition();
@@ -589,7 +621,13 @@ public class GamePanel extends JPanel implements Runnable {
                 ui.draw();
                 drawRespawnTransition();
                 return;
-            } else if (gameState != GameState.BATTLE) {
+            } else if (gameState == GameState.LEADERBOARD_MENU   // ← ADD
+                    || gameState == GameState.NAME_ENTRY) {       // ← ADD
+                ui.draw();                                        // ← ADD
+                return;                                           // ← ADD
+            } else if (gameState != GameState.BATTLE
+                    && gameState != GameState.LEADERBOARD_MENU
+                    && gameState != GameState.NAME_ENTRY) {
                 AffineTransform originalTransform = graphics2d.getTransform();
                 graphics2d.scale(WORLD_ZOOM, WORLD_ZOOM);
                 graphics2d.translate((screenWidth / 2.0) * (1.0 / WORLD_ZOOM - 1.0),
@@ -637,4 +675,26 @@ public class GamePanel extends JPanel implements Runnable {
     public double getWorldZoom() {
         return WORLD_ZOOM;
     }
+
+    public long getTotalPlayedMs() {
+        if (frozenPlayedMs >= 0L) return frozenPlayedMs;
+        if (gameStartTime == 0L) return totalPlayedMs;
+        return totalPlayedMs + (System.currentTimeMillis() - gameStartTime);
+    }
+    public void returnToMainMenuCleanup() {
+        player = null;
+        previousPlayerPositions.clear();
+        pendingEnemy = null;
+        pendingLoadSavePath = null;
+        finalBossDefeated = false;
+        statusMessage = "";
+        statusMessageShownAt = 0L;
+        victoryEndingStartTime = 0L;
+        frozenPlayedMs = -1L;
+        keyH.resetMovementInput();
+        revalidate();
+        repaint();
+        requestFocusInWindow();
+    }
+
 }

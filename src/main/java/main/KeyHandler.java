@@ -10,6 +10,7 @@ import utilities.SaveManager;
 import entity.player.CharacterType;
 import utilities.states.GameState;
 import utilities.states.TitleScreenState;
+import utilities.LeaderboardManager;
 
 public class KeyHandler implements KeyListener {
     GamePanel gp;
@@ -49,6 +50,15 @@ public class KeyHandler implements KeyListener {
         }
         case PLAY -> {
         }
+        case NAME_ENTRY -> {
+            handleNameEntryInput(code, e);
+            return;
+        }
+        case LEADERBOARD_MENU -> {
+            handleLeaderboardMenuInput(code);
+            return;
+            }
+
         default -> {
             return;
         }
@@ -67,6 +77,7 @@ public class KeyHandler implements KeyListener {
             gp.ui.pauseQuitConfirm = false;
             gp.ui.pauseSavePrompt = UI.PauseSavePrompt.NONE;
         }
+
         case KeyEvent.VK_I -> {
             if (gp.gameState == GameState.PLAY) {
                 gp.gameState = GameState.INVENTORY;
@@ -75,6 +86,7 @@ public class KeyHandler implements KeyListener {
                 gp.gameState = GameState.PLAY;
             }
         }
+        case KeyEvent.VK_TAB -> gp.gameState = GameState.LEADERBOARD; //HERE
         }
     }
 
@@ -265,7 +277,11 @@ public class KeyHandler implements KeyListener {
                 gp.ui.titleScreenState = TitleScreenState.LOAD_GAME;
                 gp.ui.commandNum = 0;
             }
-            case 2 -> System.exit(0);
+            case 2 -> {
+                gp.ui.leaderboardEntries = LeaderboardManager.load();  // ← load first
+                gp.gameState = GameState.LEADERBOARD_MENU;
+                gp.ui.commandNum = 0;
+                }
             }
         } else { // titleScreenState == TitleScreenState.CHARACTER_SELECT
             CharacterType selectedCharacter = null;
@@ -388,6 +404,54 @@ public class KeyHandler implements KeyListener {
         case KeyEvent.VK_S -> downPressed = false;
         case KeyEvent.VK_A -> leftPressed = false;
         case KeyEvent.VK_D -> rightPressed = false;
+        case KeyEvent.VK_TAB -> { //HERE
+                if (gp.gameState == GameState.LEADERBOARD) {
+                    gp.gameState = GameState.PLAY;
+                }
+            }
         }
     }
+    private void handleNameEntryInput(int code, KeyEvent e) {
+        if (code == KeyEvent.VK_ENTER) {
+            String name = gp.ui.nameEntryText.trim().isEmpty()
+                    ? "Enter Name" : gp.ui.nameEntryText.trim();
+            java.util.List<LeaderboardManager.Entry> entries = LeaderboardManager.load();
+            if (!entries.isEmpty()) {
+                for (int i = 0; i < entries.size(); i++) {
+                    if (entries.get(i).score == gp.pendingLeaderboardEntry.score) {
+                        LeaderboardManager.updateEntryName(i, name);
+                        break;
+                    }
+                }
+            }
+            gp.pendingLeaderboardEntry = null;
+            gp.ui.leaderboardEntries = LeaderboardManager.load();
+            gp.gameState = GameState.LEADERBOARD_MENU;
+            return;
+        }
+
+        if (code == KeyEvent.VK_BACK_SPACE) {
+            if (!gp.ui.nameEntryText.isEmpty()) {
+                gp.ui.nameEntryText = gp.ui.nameEntryText
+                        .substring(0, gp.ui.nameEntryText.length() - 1);
+            }
+            return;
+        }
+
+        char c = e.getKeyChar();
+        if (gp.ui.nameEntryText.length() < 16 && c >= 32 && c < 127) {
+            gp.ui.nameEntryText += c;
+        }
+    }
+
+    private void handleLeaderboardMenuInput(int code) {
+        if (code == KeyEvent.VK_ESCAPE || code == KeyEvent.VK_ENTER) {
+            gp.ui.titleScreenState = TitleScreenState.MAIN_MENU;
+            gp.ui.commandNum = 0;
+            gp.gameState = GameState.TITLE;
+            gp.returnToMainMenuCleanup();
+        }
+    }
+
+
 }
